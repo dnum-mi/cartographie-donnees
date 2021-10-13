@@ -1,8 +1,12 @@
 # DNUM - Cartographie des données
 
-## Contact
+## Bienvenue dans l'outil de cartographie des données du ministère de l'intérieur
 
-Si vous avez des questions concernant l'application, vous pouvez contacter *dnum-cartographie-data@interieur.gouv.fr*
+Cet outil permet d'explorer les caractéristiques des données actuellement recensées au sein du ministère de l’intérieur afin de faciliter leur réutilisation au sein des différents services. Comme pour un moteur de recherche classique, il est possible de combiner une recherche textuelle (barre supérieure) à des filtres (présents à la droite de votre écran) pour identifier les données potentiellement pertinentes à votre cas d'usage.
+
+Chaque donnée possède une fiche présentant ses caractéristiques ainsi qu'un ensemble d'indicateurs chiffrés visant à établir sa fiabilité et sa réutilisabilité. Outre le résultat de la recherche, il est possible de naviguer d'une donnée à l'autre par le biais des applications. En effet, chaque donnée est hébergée par une application existante au sein du ministère qui détaille la liste des données qui lui sont associées.
+
+Cherchant constamment à améliorer notre exhaustivité, n'hésitez pas à nous contacter ( *dnum-cartographie-data@interieur.gouv.fr* ) pour améliorer l'outil.
 
 ## Variables à modifier
 
