@@ -1,0 +1,24 @@
+body {
+    background-color: #fafafa;
+}
+
+.App .layout {
+    min-height: 100vh;
+}
+
+.App .header .container {
+    max-width: 1500px;
+    padding: 0 10px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+.App .page-content {
+    padding: 0 50px;
+}
+
+.App .footer {
+    text-align: center;
+    color: rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,13 @@
+.UserAttributes {
+    padding: 10px;
+}
+
+.UserAttributes .shortLabel{
+    margin-right: 10px;
+    margin-bottom: 1em;
+    display: inline-block;
+}
+
+.UserAttributes .applications{
+    margin-top: 20px;
+}

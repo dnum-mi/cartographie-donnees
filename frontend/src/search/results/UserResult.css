@@ -1,0 +1,22 @@
+.UserResult {
+    background: white;
+    border-radius: 2px;
+    padding: 10px 20px;
+    color: rgba(0, 0, 0, 0.85);
+    margin-bottom: 20px;
+    border: 1px solid #d9d9d9;
+}
+
+.UserResult h3 {
+    font-size: 1.2em;
+    margin-bottom: 0;
+    display:inline-block;
+}
+
+.UserResult .newTab {
+    margin-left:20px;
+}
+
+.UserResult .anticon-export {
+  color: grey;
+}

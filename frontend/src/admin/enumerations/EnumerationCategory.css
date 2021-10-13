@@ -1,0 +1,8 @@
+.EnumerationsCategory .actions {
+    margin: 20px 0;
+}
+
+.EnumerationsCategory .actions input {
+    width: 200px;
+    margin-right: 10px;
+}

@@ -1,0 +1,6 @@
+FLASK_APP=backend.py
+FLASK_DEBUG=1
+ELASTICSEARCH_URL=http://localhost:9200
+MAIL_DEFAULT_SENDER=no-reply@interieur.gouv.fr
+MAIL_SERVER=localhost
+FRONTEND_HOST=http://localhost:3000/

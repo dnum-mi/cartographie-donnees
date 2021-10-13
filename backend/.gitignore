@@ -1,0 +1,8 @@
+.flaskenv
+*.db
+public
+logs
+__pycache__
+build
+flask.sh
+db/*.csv

@@ -1,0 +1,41 @@
+.ApplicationAttributes {
+    margin-bottom: 30px;
+}
+
+.ApplicationAttributes .shortLabel{
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.ApplicationAttributes .gris{
+    color:rgba(0, 0, 0, 0.5);
+}
+
+.ApplicationAttributes .grid{
+    display: grid;
+}
+
+.ApplicationAttributes .one{
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.ApplicationAttributes .two{
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.ApplicationAttributes .three{
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.ApplicationAttributes .four{
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.ApplicationAttributes .five{
+    grid-column: 2;
+    grid-row: 2;
+}

@@ -1,0 +1,64 @@
+.SearchPage {
+    max-width: 1500px;
+    padding: 10px;
+    margin: 24px auto;
+}
+
+.SearchPage .content {
+    display: flex;
+}
+
+.SearchPage .content .left-col {
+    flex: 1;
+}
+
+.SearchPage .content .left-col {
+    flex: 1;
+}
+
+.SearchPage .content .home-description {
+    padding: 20px;
+    font-size: medium;
+}
+
+.SearchPage .content .right-col {
+    width: 300px;
+}
+
+.SearchPage .sorters {
+    height: 46px; /* Tabs header height */
+    align-items: center;
+    display: flex;
+    margin-bottom: 16px;
+}
+
+.SearchPage .sorters label {
+    margin-right: 10px;
+}
+
+.SearchPage .sorters .ant-select {
+    width: 200px;
+}
+
+.SearchPage .results {
+    padding-right: 10px;
+}
+
+.SearchPage .Tags .ant-tag {
+    margin-bottom: 20px;
+    font-size: 15px;
+    padding: 2px 7px;
+}
+
+.SearchPage .search-input {
+    margin-bottom: 10px;
+}
+
+.SearchPage .search-header {
+    display: flex;
+    margin: 10px 0px;
+}
+
+.SearchPage .search-header .download-search {
+    margin-left: auto;
+}

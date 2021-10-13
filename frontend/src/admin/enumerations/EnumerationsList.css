@@ -1,0 +1,16 @@
+.EnumerationsList header {
+    margin-bottom: 20px;
+}
+
+.EnumerationsList header .actions input {
+    width: 300px;
+    margin-right: 5px;
+}
+
+.EnumerationsList .actions Button {
+    margin-right: 10px;
+}
+
+.EnumerationsList .ant-collapse{
+    margin-bottom: 10px;
+}

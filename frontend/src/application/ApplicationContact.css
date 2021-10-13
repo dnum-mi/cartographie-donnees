@@ -1,0 +1,47 @@
+.ApplicationContact {
+    padding: 10px;
+}
+
+.ApplicationContact .container {
+    padding: 10px 20px;
+    background: white;
+    border-radius: 2px;
+    border: 1px solid #d9d9d9;
+}
+
+.ApplicationContact div:not(.container) {
+    padding:3px;
+}
+
+.ApplicationContact .block{
+    width: 100%;
+    display: block;
+}
+
+.ApplicationContact Button{
+    background-color: #6D6D6D;
+    color:white;
+    border-radius: 2px;
+    display:block;
+    transition-duration: 0.4s;
+}
+
+.ApplicationContact p{
+    margin-top: 15px;
+    margin-bottom: 0;
+    padding: 3px;
+}
+
+.ApplicationContact Button:hover {
+  background-color: rgba(111, 111, 111, 0.9);
+  color: white;
+  border-color: rgba(111, 111, 111, 0.9);
+}
+
+.ApplicationContact .anticon-mail {
+  color: grey;
+}
+
+.ApplicationContact .anticon-global {
+  color: grey;
+}

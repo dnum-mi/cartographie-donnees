@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:12-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=carto
+      - POSTGRES_PASSWORD=carto
+      - POSTGRES_DB=carto_db
+    ports:
+      - "5432:5432"
+  elasticsearch:
+    build: elasticsearch/
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "cluster.name=elasticsearch"
+      - "XPACK_SECURITY_ENABLED=false"
+    healthcheck:
+      test: "curl http://elasticsearch:9200"
+      interval: "1s"
+      timeout: "3s"
+      retries: 60
+  web:
+    # Use the parent folder as context to gain access to the frontend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+        - npm_registry=${NPM_REGISTRY}
+        - PYPI_URL=${PYPI_URL}
+        - PYPI_HOST=${PYPI_HOST}
+
+    restart: always
+    ports:
+      - "80:5000"
+    environment:
+      - "ELASTICSEARCH_URL=elasticsearch:9200"
+      - "MAIL_SERVER=smtp"
+      - "MAIL_DEFAULT_SENDER=no-reply@interieur.gouv.fr"
+      - "DATABASE_URL=postgresql://carto:carto@db:5432/carto_db"
+    depends_on:
+      - elasticsearch
+      - db
+    healthcheck:
+      test: "curl http://web:80"
+      interval: "1s"
+      timeout: "3s"
+      retries: 60
+  smtp:
+    container_name: smtp_relay
+    image: namshi/smtp
+    restart: always
+    ports:
+      - "25:25"
+volumes:
+  postgres_data:

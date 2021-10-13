@@ -1,0 +1,8 @@
+.form-container {
+    margin-top: 30px;
+    max-width: 1000px;
+}
+
+.form-container.attributes .ant-form-item-label > label {
+    color: rgba(0, 0, 0, 0.5);
+}

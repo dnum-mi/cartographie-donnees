@@ -1,0 +1,40 @@
+.DataSourcePage {
+    max-width: 1200px;
+    margin: 24px auto;
+}
+
+.DataSourcePage .typePage {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.DataSourcePage .section{
+    margin-bottom:30px;
+}
+
+.DataSourcePage h2 {
+    display: inline-block;
+}
+
+.DataSourcePage .identifier {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.DataSourcePage .actions {
+    margin: 20px 0;
+}
+
+.DataSourcePage .actions button {
+    margin-right: 10px;
+}
+
+.DataSourcePage .column {
+    display: flex;
+}
+
+.DataSourcePage .left {
+    flex: 70%;
+}
+
+.DataSourcePage .right {
+    flex: 30%;
+}

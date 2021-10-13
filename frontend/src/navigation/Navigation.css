@@ -1,0 +1,15 @@
+.App .header .container {
+    max-width: 1500px;
+    padding: 0 10px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+.App .header .container .home {
+    margin-right: 20px;
+}
+
+.App .header .ant-button {
+    margin-left: 20px;
+}

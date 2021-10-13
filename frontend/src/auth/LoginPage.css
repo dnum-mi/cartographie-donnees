@@ -1,0 +1,9 @@
+.LoginPage {
+    max-width: 500px;
+    margin: 30px auto;
+}
+
+.LoginPage h1 {
+    text-align: center;
+    margin-bottom: 2em;
+}

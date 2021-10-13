@@ -1,0 +1,45 @@
+.ApplicationPage {
+    max-width: 1200px;
+    margin: 24px auto;
+}
+
+.ApplicationPage .typePage {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+
+.ApplicationPage h2 {
+    display: inline-block;
+}
+
+.ApplicationPage .section {
+    margin-bottom: 30px;
+}
+
+.ApplicationPage .identifier {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.ApplicationPage .actions {
+    margin: 20px 0;
+}
+
+.ApplicationPage .actions button {
+    margin-right: 10px;
+}
+
+.ApplicationPage .column {
+    display: flex;
+}
+
+.ApplicationPage .left {
+    flex: 70%;
+}
+
+.ApplicationPage .right {
+    flex: 30%;
+}
+
+.ApplicationPage .import {
+    margin-left: 20px;
+}

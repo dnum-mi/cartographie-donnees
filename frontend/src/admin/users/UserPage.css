@@ -1,0 +1,20 @@
+.UserPage {
+    max-width: 1200px;
+    margin: 24px auto;
+}
+
+.UserPage .typePage {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.UserPage .identifier {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.UserPage .actions {
+    margin: 20px 0;
+}
+
+.UserPage .actions button {
+    margin-right: 10px;
+}

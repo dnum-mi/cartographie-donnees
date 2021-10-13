@@ -1,0 +1,61 @@
+.SearchFilter .filter-row {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.SearchFilter .filter-row.selected {
+    font-weight:bold;
+}
+
+.SearchFilter .filter-row:hover {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.SearchFilter .filter-row .filter-count {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.SearchFilter .more-choice {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    color: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+
+.SearchFilter {
+    margin-bottom: 10px;
+}
+
+.ant-collapse > .ant-collapse-item.red> .ant-collapse-header {
+    color: #cf1322;
+}
+.ant-collapse > .ant-collapse-item.blue> .ant-collapse-header {
+    color: #096dd9;
+}
+.ant-collapse > .ant-collapse-item.magenta> .ant-collapse-header {
+    color: #c41d7f;
+}
+.ant-collapse > .ant-collapse-item.volcano> .ant-collapse-header {
+    color: #d4380d;
+}
+.ant-collapse > .ant-collapse-item.orange> .ant-collapse-header {
+    color: #d46b08;
+}
+.ant-collapse > .ant-collapse-item.lime> .ant-collapse-header {
+    color: #7cb305;
+}
+.ant-collapse > .ant-collapse-item.green> .ant-collapse-header {
+    color: #389e0d;
+}
+.ant-collapse > .ant-collapse-item.gold> .ant-collapse-header {
+    color: #d48806;
+}
+.ant-collapse > .ant-collapse-item.geekblue> .ant-collapse-header {
+    color: #1d39c4;
+}
+.ant-collapse > .ant-collapse-item.purple> .ant-collapse-header {
+    color: #531dab;
+}

@@ -1,0 +1,16 @@
+image: docker:latest
+default:
+  tags:
+    - docker
+    - region1
+  before_script:
+    - echo "# start test"
+    - nproc
+    - docker ps
+    - docker --version
+    - apk update && apk add docker-compose
+    - docker-compose --version
+
+build:
+  script:
+    - docker-compose build

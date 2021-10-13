@@ -1,0 +1,18 @@
+.AdminPage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
+}
+
+.Menu {
+    width: 300px;
+}
+
+.Menu .ant-menu {
+    height: 100%;
+}
+
+.Switch {
+    flex: 1;
+    padding: 24px;
+}
