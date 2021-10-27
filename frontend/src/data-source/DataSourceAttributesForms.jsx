@@ -108,7 +108,7 @@ class DataSourceAttributes extends React.Component {
                         {this.props.dataSource.update_frequency_name}
                     </Tag>
                 </Form.Item>
-                <Form.Item label="Classification">
+                <Form.Item label="Axes d'analyse">
                     <EnumTags enum={this.props.dataSource.classification_name} />
                 </Form.Item>
                 <Form.Item label="Origine">

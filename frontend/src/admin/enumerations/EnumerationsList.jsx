@@ -175,7 +175,7 @@ class EnumerationsList extends React.Component {
                     </div>
                 </header>
                 <p>Afin d'éditer un filtre, il faut double-cliquer sur un des filtres. Une fois le filtre modifié, il faut confirmer en pressant la touche <i>Entrer</i>.</p>
-                <p>Note : Le filtre Famille est utilisé pour les champs famille, référentiel et classification.</p>
+                <p>Note : Le filtre Famille est utilisé pour les champs famille, référentiel et axes d'analyse.</p>
                 {this.renderContent()}
             </div>
         );
