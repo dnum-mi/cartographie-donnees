@@ -1,9 +1,6 @@
-body {
-    background-color: #fafafa;
-}
-
 .App .layout {
     min-height: 100vh;
+    background-color: #F9F8FC;
 }
 
 .App .header .container {
@@ -14,11 +11,8 @@ body {
     justify-content: space-between;
 }
 
-.App .page-content {
-    padding: 0 50px;
-}
-
 .App .footer {
     text-align: center;
+    background: #F9F8FC;
     color: rgba(0, 0, 0, 0.5);
 }
