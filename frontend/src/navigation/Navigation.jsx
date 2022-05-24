@@ -29,7 +29,7 @@ function Navigation({ user }) {
   );
   return (
     <Header className="header">
-      <div className="container">
+      <div className="container navigation-container">
         <span>
             <a className="home" href="/">
               <img alt="Ministère de l'intérieur" src={logo} height="90" />

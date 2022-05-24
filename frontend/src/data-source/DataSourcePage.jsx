@@ -1,17 +1,17 @@
 import React from 'react';
-import { withRouter, Link } from 'react-router-dom';
-import { Modal, Button } from 'antd';
+import { withRouter } from 'react-router-dom';
+import { Modal} from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 import { readDataSource, deleteDataSource } from '../api';
 import Loading from '../components/Loading';
 import Error from '../components/Error';
-import DataSourceAttributes from './DataSourceAttributes';
-import DataSourceApplication from './DataSourceApplication';
-import DataSourceAttributesQuantities from './DataSourceAttributesQuantities';
-import ApplicationResult from "../search/results/ApplicationResult";
+import DataSourceAdminHeader from './DataSourceAdminHeader';
+import DataSourceMainSection from './DataSourceMainSection';
 
 import './DataSourcePage.css';
+import DataSourceMetricsSection from "./DataSourceMetricsSection";
+import DataSourceReutilisationsSection from "./DataSourceReutilizationsSection";
 
 
 const { confirm } = Modal;
@@ -24,6 +24,7 @@ class DataSourcePage extends React.Component {
             loading: true,
             error: null,
             dataSource: null,
+            editMode: false,
         }
     }
 
@@ -94,49 +95,30 @@ class DataSourcePage extends React.Component {
         if (this.state.loading) {
             return <Loading />;
         }
-        return (<>
-            {this.state.error ? (<Error error={this.state.error}/>) : null}
-            <div className="column">
-                <div className="left" >
-                    <h1 className="typePage">
-                        Fiche de la donnée
-                    </h1>
-                    <h1>
-                        {this.state.dataSource.name}
-                    </h1>
-                    {this.userHasAdminPrivileges() && (
-                    <p className="actions">
-                        <Link to={'/admin/data-sources/' + this.props.match.params.dataSourceId + '/update'}>
-                            <Button type="default">
-                                Modifier
-                            </Button>
-                        </Link>
-
-                        <Button type="danger" onClick={this.showDeleteConfirm}>
-                            Supprimer
-                        </Button>
-                    </p>
-                    )}
-                    <div className="attributs" >
-                        <DataSourceAttributes dataSource={this.state.dataSource} />
-                        <div className="section">
-                            <h2 title="Application de réutilisation">
-                                Réutilisations
-                            </h2>
-                            <div className="reutilizations">
-                                {this.state.dataSource.reutilizations.map((application) => (
-                                    <ApplicationResult application={application} />
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="right">
-                    <DataSourceApplication dataSource={this.state.dataSource} />
-                    <DataSourceAttributesQuantities dataSource={this.state.dataSource} />
-                </div>
-            </div>
-        </>
+        if (this.state.error) {
+            return <Error error={this.state.error}/>
+        }
+        return (
+            <>
+                {this.userHasAdminPrivileges() && (
+                    <DataSourceAdminHeader
+                      editMode={this.state.editMode}
+                      onEditToggle={(editMode) => this.setState({ editMode })}
+                    />
+                )}
+                <DataSourceMainSection
+                  editMode={this.state.editMode}
+                  dataSource={this.state.dataSource}
+                />
+                <DataSourceMetricsSection
+                  editMode={this.state.editMode}
+                  dataSource={this.state.dataSource}
+                />
+                <DataSourceReutilisationsSection
+                  editMode={this.state.editMode}
+                  dataSource={this.state.dataSource}
+                />
+            </>
         );
     }
 

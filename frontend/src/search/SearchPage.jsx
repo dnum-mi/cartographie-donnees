@@ -439,7 +439,7 @@ class SearchPage extends React.Component {
 
     render() {
         return (
-            <div className="SearchPage">
+            <div className="SearchPage container">
                 <div className="search-input">
                     <Search
                         placeholder="Recherche"

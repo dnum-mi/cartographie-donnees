@@ -5,10 +5,7 @@
     line-height: 110px;
 }
 
-.App .header .container {
-    max-width: 1500px;
-    padding: 0 10px;
-    margin: 0 auto;
+.App .header .container.navigation-container {
     display: flex;
     justify-content: space-between;
 }
