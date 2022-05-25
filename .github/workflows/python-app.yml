@@ -42,5 +42,7 @@ jobs:
     - name: Build backend
       run: tar -cvzf backend.tar.gz ./backend
     - name: Deploy to Scalingo
-      run: scalingo --app=${{secrets.SCALINGO_APP_NAME}} --api-token=${{secrets.SCALINGO_API_TOKEN}} --region=${{secrets.SCALINGO_REGION}} deploy backend.tar.gz 
+      run: |
+        scalingo login --api-token=${{secrets.SCALINGO_API_TOKEN}}
+        scalingo --app=${{secrets.SCALINGO_APP_NAME}} --region=${{secrets.SCALINGO_REGION}} deploy backend.tar.gz 
       
