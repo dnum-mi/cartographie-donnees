@@ -105,7 +105,6 @@ class DataSourcePage extends React.Component {
             ...newDataSourceProps
         } = newProps;
         const newDataSource = {...this.state.dataSource, ...newDataSourceProps};
-
         if (newApplicationProps) {
             newDataSource.application = {
                 ...this.state.dataSource.application,

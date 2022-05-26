@@ -4,8 +4,36 @@ import PropTypes from 'prop-types';
 
 import './DataSourceReutilizationsSection.css';
 import ApplicationCard from "./ApplicationCard";
+import ApplicationSearchTag from "../components/ApplicationSearchTag";
 
 class DataSourceReutilizationsSection extends React.Component {
+
+  readComponent = () => {
+    if (this.props.dataSource.reutilizations.length) {
+      return (
+        <>
+          {this.props.dataSource.reutilizations
+            .map((application) => <ApplicationCard application={application} />)}
+        </>
+      );
+    }
+    return (
+      <p className="datasource-reutilizations-no-results">
+        Aucune réutilisation
+      </p>
+    );
+  }
+
+  writeComponent = () => {
+    return (
+      <ApplicationSearchTag
+        limited={false}
+        value={this.props.dataSource.reutilizations}
+        onChange={(reutilizations) => this.props.onChange({ reutilizations })}
+      />
+    );
+  }
+
   render() {
     return (
       <div className="datasource-reutilizations-section">
@@ -18,14 +46,7 @@ class DataSourceReutilizationsSection extends React.Component {
               Liste des applications réutilisant cette donnée.
             </p>
             <div className="datasource-reutilizations-container">
-              {this.props.dataSource.reutilizations.length ? (
-                this.props.dataSource.reutilizations
-                  .map((application) => <ApplicationCard application={application} />)
-              ) : (
-                <p className="datasource-reutilizations-no-results">
-                  Aucune réutilisation
-                </p>
-              )}
+              {this.props.editMode ? this.writeComponent() : this.readComponent()}
             </div>
           </div>
         </div>
@@ -37,6 +58,7 @@ class DataSourceReutilizationsSection extends React.Component {
 DataSourceReutilizationsSection.propTypes = {
   dataSource: PropTypes.object,
   editMode: PropTypes.bool,
+  onChange: PropTypes.func,
 };
 
 export default DataSourceReutilizationsSection;
