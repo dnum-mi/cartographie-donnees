@@ -71,6 +71,7 @@ class Attribute extends React.Component {
             defaultValue={this.props.value}
             placeholder={this.props.editionPlaceholder}
             className={this.attributeInputClassName()}
+            onChange={(e) => this.props.onChange(e.target.value)}
           />
         );
         break;
@@ -80,6 +81,7 @@ class Attribute extends React.Component {
             id={this.props.attributeId}
             defaultChecked={this.props.value}
             className={this.attributeInputClassName()}
+            onChange={(e) => this.props.onChange(e.target.checked)}
           />
         );
         break;
@@ -91,6 +93,7 @@ class Attribute extends React.Component {
             type="text"
             placeholder={this.props.editionPlaceholder}
             className={this.attributeInputClassName()}
+            onChange={(e) => this.props.onChange(e.target.value)}
           />
         );
     }

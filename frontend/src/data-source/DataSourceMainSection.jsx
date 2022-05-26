@@ -11,14 +11,20 @@ import './DataSourceMainSection.css';
 
 class DataSourceMainSection extends React.Component {
 
+  updateApplication = (application) => {
+    this.props.onChange({ application })
+  };
+
   getAttributeElement(attributeKey, fromApplication) {
     const config = fromApplication ? attributes.application[attributeKey] : attributes[attributeKey];
     const data = fromApplication ? this.props.dataSource.application : this.props.dataSource;
+    const onChange = fromApplication ? this.updateApplication : this.props.onChange;
     return (
       <Attribute
         value={data[attributeKey]}
         suffixValue={data[config.suffixValueKey]}
         editMode={this.props.editMode}
+        onChange={(value) => onChange({ [attributeKey]: value })}
         {...config}
       />
     );
@@ -79,6 +85,7 @@ class DataSourceMainSection extends React.Component {
               <ApplicationSection
                 application={this.props.dataSource.application}
                 editMode={this.props.editMode}
+                onChange={this.props.onChange}
               />
             </Col>
           </Row>
@@ -91,6 +98,7 @@ class DataSourceMainSection extends React.Component {
 DataSourceMainSection.propTypes = {
   dataSource: PropTypes.object,
   editMode: PropTypes.bool,
+  onChange: PropTypes.func,
 };
 
 export default DataSourceMainSection;

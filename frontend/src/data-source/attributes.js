@@ -165,7 +165,8 @@ export default {
     organization_name: {
       attributeId: 'application_organization',
       label: 'Organisation',
-      type: 'text',
+      type: 'tag',
+      tagMode: 'simple',
       tooltip: 'Organisation',
       // hasSuffixValue: true,
       // suffixValueKey: 'organization_long_name',
@@ -180,6 +181,7 @@ export default {
       attributeId: 'data_sources_count',
       label: "Nombre de données décrites",
       type: 'text',
+      readOnly: true,
       tooltip: "Nombre de sources de données décrites par l'application",
     },
     operator_count: {

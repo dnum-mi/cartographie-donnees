@@ -10,12 +10,12 @@ class DataSourceAdminHeader extends React.Component {
     return (
       <Row>
         <Col className="datasource-admin-header-link">
-          <Button type="link" onClick={() => this.props.onEditToggle(true)}>
+          <Button type="link" onClick={(e) => this.props.onActivateEdition(e)}>
             Modifier la fiche
           </Button>
         </Col>
         <Col className="datasource-admin-header-link">
-          <Button type="link" danger>
+          <Button type="link" danger onClick={(e) => this.props.onDelete(e)}>
             Supprimer la fiche
           </Button>
         </Col>
@@ -27,12 +27,12 @@ class DataSourceAdminHeader extends React.Component {
     return (
       <Row>
         <Col className="datasource-admin-header-link">
-          <Button type="link" onClick={() => this.props.onEditToggle(false)}>
+          <Button type="link" htmlType="submit">
             Valider la modification
           </Button>
         </Col>
         <Col className="datasource-admin-header-link">
-          <Button type="link" onClick={() => this.props.onEditToggle(false)} danger>
+          <Button type="link" onClick={(e) => this.props.onCancelEdition(e)} danger>
             Annuler la modification
           </Button>
         </Col>
@@ -53,7 +53,8 @@ class DataSourceAdminHeader extends React.Component {
 
 DataSourceAdminHeader.propTypes = {
   editMode: PropTypes.bool,
-  onEditToggle: PropTypes.func,
+  onActivateEdition: PropTypes.func,
+  onCancelEdition: PropTypes.func,
 };
 
 export default DataSourceAdminHeader;

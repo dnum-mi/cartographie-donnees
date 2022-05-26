@@ -7,13 +7,14 @@ import attributes from "./attributes";
 
 class ApplicationSection extends React.Component {
 
-  getAttributeElement(attributeId) {
-    const config = attributes.application[attributeId];
+  getAttributeElement(attributeKey) {
+    const config = attributes.application[attributeKey];
     return (
       <Attribute
-        value={this.props.application[attributeId]}
+        value={this.props.application[attributeKey]}
         suffixValue={this.props.application[config.suffixValueKey]}
         editMode={this.props.editMode}
+        onChange={(value) => this.props.onChange({ application: { [attributeKey]: value} })}
         {...config}
       />
     );
