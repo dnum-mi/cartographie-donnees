@@ -27,6 +27,7 @@ export const tagPropTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
+  tagCategory: PropTypes.string,
 }
 
 export const booleanPropTypes = {

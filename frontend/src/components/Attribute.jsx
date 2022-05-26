@@ -1,18 +1,12 @@
 import React from "react";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import PropTypes from "prop-types";
 
 import './Attribute.css';
 import TextAttribute from './attributes/TextAttribute';
 import BooleanAttribute from './attributes/BooleanAttribute';
 import TagAttribute from './attributes/TagAttribute';
-import {
-  booleanDefaultProps,
-  commonDefaultProps,
-  tagDefaultProps,
-  textDefaultProps
-} from "./attributes/attributeDefaultProps";
-import {booleanPropTypes, commonPropTypes, tagPropTypes, textPropTypes} from "./attributes/attributePropTypes";
+import { commonDefaultProps } from "./attributes/attributeDefaultProps";
+import { commonPropTypes } from "./attributes/attributePropTypes";
 
 
 class Attribute extends React.Component {

@@ -2,6 +2,7 @@ import React from "react";
 import { Tag } from "antd";
 import { commonPropTypes, tagPropTypes } from "./attributePropTypes";
 import { commonDefaultProps, tagDefaultProps } from "./attributeDefaultProps";
+import EnumSelect from "../EnumSelect";
 
 
 class TagAttribute extends React.Component {
@@ -23,7 +24,12 @@ class TagAttribute extends React.Component {
   writeElement() {
     return (
       <div className="attribute-input-container">
-        Non implémenté
+        <EnumSelect
+          category={this.props.tagCategory}
+          mode={this.props.tagMode === 'multiple' ? 'multiple' : null}
+          onChange={this.props.onChange}
+          defaultValue={this.props.value}
+        />
       </div>
     )
   }
