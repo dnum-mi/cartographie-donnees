@@ -9,13 +9,15 @@ export default {
   description: {
     attributeId: 'description',
     label: 'Description',
-    type: 'textArea',
+    type: 'text',
+    isTextArea: true,
     tooltip: 'Description de la donnée',
   },
   example: {
     attributeId: 'example',
     label: 'Exemple',
-    type: 'textArea',
+    type: 'text',
+    isTextArea: true,
     tooltip: 'Exemple',
   },
   family_name: {
@@ -150,7 +152,8 @@ export default {
     goals: {
       attributeId: 'application_goals',
       label: 'Finalité de l\'application',
-      type: 'textArea',
+      type: 'text',
+      isTextArea: true,
       tooltip: 'Finalité de l\'application',
     },
     name: {
