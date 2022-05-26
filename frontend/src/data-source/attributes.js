@@ -58,12 +58,11 @@ export default {
     tagMode: 'simple',
     tagCategory: 'Origine',
   },
-  origin_application_name: {
-    attributeId: 'origin_application_name',
+  origin_application: {
+    attributeId: 'origin_application',
     label: "Application d'origine",
-    type: 'tag',
+    type: 'application',
     tooltip: "Application d'origine",
-    tagMode: 'simple',
   },
   open_data_name: {
     attributeId: 'open_data_name',

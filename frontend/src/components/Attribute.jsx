@@ -7,6 +7,7 @@ import BooleanAttribute from './attributes/BooleanAttribute';
 import TagAttribute from './attributes/TagAttribute';
 import { commonDefaultProps } from "./attributes/attributeDefaultProps";
 import { commonPropTypes } from "./attributes/attributePropTypes";
+import ApplicationAttribute from "./attributes/ApplicationAttribute";
 
 
 class Attribute extends React.Component {
@@ -19,6 +20,8 @@ class Attribute extends React.Component {
         return <BooleanAttribute {...this.props} />
       case 'tag':
         return <TagAttribute {...this.props} />
+      case 'application':
+        return <ApplicationAttribute {...this.props} />
       default:
         return null;
     }
