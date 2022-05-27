@@ -46,7 +46,7 @@ jobs:
       working-directory: ./frontend
       run: |
         npm ci
-        npm build --production
+        npm run build --production
     - name: Setup frontend/backend directory
       run: |
         cp -R ./backend/ ./out/
