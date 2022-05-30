@@ -2,9 +2,20 @@ from app import db
 from app.models import BaseModel
 
 from sqlalchemy.orm import validates
-
+from sqlalchemy.ext.declarative import declared_attr
 
 class EnumerationMixin(BaseModel):
+    
+    @declared_attr
+    def parent_id(cls):
+        return db.Column(db.Integer, db.ForeignKey(cls.__tablename__+'.id'),
+        nullable=True)
+
+    @declared_attr
+    def children(cls):
+        return db.relationship(cls.__name__, backref='parent', lazy=True)
+
+
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     value = db.Column(db.String, nullable=False, unique=True)
