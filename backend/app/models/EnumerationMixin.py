@@ -4,21 +4,28 @@ from app.models import BaseModel
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.declarative import declared_attr
 
+
 class EnumerationMixin(BaseModel):
-    
+
+    __abstract__ = True
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    value = db.Column(db.String, nullable=False, unique=True)
+
     @declared_attr
     def parent_id(cls):
-        return db.Column(db.Integer, db.ForeignKey(cls.__tablename__+'.id'),
-        nullable=True)
+        return db.Column(
+            db.Integer,
+            db.ForeignKey(f'{cls.__tablename__}.id'),
+            nullable=True,
+        )
 
     @declared_attr
     def children(cls):
-        return db.relationship(cls.__name__, backref='parent', lazy=True)
-
-
-    __abstract__ = True
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    value = db.Column(db.String, nullable=False, unique=True)
+        return db.relationship(
+            cls.__name__,
+            backref=db.backref('parent', remote_side=f'{cls.__name__}.id'),
+        )
 
     @validates('value')
     def validate_value(self, key, value):
