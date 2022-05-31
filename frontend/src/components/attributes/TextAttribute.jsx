@@ -2,6 +2,7 @@ import React from "react";
 import { Input, Typography } from "antd";
 import { commonPropTypes, textPropTypes } from "./attributePropTypes";
 import { commonDefaultProps, textDefaultProps } from "./attributeDefaultProps";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -14,6 +15,33 @@ class TextAttribute extends React.Component {
       <span className="attribute-suffix-value">
         ({this.props.suffixValue})
       </span>
+    );
+  }
+
+  suffixInput() {
+    return (
+      <div className="attribute">
+        <label
+          htmlFor={this.props.suffixAttributeId}
+          className="attribute-label"
+        >
+          {this.props.suffixAttributeLabel}
+          <QuestionCircleOutlined
+            className="attribute-tooltip"
+            title="Commentaire sur cette valeur"
+          />
+        </label>
+        <Input
+          id={this.props.suffixAttributeId}
+          defaultValue={this.props.suffixValue}
+          type="text"
+          placeholder={this.props.suffixEditionPlaceholder}
+          className="attribute-input"
+          onChange={(e) => {
+            this.props.onChange(e.target.value, true)
+          }}
+        />
+      </div>
     );
   }
 
@@ -58,7 +86,7 @@ class TextAttribute extends React.Component {
         <Input
           id={this.props.attributeId}
           defaultValue={this.props.value}
-          type="text"
+          type={this.props.inputType}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
           onChange={(e) => this.props.onChange(e.target.value)}
@@ -68,7 +96,7 @@ class TextAttribute extends React.Component {
     return (
       <div className="attribute-input-container">
         {input}
-        {this.props.hasSuffixValue ? "?" : null}
+        {this.props.hasSuffixValue ? this.suffixInput() : null}
       </div>
     )
   }

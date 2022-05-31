@@ -9,7 +9,11 @@ export const textDefaultProps = {
   headingLevel: null,
   editionPlaceholder: null,
   hasSuffixValue: false,
+  inputType: 'text',
+  suffixAttributeId: null,
   suffixValue: null,
+  suffixEditionPlaceholder: null,
+  suffixAttributeLabel: null,
   isTextArea: false,
 };
 

@@ -15,6 +15,10 @@ export const textPropTypes = {
   headingLevel: PropTypes.number,
   editionPlaceholder: PropTypes.string,
   hasSuffixValue: PropTypes.bool,
+  inputType: PropTypes.string,
+  suffixAttributeId: PropTypes.string,
+  suffixEditionPlaceholder: PropTypes.string,
+  suffixAttributeLabel: PropTypes.string,
   suffixValue: PropTypes.string,
   isTextArea: PropTypes.bool,
 }

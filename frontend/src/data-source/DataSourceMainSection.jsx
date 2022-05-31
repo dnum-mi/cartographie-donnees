@@ -22,9 +22,15 @@ class DataSourceMainSection extends React.Component {
     return (
       <Attribute
         value={data[attributeKey]}
-        suffixValue={data[config.suffixValueKey]}
+        suffixValue={data[config.suffixAttributeId]}
         editMode={this.props.editMode}
-        onChange={(value) => onChange({ [attributeKey]: value })}
+        onChange={(value, fromSuffix = false) => {
+          if (fromSuffix) {
+            onChange({[config.suffixAttributeId]: value})
+          } else {
+            onChange({[attributeKey]: value})
+          }
+        }}
         {...config}
       />
     );
