@@ -110,7 +110,7 @@ def query_index_with_filter(index, query, fields, values, searchable_fields, pag
     )
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
     app.logger.info('Number of results : ' + str(len(ids)))
-    return ids, search['hits']['total']['value'], total_count
+    return ids, search['hits']['total'], total_count
 
 def query_count(index, query, fields, values, searchable_fields, field):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
