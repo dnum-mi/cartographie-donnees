@@ -336,7 +336,7 @@ const DataSourceForm = ({ onSubmit, dataSource = {} }) => {
                 name="origin_application"
                 tooltip="Application d’origine le cas échéant"
             >
-                <ApplicationSearchSelect limited={false} />
+                <ApplicationSearchSelect allowClear={true} limited={false} />
             </Form.Item>
 
             <Form.Item

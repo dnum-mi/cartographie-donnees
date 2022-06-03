@@ -30,17 +30,22 @@ class ApplicationSearchSelect extends React.Component {
                 defaultValue={this.props.defaultValue}
                 mode={this.props.mode}
                 onChange={this.props.onChange}
+                allowClear={this.props.allowClear}
             />
         );
     }
 }
 
+ApplicationSearchSelect.defaultProps = {
+    allowClear : false
+}
 
 ApplicationSearchSelect.propTypes = {
     value: PropTypes.object,
     defaultValue: PropTypes.object,
     mode: PropTypes.string,
     onChange: PropTypes.func,
+    allowClear: PropTypes.bool
 };
 
 export default ApplicationSearchSelect;
