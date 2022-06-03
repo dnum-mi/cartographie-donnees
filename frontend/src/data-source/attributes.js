@@ -77,7 +77,7 @@ export default {
     label: "Exposition",
     type: 'tag',
     tooltip: "Exposition de la donnée",
-    tagMode: 'simple',
+    tagMode: 'multiple',
     tagCategory: 'Exposition',
   },
   sensibility_name: {
@@ -120,6 +120,7 @@ export default {
     type: 'tag',
     tooltip: "Fréquence de mise à jour de la donnée",
     tagMode: 'simple',
+    tagCategory: 'Mise à jour',
   },
   conservation: {
     attributeId: 'conservation',

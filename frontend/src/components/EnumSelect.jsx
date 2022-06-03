@@ -55,7 +55,7 @@ class EnumSelect extends React.Component {
                 mode={this.props.mode}
                 value={this.props.value}
                 defaultValue={this.props.defaultValue}
-                onChange={this.props.onChange}
+                onChange={(selectedValues) => this.props.onChange(selectedValues)}
             >
                 {!this.props.required && !this.props.mode && (
                     <Option
