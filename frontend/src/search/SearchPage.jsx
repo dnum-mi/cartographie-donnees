@@ -284,7 +284,7 @@ class SearchPage extends React.Component {
         filters.push(this.renderFilter("Open Data", this.state.open_data, "selectedOpenData", "green", "La donnée est-elle publiable en Open Data ?"))
         filters.push(this.renderFilter("Expositions", this.state.expositions, "selectedExposition", "gold", "Type de mises à disposition"))
         filters.push(this.renderFilter("Origines", this.state.origins, "selectedOrigin", "geekblue", "Origine fonctionnelle de la donnée"))
-        filters.push(this.renderFilter("Axe d'analyse", this.state.classifications, "selectedClassification", "purple", "Types de référentiels utilisés pour classifier la donnée"))
+        filters.push(this.renderFilter("Axes d'analyse", this.state.classifications, "selectedClassification", "purple", "Types de référentiels utilisés pour classifier la donnée"))
         filters.push(this.renderFilter("Tags", this.state.tags, "selectedTag", undefined, "Tags de la donnée"))
         return (<>
             {this.renderSearchPageHeader()}

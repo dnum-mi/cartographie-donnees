@@ -21,7 +21,7 @@ class DataSourceAttributes extends React.Component {
                 ))}</span>
             </div>
             <div>
-                <span className="shortLabel"> <b>Axe d'analyse  <QuestionCircleOutlined title="Types de référentiels utilisés pour classifier la donnée" /> : </b> {this.props.dataSource.classification_name && this.props.dataSource.classification_name.map((classification_name) => (
+                <span className="shortLabel"> <b>Axes d'analyse  <QuestionCircleOutlined title="Types de référentiels utilisés pour classifier la donnée" /> : </b> {this.props.dataSource.classification_name && this.props.dataSource.classification_name.map((classification_name) => (
                     <Tag color="purple">{classification_name}</Tag>
                 ))}</span>
             </div>

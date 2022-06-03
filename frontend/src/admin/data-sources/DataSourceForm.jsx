@@ -293,7 +293,7 @@ const DataSourceForm = ({ onSubmit, dataSource = {} }) => {
 
             <Form.Item
                 name="classification_name"
-                label="Axe d'analyse"
+                label="Axes d'analyse"
                 tooltip="Types de référentiels utilisés pour classifier la donnée"
             >
                 <EnumSelect
