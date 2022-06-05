@@ -9,15 +9,10 @@ services:
       - POSTGRES_USER=carto
       - POSTGRES_PASSWORD=carto
       - POSTGRES_DB=carto_db
-    ports:
-      - "5432:5432"
   elasticsearch:
     build: elasticsearch/
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    ports:
-      - "9200:9200"
-      - "9300:9300"
     environment:
       - "cluster.name=elasticsearch"
       - "XPACK_SECURITY_ENABLED=false"
@@ -59,7 +54,5 @@ services:
     container_name: smtp_relay
     image: namshi/smtp
     restart: always
-    ports:
-      - "25:25"
 volumes:
   postgres_data:
