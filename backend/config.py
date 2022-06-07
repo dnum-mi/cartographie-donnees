@@ -12,3 +12,6 @@ class Config(object):
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or "no-reply@interieur.gouv.fr"
     FRONTEND_HOST = os.environ.get('FRONTEND_HOST')
     # SQLALCHEMY_ECHO = True if os.environ.get('SQLALCHEMY_ECHO') == "1" else False
+    BASIC_AUTH_FORCE = os.environ.get('BASIC_AUTH_FORCE') == 'True' or False
+    BASIC_AUTH_USERNAME = os.environ.get('BASIC_AUTH_USERNAME', 'admin')
+    BASIC_AUTH_PASSWORD = os.environ.get('BASIC_AUTH_PASSWORD', 'admin')
