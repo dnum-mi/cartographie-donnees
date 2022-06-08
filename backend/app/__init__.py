@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_basicauth import BasicAuth
+from app.api.staging_auth import BasicAuth
 
 
 app = Flask(__name__, static_folder='../build', static_url_path='/')
