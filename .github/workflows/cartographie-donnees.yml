@@ -2,9 +2,13 @@ name: Cartographie des données MI
 
 on:
   push:
-    branches: [ staging ]
+    branches:
+      - main
+      - staging
   pull_request:
-    branches: [ staging ]
+    branches:
+      - main
+      - staging
 
 permissions:
   contents: read
@@ -40,9 +44,10 @@ jobs:
       working-directory: ./backend
       run: |
         pytest ./tests/
-  deploy:
+  deploy-staging:
     needs: test
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
     steps:
     - uses: actions/checkout@v3
     - name: Install scalingo CLI
