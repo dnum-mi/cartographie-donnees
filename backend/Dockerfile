@@ -9,7 +9,7 @@ ARG PYPI_HOST
 RUN apk update && \
     apk add --update nodejs npm && \
     apk add --update --no-cache netcat-openbsd && \
-    apk add postgresql-dev gcc python3-dev musl-dev
+    apk add postgresql-dev gcc python3-dev musl-dev curl
 
 RUN adduser -D backend
 
