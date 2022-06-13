@@ -13,9 +13,10 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -45,6 +46,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - name: Install scalingo CLI
       run: curl -O https://cli-dl.scalingo.io/install && bash install
     - name: Use Node.js ${{ matrix.node-version }}
