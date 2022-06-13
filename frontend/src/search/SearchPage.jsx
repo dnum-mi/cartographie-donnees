@@ -1,10 +1,9 @@
 import React from 'react';
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
-import { Tabs, Input, Select, Tag, Pagination, Button } from 'antd';
+import { Input, Tag, Pagination, Button } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import DataSourceResult from "./results/DataSourceResult";
-import ApplicationResult from './results/ApplicationResult';
 import './SearchPage.css';
 import SearchFilter from "./SearchFilter";
 import {
@@ -15,9 +14,7 @@ import {
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 
-const { TabPane } = Tabs;
 const { Search } = Input;
-const { Option } = Select;
 
 
 
@@ -442,7 +439,7 @@ class SearchPage extends React.Component {
 
     render() {
         return (
-            <div className="SearchPage">
+            <div className="SearchPage container">
                 <div className="search-input">
                     <Search
                         placeholder="Recherche"

@@ -1,0 +1,38 @@
+.attribute {
+}
+
+.attribute .attribute-label {
+    color: rgba(22, 22, 22, 0.6);
+}
+
+.attribute .attribute-tooltip {
+    margin-left: 5px;
+}
+
+.attribute .attribute-value {
+    padding: 10px;
+    border: 1px transparent solid;
+}
+
+.attribute .attribute-suffix-value {
+    color: rgba(22, 22, 22, 0.6);
+    margin-left: 5px;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.attribute .attribute-input {
+    padding: 10px;
+}
+
+.attribute .attribute-input-h1 {
+    font-size: 38px;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 600;
+    line-height: 1.23;
+    margin-bottom: 0.5em;
+}
+
+.attribute-input-container .ant-select {
+    width: 100%;
+}

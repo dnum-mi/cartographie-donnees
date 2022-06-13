@@ -1,0 +1,22 @@
+.datasource-reutilizations-section {
+    padding: 30px 0;
+}
+
+.datasource-reutilizations-section .datasource-reutilizations-description {
+    color: #3A3A3A;
+}
+
+.datasource-reutilizations-section .datasource-reutilizations-no-results {
+    color: gray;
+    margin: 30px 0;
+}
+
+.datasource-reutilizations-section .datasource-reutilizations-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.datasource-reutilizations-section .datasource-reutilizations-container .application-card {
+    margin-bottom: 20px;
+    margin-right: 20px;
+}
