@@ -75,6 +75,7 @@ class SearchSelect extends React.Component {
                 onSearch={this.fetch}
                 onChange={this.onChange}
                 style={{ width: '100%' }}
+                allowClear={this.props.allowClear}
             >
                 {data.map(this.props.itemToOption)
                     .map((choice) => (
@@ -89,9 +90,11 @@ class SearchSelect extends React.Component {
 
 SearchSelect.defaultProps = {
     onChange: () => {},
+    allowClear : false
 }
 
 SearchSelect.propTypes = {
+    allowClear: PropTypes.bool,
     search: PropTypes.func.isRequired,
     itemToOption: PropTypes.func.isRequired,
     optionToItem: PropTypes.func.isRequired,

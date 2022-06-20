@@ -1,7 +1,6 @@
 import React from 'react';
 import {Button, Layout} from 'antd';
-import { HomeOutlined } from '@ant-design/icons';
-import logo from '../logo.png';
+import logo from '../Logo_du_Ministère_de_l\'Intérieur_(2020).svg';
 import './Navigation.css';
 import { logout } from "../api";
 import { logout as doLogout } from "../auth";
@@ -30,13 +29,13 @@ function Navigation({ user }) {
   );
   return (
     <Header className="header">
-      <div className="container">
+      <div className="container navigation-container">
         <span>
             <a className="home" href="/">
-              <HomeOutlined/>
-            </a>
-            <a href="/">
-              <img alt="Cartographie" src={logo} height="30" />
+              <img alt="Ministère de l'intérieur" src={logo} height="90" />
+              <span className="home-title">
+                Cartographie des données
+              </span>
             </a>
         </span>
         <div>

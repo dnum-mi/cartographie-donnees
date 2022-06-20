@@ -1,0 +1,24 @@
+.application-card {
+    background: white;
+    padding: 10px;
+    border: solid 1px #C6C6C6;
+    width: 400px;
+    min-height: 210px;
+}
+
+.application-card .ant-tag {
+    margin-bottom: 5px;
+}
+
+.application-card .application-card-label {
+    color: gray;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.application-card .application-card-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
