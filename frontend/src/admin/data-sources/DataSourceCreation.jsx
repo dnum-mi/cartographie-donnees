@@ -3,13 +3,14 @@ import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
 import { Spin } from 'antd';
 
-import DataSourceForm from './DataSourceForm';
 import { createDataSource } from "../../api";
 import { readApplication } from '../../api';
 import Error from "../../components/Error";
 
 import './DataSourceCreation.css';
-
+import withCurrentUser from "../../hoc/user/withCurrentUser.jsx";
+import DataSourcePage from "../../data-source/DataSourcePage";
+import emptyDataSource from "../../data-source/emptyDataSource.json"
 
 class DataSourceCreation extends React.Component {
 
@@ -51,7 +52,6 @@ class DataSourceCreation extends React.Component {
         this.setState({ loading: true });
         createDataSource(dataSource)
             .then(() => {
-                this.props.count();
                 this.props.history.push('/admin/data-sources');
             })
             .catch((error) => {
@@ -71,12 +71,9 @@ class DataSourceCreation extends React.Component {
         return (
             <Spin tip="Envoi en cours..." spinning={this.state.loading}>
                 <div className="DataSourceCreation">
-                    <h1>
-                        Création d'une donnée
-                    </h1>
                     {this.state.error && <Error error={this.state.error} />}
                     <div>
-                        <DataSourceForm onSubmit={this.submitForm} dataSource={dataSource}/>
+                        <DataSourcePage forceEdit={true} dataSource={emptyDataSource}/>
                     </div>
                 </div>
             </Spin>
@@ -84,4 +81,4 @@ class DataSourceCreation extends React.Component {
     }
 }
 
-export default withRouter(DataSourceCreation);
+export default withCurrentUser(withRouter(DataSourceCreation));

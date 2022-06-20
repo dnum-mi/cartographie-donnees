@@ -16,13 +16,6 @@ class DataSourcesRouter extends React.Component {
                     <DataSourcesList user={this.props.user} count={this.props.count}/>
                 </Route>
                 <Route
-                    key="create"
-                    path={this.props.match.url + '/create'}
-                    exact
-                >
-                    <DataSourceCreation count={this.props.count} />
-                </Route>
-                <Route
                     key="update"
                     path={this.props.match.url + '/:dataSourceId/update'}
                     exact

@@ -8,12 +8,13 @@ import {
 
 import NotFound from '../components/NotFound';
 import ApplicationPage from '../application/ApplicationPage';
-import DataSourcePage from '../data-source/DataSourcePage';
 import AdminPage from '../admin/AdminPage';
 import SearchPage from '../search/SearchPage';
 import LoginPage from '../auth/LoginPage';
 import ResetPasswordPage from "../auth/ResetPasswordPage";
 import ForgotPasswordPage from "../auth/ForgotPasswordPage";
+import DataSourceFetcher from "../data-source/DataSourceFetcher";
+import DataSourceCreation from "../admin/data-sources/DataSourceCreation";
 
 function Router({ user, onLogin }) {
   return (
@@ -37,8 +38,11 @@ function Router({ user, onLogin }) {
         <Route path="/application/:applicationId">
           <ApplicationPage user={user} />
         </Route>
+        <Route path="/data-source/create" exact>
+          <DataSourceCreation/>
+        </Route>
         <Route path="/data-source/:dataSourceId">
-          <DataSourcePage user={user} />
+          <DataSourceFetcher/>
         </Route>
         {user && (
           <Route path="/admin">
