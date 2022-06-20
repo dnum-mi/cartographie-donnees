@@ -1,8 +1,9 @@
 from flask import jsonify
-from app import app, db
+from . import api
+from .. import db
 
 
-@app.errorhandler(400)
+@api.errorhandler(400)
 def bad_request_error(error):
     return jsonify({
         'code': 400,
@@ -10,7 +11,7 @@ def bad_request_error(error):
     }), 400
 
 
-@app.errorhandler(401)
+@api.errorhandler(401)
 def unauthenticated_error(error):
     return jsonify({
         'code': 401,
@@ -18,7 +19,7 @@ def unauthenticated_error(error):
     }), 401
 
 
-@app.errorhandler(403)
+@api.errorhandler(403)
 def unauthorized_error(error):
     return jsonify({
         'code': 403,
@@ -26,7 +27,7 @@ def unauthorized_error(error):
     }), 403
 
 
-@app.errorhandler(404)
+@api.errorhandler(404)
 def not_found_error(error):
     return jsonify({
         'code': 404,
@@ -34,7 +35,7 @@ def not_found_error(error):
     }), 404
 
 
-@app.errorhandler(500)
+@api.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
     return jsonify({

@@ -3,14 +3,16 @@ from werkzeug.exceptions import BadRequest
 from flask import jsonify, request, send_file
 from io import TextIOWrapper, BytesIO
 import csv
-from sqlalchemy import func
-from app import app, db
-from app.decorators import admin_required, admin_or_any_owner_required
 from flask_login import login_required
+
+from app import db
+from app.decorators import admin_required, admin_or_any_owner_required
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, UpdateFrequency, Origin, Tag
 from app.constants import field_english_to_french_dic, field_french_to_english_dic, enumeration_english_to_french, enumeration_french_to_english
-
 from app.search import remove_accent
+
+from . import api
+
 
 all_category = [Family, Organization, Type, Sensibility, OpenData, Exposition, Origin, UpdateFrequency, Tag]
 required = [Type, Family, Organization]
@@ -40,13 +42,13 @@ def get_enumeration_model_by_name(name):
     elif name.lower() == "tag":
         return Tag
 
-@app.route('/api/enumerations/categories', methods=['GET'])
+@api.route('/api/enumerations/categories', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def get_enumeration_categories():
     return jsonify([enumeration_english_to_french[category.__tablename__] for category in all_category])
 
-@app.route('/api/enumerations', methods=['GET'])
+@api.route('/api/enumerations', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def fetch_enumerations():
@@ -76,7 +78,7 @@ def fetch_enumerations():
     return jsonify(enumerations)
 
 
-@app.route('/api/enumerations', methods=['POST'])
+@api.route('/api/enumerations', methods=['POST'])
 @login_required
 @admin_required
 def create_enumeration():
@@ -92,7 +94,7 @@ def create_enumeration():
         raise BadRequest(str(e))
 
 
-@app.route('/api/enumerations/<enumeration_id>', methods=['PUT'])
+@api.route('/api/enumerations/<enumeration_id>', methods=['PUT'])
 @login_required
 @admin_required
 def update_enumeration(enumeration_id):
@@ -128,7 +130,7 @@ def convert_dict(category, dic):
     return new_dict
 
 
-@app.route('/api/enumerations/export', methods=['GET'])
+@api.route('/api/enumerations/export', methods=['GET'])
 @login_required
 @admin_required
 def export_enumerations():
@@ -162,7 +164,7 @@ def export_enumerations():
         raise BadRequest(str(e))
 
 
-@app.route('/api/enumerations/import', methods=['POST'])
+@api.route('/api/enumerations/import', methods=['POST'])
 @login_required
 @admin_required
 def import_enumerations():
@@ -193,7 +195,7 @@ def import_enumerations():
         return "ok"
 
 
-@app.route('/api/enumerations/batch/<enumeration_category>', methods=['DELETE'])
+@api.route('/api/enumerations/batch/<enumeration_category>', methods=['DELETE'])
 @login_required
 @admin_required
 def batch_delete_enumerations(enumeration_category):
@@ -204,7 +206,7 @@ def batch_delete_enumerations(enumeration_category):
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/enumerations/<category>/<enumeration_id>', methods=['DELETE'])
+@api.route('/api/enumerations/<category>/<enumeration_id>', methods=['DELETE'])
 @login_required
 @admin_required
 def delete_enumeration(category, enumeration_id):

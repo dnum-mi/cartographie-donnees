@@ -1,5 +1,4 @@
 from flask import current_app
-from app import app
 import unidecode
 
 def remove_accent(string):
@@ -36,7 +35,7 @@ def query_index(index, query, searchable_fields, page, per_page):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return [], 0
     query = '*' + query + '*'
-    app.logger.info('Searching with query : ' + query +
+    current_app.logger.info('Searching with query : ' + query +
                     ' (page ' + str(page) + ', ' + str(per_page) + ' items per page)')
     search = current_app.elasticsearch.search(
         index=index,
@@ -52,13 +51,13 @@ def query_index(index, query, searchable_fields, page, per_page):
         }
     )
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
-    app.logger.info('Number of results : ' + str(len(ids)))
+    current_app.logger.info('Number of results : ' + str(len(ids)))
     return ids, search['hits']['total']['value']
 
 
 def create_query_filter(index, query, fields, values, searchable_fields):
     query = '*' + query + '*'
-    app.logger.info('Searching with query : ' + query)
+    current_app.logger.info('Searching with query : ' + query)
     body = {
         'query': {
             'bool': {
@@ -109,7 +108,7 @@ def query_index_with_filter(index, query, fields, values, searchable_fields, pag
         body=body
     )
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
-    app.logger.info('Number of results : ' + str(len(ids)))
+    current_app.logger.info('Number of results : ' + str(len(ids)))
     return ids, search['hits']['total'], total_count
 
 def query_count(index, query, fields, values, searchable_fields, field):

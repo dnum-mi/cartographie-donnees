@@ -2,9 +2,8 @@ import os
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
-from io import TextIOWrapper
-from sqlalchemy import func
-from app import app, db
+
+from app import db
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, UpdateFrequency, Origin, Tag
 from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
 from app.api.enumerations import get_type_by_name, get_family_by_name, get_classification_by_name, \
@@ -12,13 +11,13 @@ from app.api.enumerations import get_type_by_name, get_family_by_name, get_class
     get_update_frequency_by_name, get_origin_by_name, get_tag_by_name
 from app.api.applications import get_application_by_name
 from app.api.commons import import_resource, export_resource
-from app.constants import field_french_to_english_dic
 from app.exceptions import CSVFormatError
-
 from app.search import remove_accent
 
+from . import api
 
-@app.route('/api/data-sources', methods=['GET'])
+
+@api.route('/api/data-sources', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def fetch_data_sources():
@@ -43,7 +42,7 @@ def get_reutilizations(reutilizations):
     else:
         return []
 
-@app.route('/api/data-sources', methods=['POST'])
+@api.route('/api/data-sources', methods=['POST'])
 @login_required
 @admin_or_any_owner_required
 def create_data_source():
@@ -71,14 +70,14 @@ def create_data_source():
         raise BadRequest(str(e))
 
 
-@app.route('/api/data-sources/export_search', methods=['GET'])
+@api.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
     data_sources, total, total_count = get_data_sources(query, 1, 10000, fields, values)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
-@app.route('/api/data-sources/export/<application_id>', methods=['GET'])
+@api.route('/api/data-sources/export/<application_id>', methods=['GET'])
 @login_required
 @admin_or_owner_required
 def export_data_source_of_application(application_id):
@@ -86,14 +85,14 @@ def export_data_source_of_application(application_id):
     data_sources, total, total_count = get_data_sources("", 1, 10000, ["application_name"], [application.name])
     return export_resource(DataSource, "data_sources_of_%s.csv" % (application.name), data_sources)
 
-@app.route('/api/data-sources/export', methods=['GET'])
+@api.route('/api/data-sources/export', methods=['GET'])
 @login_required
 @admin_required
 def export_data_sources():
     return export_resource(DataSource, "data_sources.csv")
 
 
-@app.route('/api/data-sources/import_by_application/<application_id>', methods=['POST', 'PUT'])
+@api.route('/api/data-sources/import_by_application/<application_id>', methods=['POST', 'PUT'])
 @login_required
 @admin_or_owner_required
 def import_data_sources_by_application(application_id):
@@ -108,7 +107,7 @@ def import_data_sources_by_application(application_id):
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/data-sources/import', methods=['POST'])
+@api.route('/api/data-sources/import', methods=['POST'])
 @login_required
 @admin_required
 def import_data_sources():
@@ -119,7 +118,7 @@ def import_data_sources():
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/data-sources/reindex')
+@api.route('/api/data-sources/reindex')
 def reindex_data_sources():
     DataSource.reindex()
     return jsonify(dict(description='OK', code=200))
@@ -216,7 +215,7 @@ def get_request_args_data_source(request):
     return query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag
 
 
-@app.route('/api/data-sources/search', methods=['GET'])
+@api.route('/api/data-sources/search', methods=['GET'])
 def search_data_sources():
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
@@ -230,14 +229,14 @@ def search_data_sources():
 
 @login_required
 @admin_or_owner_required
-@app.route('/api/data-sources/count', methods=['GET'])
+@api.route('/api/data-sources/count', methods=['GET'])
 def count_data_sources():
     base_query = DataSource.query
     if not current_user.is_admin:
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     return str(base_query.count())
 
-@app.route('/api/data-sources/families', methods=['GET'])
+@api.route('/api/data-sources/families', methods=['GET'])
 def fetch_data_source_families():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -254,7 +253,7 @@ def fetch_data_source_families():
     return jsonify(dic)
 
 
-@app.route('/api/data-sources/types', methods=['GET'])
+@api.route('/api/data-sources/types', methods=['GET'])
 def fetch_data_source_types():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -270,7 +269,7 @@ def fetch_data_source_types():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/applications', methods=['GET'])
+@api.route('/api/data-sources/applications', methods=['GET'])
 def fetch_data_source_applications():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -286,7 +285,7 @@ def fetch_data_source_applications():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/organizations', methods=['GET'])
+@api.route('/api/data-sources/organizations', methods=['GET'])
 def fetch_data_source_organizations():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -302,7 +301,7 @@ def fetch_data_source_organizations():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/referentiels', methods=['GET'])
+@api.route('/api/data-sources/referentiels', methods=['GET'])
 def fetch_data_source_referentiels():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -318,7 +317,7 @@ def fetch_data_source_referentiels():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/sensibilities', methods=['GET'])
+@api.route('/api/data-sources/sensibilities', methods=['GET'])
 def fetch_data_source_sensibilities():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -334,7 +333,7 @@ def fetch_data_source_sensibilities():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/open-data', methods=['GET'])
+@api.route('/api/data-sources/open-data', methods=['GET'])
 def fetch_data_source_open_data():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -350,7 +349,7 @@ def fetch_data_source_open_data():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/expositions', methods=['GET'])
+@api.route('/api/data-sources/expositions', methods=['GET'])
 def fetch_data_source_expositions():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -366,7 +365,7 @@ def fetch_data_source_expositions():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/origins', methods=['GET'])
+@api.route('/api/data-sources/origins', methods=['GET'])
 def fetch_data_source_origins():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -382,7 +381,7 @@ def fetch_data_source_origins():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/classifications', methods=['GET'])
+@api.route('/api/data-sources/classifications', methods=['GET'])
 def fetch_data_source_classifications():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -398,7 +397,7 @@ def fetch_data_source_classifications():
     dic.sort(key=lambda d: d["count"], reverse=True)
     return jsonify(dic)
 
-@app.route('/api/data-sources/tags', methods=['GET'])
+@api.route('/api/data-sources/tags', methods=['GET'])
 def fetch_data_source_tags():
     query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
     fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
@@ -415,13 +414,13 @@ def fetch_data_source_tags():
     return jsonify(dic)
 
 
-@app.route('/api/data-sources/<data_source_id>', methods=['GET'])
+@api.route('/api/data-sources/<data_source_id>', methods=['GET'])
 def read_data_source(data_source_id):
     data_source = get_data_source(data_source_id)
     return jsonify(data_source.to_dict())
 
 
-@app.route('/api/data-sources/<data_source_id>', methods=['PUT'])
+@api.route('/api/data-sources/<data_source_id>', methods=['PUT'])
 @login_required
 @admin_or_owner_required
 def update_data_source(data_source_id):
@@ -449,7 +448,7 @@ def update_data_source(data_source_id):
     except Exception as e:
         raise BadRequest(str(e))
 
-@app.route('/api/data-sources/<data_source_id>', methods=['DELETE'])
+@api.route('/api/data-sources/<data_source_id>', methods=['DELETE'])
 @login_required
 @admin_or_owner_required
 def delete_data_source(data_source_id):
