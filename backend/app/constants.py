@@ -41,7 +41,8 @@ field_english_to_french_dic = {
     "context_email": "Contact",
     "validation_date": "Date de validation",
     "category": "Catégorie",
-    "value": "Valeur",
+    "full_path": "Valeur",
+    "expanded_label": "Nom long",
     "organization_name": "Organisation",
     "first_name": "Prénom",
     "last_name": "Nom de famille",
@@ -98,7 +99,8 @@ field_french_to_english_dic = {
     "Contact": "context_email",
     "Date de validation": "validation_date",
     "Catégorie": "category",
-    "Valeur": "value",
+    "Valeur": "full_path",
+    "Nom long": "expanded_label",
     "Organisation": "organization_name",
     "Prénom": "first_name",
     "Nom de famille": "last_name",
@@ -140,3 +142,5 @@ enumeration_english_to_french = {
     "classification": "Classification",
     "organization": "Organisation"
 }
+
+FULL_PATH_DELIMITER = '>'

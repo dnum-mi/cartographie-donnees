@@ -112,71 +112,121 @@ class DataSource(SearchableMixin, BaseModel):
     def nb_referentiels(self):
         return len(self.classifications)
 
+    def get_enumeration_single(self, enumeration_id):
+        return getattr(self, enumeration_id).full_path if getattr(self, enumeration_id) else None
+
+    def get_enumeration_multiple(self, enumeration_id):
+        return [enum.full_path for enum in getattr(self, enumeration_id)]
+
+    def set_enumeration_single(self, value, enumeration_id, enumeration_class, error_label, mandatory=False):
+        if not value:
+            if mandatory:
+                raise ValueError(f"{error_label} est un champ obligatoire.")
+            else:
+                setattr(self, enumeration_id, None)
+        else:
+            all_enum = enumeration_class.query.all()
+            matches = [enum for enum in all_enum if enum.full_path == value]
+            if len(matches) == 0:
+                raise ValueError(f"{error_label} '{value}' n'existe pas.")
+            setattr(self, enumeration_id, matches[0])
+
+    def set_enumeration_multiple(self, value, enumeration_id, enumeration_class, error_label, mandatory=False):
+        if not value:
+            if mandatory:
+                raise ValueError(f"{error_label} est un champ obligatoire.")
+            else:
+                setattr(self, enumeration_id, [])
+        else:
+            new_values = []
+            all_enum = enumeration_class.query.all()
+            for full_path in value.split(","):
+                matches = [enum for enum in all_enum if enum.full_path == full_path]
+                if len(matches) == 0:
+                    raise ValueError(f"{error_label} '{full_path}' n'existe pas.")
+                new_values.append(matches[0])
+            setattr(self, enumeration_id, new_values)
+
     @property
     def type_name(self):
-        return self.type.value if self.type else None
+        return self.get_enumeration_single('type')
 
     @type_name.setter
     def type_name(self, type_name):
-        if not type_name:
-            raise ValueError("Le type est un champ obligatoire.")
-        new_type = Type.query.filter_by(value=type_name).first()
-        if not new_type:
-            raise ValueError("Le type '{}' n'existe pas.".format(type_name))
-        self.type_id = new_type.id
+        self.set_enumeration_single(type_name, 'type', Type, 'Le type', mandatory=True)
 
     @property
     def family_name(self):
-        return [family.value for family in self.families] if self.families else []
+        return self.get_enumeration_multiple('families')
 
     @family_name.setter
     def family_name(self, family_name):
-        if not family_name:
-            raise ValueError("La famille est un champ obligatoire.")
-        new_families = []
-        for family in family_name.split(","):
-            new_family = Family.query.filter_by(value=family).first()
-            if not new_family:
-                raise ValueError(
-                    "La famille '{}' n'existe pas.".format(family))
-            new_families.append(new_family)
-        self.families = new_families
+        self.set_enumeration_multiple(family_name, 'families', Family, 'La famille', mandatory=True)
 
     @property
     def classification_name(self):
-        return [classification.value for classification in self.classifications] if self.classifications else []
+        return self.get_enumeration_multiple('classifications')
 
     @classification_name.setter
     def classification_name(self, classification_name):
-        if classification_name:
-            new_classifications = []
-            for classification in classification_name.split(","):
-                new_classification = Family.query.filter_by(
-                    value=classification).first()
-                if not new_classification:
-                    raise ValueError(
-                        "Le réferentiel '{}' n'existe pas.".format(classification))
-                new_classifications.append(new_classification)
-            self.classifications = new_classifications
-        else:
-            self.classifications = []
+        self.set_enumeration_multiple(classification_name, 'classifications', Family, 'Le référentiel')
 
     @property
     def tag_name(self):
-        return [tag.value for tag in self.tags] if self.tags else []
+        return self.get_enumeration_multiple('tags')
 
     @tag_name.setter
     def tag_name(self, tag_name):
-        if tag_name:
-            new_tags = []
-            for tag in tag_name.split(","):
-                new_tag = Tag.query.filter_by(value=tag).first()
-                if not new_tag:
-                    raise ValueError("Le tag '{}' n'existe pas.".format(tag))
-                new_tags.append(new_tag)
-            self.tags = new_tags
-        else:
-            self.tags = []
+        self.set_enumeration_multiple(tag_name, 'tags', Tag, 'Le tag')
+
+    @property
+    def referentiel_name(self):
+        return self.get_enumeration_single('referentiel')
+
+    @referentiel_name.setter
+    def referentiel_name(self, referentiel_name):
+        self.set_enumeration_single(referentiel_name, 'referentiel', Family, 'Le référentiel')
+
+    @property
+    def sensibility_name(self):
+        return self.get_enumeration_single('sensibility')
+
+    @sensibility_name.setter
+    def sensibility_name(self, sensibility_name):
+        self.set_enumeration_single(sensibility_name, 'sensibility', Sensibility, 'La sensibilité')
+
+    @property
+    def open_data_name(self):
+        return self.get_enumeration_single('open_data')
+
+    @open_data_name.setter
+    def open_data_name(self, open_data_name):
+        self.set_enumeration_single(open_data_name, 'open_data', OpenData, "La valeur d'Open data")
+
+    @property
+    def update_frequency_name(self):
+        return self.get_enumeration_single('update_frequency')
+
+    @update_frequency_name.setter
+    def update_frequency_name(self, update_frequency_name):
+        self.set_enumeration_single(update_frequency_name, 'update_frequency', UpdateFrequency,
+                                    'La fréquence de mise à jour')
+
+    @property
+    def exposition_name(self):
+        return self.get_enumeration_multiple('expositions')
+
+    @exposition_name.setter
+    def exposition_name(self, exposition_name):
+        self.set_enumeration_multiple(exposition_name, 'expositions', Exposition, "L'exposition")
+
+    @property
+    def origin_name(self):
+        return self.get_enumeration_single('origin')
+
+    @origin_name.setter
+    def origin_name(self, origin_name):
+        self.set_enumeration_single(origin_name, 'origin', Origin, "L'origine")
 
     @property
     def reutilization_name(self):
@@ -196,104 +246,6 @@ class DataSource(SearchableMixin, BaseModel):
             self.reutilizations = new_reutilizations
         else:
             self.reutilizations = []
-
-    @property
-    def referentiel_name(self):
-        return self.referentiel.value if self.referentiel else None
-
-    @referentiel_name.setter
-    def referentiel_name(self, referentiel_name):
-        if referentiel_name:
-            referentiel_id = Family.query.filter_by(
-                value=referentiel_name).first()
-            if not referentiel_id:
-                raise ValueError(
-                    "Le référentiel '{}' n'existe pas.".format(referentiel_name))
-            self.referentiel_id = referentiel_id.id
-        else:
-            self.referentiel_id = None
-
-    @property
-    def sensibility_name(self):
-        return self.sensibility.value if self.sensibility else None
-
-    @sensibility_name.setter
-    def sensibility_name(self, sensibility_name):
-        if sensibility_name:
-            sensibility_id = Sensibility.query.filter_by(
-                value=sensibility_name).first()
-            if not sensibility_id:
-                raise ValueError(
-                    "Le sensibilité '{}' n'existe pas.".format(sensibility_name))
-            self.sensibility_id = sensibility_id.id
-        else:
-            self.sensibility_id = None
-
-    @property
-    def open_data_name(self):
-        return self.open_data.value if self.open_data else None
-
-    @open_data_name.setter
-    def open_data_name(self, open_data_name):
-        if open_data_name:
-            open_data_id = OpenData.query.filter_by(
-                value=open_data_name).first()
-            if not open_data_id:
-                raise ValueError(
-                    "Le open data '{}' n'existe pas.".format(open_data_name))
-            self.open_data_id = open_data_id.id
-        else:
-            self.open_data_id = None
-
-    @property
-    def update_frequency_name(self):
-        return self.update_frequency.value if self.update_frequency else None
-
-    @update_frequency_name.setter
-    def update_frequency_name(self, update_frequency_name):
-        if update_frequency_name:
-            update_frequency_id = UpdateFrequency.query.filter_by(
-                value=update_frequency_name).first()
-            if not update_frequency_id:
-                raise ValueError(
-                    "Le fréquence de mise à jour '{}' n'existe pas.".format(update_frequency_name))
-            self.update_frequency_id = update_frequency_id.id
-        else:
-            self.update_frequency_id = None
-
-    @property
-    def exposition_name(self):
-        return [exposition.value for exposition in self.expositions] if self.expositions else []
-
-    @exposition_name.setter
-    def exposition_name(self, exposition_name):
-        if exposition_name:
-            new_expositions = []
-            for exposition in exposition_name.split(","):
-                new_exposition = Exposition.query.filter_by(
-                    value=exposition).first()
-                if not new_exposition:
-                    raise ValueError(
-                        "L'exposition '{}' n'existe pas.".format(exposition))
-                new_expositions.append(new_exposition)
-            self.expositions = new_expositions
-        else:
-            self.expositions = []
-
-    @property
-    def origin_name(self):
-        return self.origin.value if self.origin else None
-
-    @origin_name.setter
-    def origin_name(self, origin_name):
-        if origin_name:
-            origin_id = Origin.query.filter_by(value=origin_name).first()
-            if not origin_id:
-                raise ValueError(
-                    "L'origine '{}' n'existe pas.".format(origin_name))
-            self.origin_id = origin_id.id
-        else:
-            self.origin_id = None
 
     @property
     def application_name(self):

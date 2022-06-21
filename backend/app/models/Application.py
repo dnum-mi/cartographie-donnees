@@ -40,16 +40,16 @@ class Application(SearchableMixin, BaseModel):
 
     @property
     def organization_name(self):
-        return self.organization.value
+        return self.organization.full_path
 
     @organization_name.setter
     def organization_name(self, organization_name):
         if not organization_name:
             raise ValueError("L'organisation est un champ obligatoire.")
-        organization_id = Organization.query.filter_by(value=organization_name).first()
-        if not organization_id:
+        organizations = [org for org in Organization.query.all() if org.full_path == organization_name]
+        if len(organizations) == 0:
             raise ValueError("L'organisation '{}' n'existe pas.".format(organization_name))
-        self.organization_id = organization_id.id
+        self.organization_id = organizations[0].id
 
     @validates('access_url')
     def validate_access_url(self, key, access_url):

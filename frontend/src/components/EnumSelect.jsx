@@ -68,9 +68,9 @@ class EnumSelect extends React.Component {
                 {this.state.enumerations.map((item) => (
                     <Option
                         key={item.id}
-                        value={item.value}
+                        value={item.full_path}
                     >
-                        {item.value}
+                        {item.full_path}
                     </Option>
                 ))}
             </Select>
