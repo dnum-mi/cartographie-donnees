@@ -114,7 +114,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def type_name(self):
-        return self.type.value if self.type else None
+        return self.type.full_path if self.type else None
 
     @type_name.setter
     def type_name(self, type_name):
@@ -127,7 +127,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def family_name(self):
-        return [family.value for family in self.families] if self.families else []
+        return [family.full_path for family in self.families] if self.families else []
 
     @family_name.setter
     def family_name(self, family_name):
@@ -144,7 +144,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def classification_name(self):
-        return [classification.value for classification in self.classifications] if self.classifications else []
+        return [classification.full_path for classification in self.classifications] if self.classifications else []
 
     @classification_name.setter
     def classification_name(self, classification_name):
@@ -163,7 +163,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def tag_name(self):
-        return [tag.value for tag in self.tags] if self.tags else []
+        return [tag.full_path for tag in self.tags] if self.tags else []
 
     @tag_name.setter
     def tag_name(self, tag_name):
@@ -199,7 +199,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def referentiel_name(self):
-        return self.referentiel.value if self.referentiel else None
+        return self.referentiel.full_path if self.referentiel else None
 
     @referentiel_name.setter
     def referentiel_name(self, referentiel_name):
@@ -215,7 +215,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def sensibility_name(self):
-        return self.sensibility.value if self.sensibility else None
+        return self.sensibility.full_path if self.sensibility else None
 
     @sensibility_name.setter
     def sensibility_name(self, sensibility_name):
@@ -231,7 +231,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def open_data_name(self):
-        return self.open_data.value if self.open_data else None
+        return self.open_data.full_path if self.open_data else None
 
     @open_data_name.setter
     def open_data_name(self, open_data_name):
@@ -247,7 +247,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def update_frequency_name(self):
-        return self.update_frequency.value if self.update_frequency else None
+        return self.update_frequency.full_path if self.update_frequency else None
 
     @update_frequency_name.setter
     def update_frequency_name(self, update_frequency_name):
@@ -263,7 +263,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def exposition_name(self):
-        return [exposition.value for exposition in self.expositions] if self.expositions else []
+        return [exposition.full_path for exposition in self.expositions] if self.expositions else []
 
     @exposition_name.setter
     def exposition_name(self, exposition_name):
@@ -282,7 +282,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def origin_name(self):
-        return self.origin.value if self.origin else None
+        return self.origin.full_path if self.origin else None
 
     @origin_name.setter
     def origin_name(self, origin_name):

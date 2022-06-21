@@ -73,8 +73,8 @@ def create_data_source():
 
 @app.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     data_sources, total, total_count = get_data_sources(query, 1, 10000, fields, values)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
@@ -142,86 +142,94 @@ def convert_dict(dic):
             new_dict[key] = value
     return new_dict
 
-def get_fields_values(family=None, type=None, organization=None, application=None, referentiel=None,
-                     sensibility=None, open_data=None, exposition=None, origin=None, classification=None, tag=None):
+def get_fields_values(request_args):
     fields = []
     values = []
-    if family:
-        fields.append("family_name")
-        _list = []
-        for element in family:
-            _list.append(element)
-        values.append(_list)
-    if type:
-        fields.append("type_name")
-        values.append(type)
-    if organization:
-        fields.append("organization_name")
-        values.append(organization)
-    if application:
-        fields.append("application_name")
-        values.append(application)
-    if referentiel:
-        fields.append("referentiel_name")
-        values.append(referentiel)
-    if sensibility:
-        fields.append("sensibility_name")
-        values.append(sensibility)
-    if open_data:
-        fields.append("open_data_name")
-        values.append(open_data)
-    if exposition:
-        fields.append("exposition_name")
-        _list = []
-        for element in exposition:
-            _list.append(element)
-        values.append(_list)
-    if origin:
-        fields.append("origin_name")
-        values.append(origin)
-    if classification:
-        fields.append("classification_name")
-        _list = []
-        for element in classification:
-            _list.append(element)
-        values.append(_list)
-    if tag:
-        fields.append("tag_name")
-        _list = []
-        for element in tag:
-            _list.append(element)
-        values.append(_list)
+    for k,v in request_args.items():
+        if(v):
+            fields.append(k+"_name")
+            _list=[]
+            for element in v:
+                _list.append(element)
+            values.append(_list)
+    # if type:
+    #     fields.append("type_name")
+    #     values.append(type)
+    # if organization:
+    #     fields.append("organization_name")
+    #     values.append(organization)
+    # if application:
+    #     fields.append("application_name")
+    #     values.append(application)
+    # if referentiel:
+    #     fields.append("referentiel_name")
+    #     values.append(referentiel)
+    # if sensibility:
+    #     fields.append("sensibility_name")
+    #     values.append(sensibility)
+    # if open_data:
+    #     fields.append("open_data_name")
+    #     values.append(open_data)
+    # if exposition:
+    #     fields.append("exposition_name")
+    #     _list = []
+    #     for element in exposition:
+    #         _list.append(element)
+    #     values.append(_list)
+    # if origin:
+    #     fields.append("origin_name")
+    #     values.append(origin)
+    # if classification:
+    #     fields.append("classification_name")
+    #     _list = []
+    #     for element in classification:
+    #         _list.append(element)
+    #     values.append(_list)
+    # if tag:
+    #     fields.append("tag_name")
+    #     _list = []
+    #     for element in tag:
+    #         _list.append(element)
+    #     values.append(_list)
     return fields, values
 
 def get_data_sources(query, page, count, fields, values):
     return DataSource.search_with_filter(query, fields, values, page, count)
 
 def get_request_args_data_source(request):
-    query = request.args.get('q', '', type=str)
-    family = request.args.get('family', '', type=str)
-    family = [] if not family else family.split(";")
-    type = request.args.get('type', '', type=str)
-    organization = request.args.get('organization', '', type=str)
-    application = request.args.get('application', '', type=str)
-    referentiel = request.args.get('referentiel', '', type=str)
-    sensibility = request.args.get('sensibility', '', type=str)
-    open_data = request.args.get('open_data', '', type=str)
-    exposition = request.args.get('exposition', '', type=str)
-    exposition = [] if not exposition else exposition.split(";")
-    origin = request.args.get('origin', '', type=str)
-    classification = request.args.get('classification', '', type=str)
-    classification = [] if not classification else classification.split(";")
-    tag = request.args.get('tag', '', type=str)
-    tag = [] if not tag else tag.split(";")
-    return query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag
+    filters_list = ['family', 'type', 'organization', 'application', 'referentiel', 'sensibility', 'open_data',
+                    'exposition', 'origin', 'classification','tag']
 
+    query = request.args.get('q', '', type=str)
+    to_return = {}
+    for filter in filters_list:
+        temp = request.args.get(filter,'',type=str)
+        temp = [] if not temp else temp.split(";")
+        to_return[filter] = temp
+    # family = request.args.get('family', '', type=str)
+    # family = [] if not family else family.split(";")
+    # type = request.args.get('type', '', type=str)
+    # organization = request.args.get('organization', '', type=str)
+    # application = request.args.get('application', '', type=str)
+    # referentiel = request.args.get('referentiel', '', type=str)
+    # sensibility = request.args.get('sensibility', '', type=str)
+    # open_data = request.args.get('open_data', '', type=str)
+    # exposition = request.args.get('exposition', '', type=str)
+    # exposition = [] if not exposition else exposition.split(";")
+    # origin = request.args.get('origin', '', type=str)
+    # classification = request.args.get('classification', '', type=str)
+    # classification = [] if not classification else classification.split(";")
+    # tag = request.args.get('tag', '', type=str)
+    # tag = [] if not tag else tag.split(";")
+    #return query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag
+    return query, to_return
 
 @app.route('/api/data-sources/search', methods=['GET'])
 def search_data_sources():
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     data_sources, total, total_count = get_data_sources(query, page, count, fields, values)
     return jsonify(dict(
         total_count=total_count,
@@ -237,75 +245,115 @@ def count_data_sources():
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     return str(base_query.count())
 
+#TODO
 @app.route('/api/data-sources/families', methods=['GET'])
 def fetch_data_source_families():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'family_name')
     dic = []
-    for family in Family.query.all():
-        unaccent = remove_accent(family.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": family.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Family.query.all())
+    # for family in Family.query.all():
+    #     #     unaccent = remove_accent(family.value)
+    #     #     count = 0
+    #     #     for d in field_count:
+    #     #         if d["value"] == unaccent:
+    #     #             count = d["count"]
+    #     #     dic.append({"value": family.value, "count": count})
+    #     # dic.sort(key=lambda d: d["count"], reverse=True)
+    #     # return jsonify(dic)
+
+def build_tree_format(fields, values, field_count, category_query, title_attribute='value'):
+    roots = []
+    for element in category_query:
+        if not hasattr(element, 'parent') or element.parent == None:
+            roots+= [element]
+    treeData = []
+    for root in roots:
+        temp = {}
+        temp['title'] = getattr(root, title_attribute)
+        temp['key'] = getattr(root, title_attribute)
+        #temp['fullPath'] = getattr(root, title_attribute)
+        temp['children'] = get_children_data(category_query, root, title_attribute)
+        treeData += [temp]
+    return jsonify(treeData)
+
+def get_children_data(category_query, current_node, title_attribute):
+    children = []
+    if(hasattr(current_node, 'children')):
+        for child in current_node.children:
+            temp_dict = {}
+            temp_dict['title'] = getattr(child, title_attribute)
+            #temp_dict['key'] = getattr(child, title_attribute)
+            temp_dict['key'] = get_all_parents(child, title_attribute) + getattr(child, title_attribute) #todo récupérer direct de l'attribut ?
+            temp_dict['children'] = get_children_data(category_query, child, title_attribute)
+            children+= [temp_dict]
+    return children
+
+def get_all_parents(node, title_attribute):
+    parents = ""
+    temp_node = node
+    while(hasattr(temp_node, 'parent') and temp_node.parent != None):
+        parents = getattr(temp_node.parent, title_attribute)+" > "+parents
+        temp_node = temp_node.parent
+    return parents
 
 
 @app.route('/api/data-sources/types', methods=['GET'])
 def fetch_data_source_types():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'type_name')
-    dic = []
-    for type in Type.query.all():
-        unaccent = remove_accent(type.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": type.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for type in Type.query.all():
+    #     unaccent = remove_accent(type.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": type.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Type.query.all(), 'value')
 
 @app.route('/api/data-sources/applications', methods=['GET'])
 def fetch_data_source_applications():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'application_name')
-    dic = []
-    for application in Application.query.all():
-        unaccent = remove_accent(application.name)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": application.name, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for application in Application.query.all():
+    #     unaccent = remove_accent(application.name)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": application.name, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    return build_tree_format(fields, values, field_count, Application.query.all(), 'name')
 
 @app.route('/api/data-sources/organizations', methods=['GET'])
 def fetch_data_source_organizations():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values,  'organization_name')
-    dic = []
-    for organization in Organization.query.all():
-        unaccent = remove_accent(organization.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": organization.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for organization in Organization.query.all():
+    #     unaccent = remove_accent(organization.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": organization.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Organization.query.all())
+
 
 @app.route('/api/data-sources/referentiels', methods=['GET'])
 def fetch_data_source_referentiels():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'referentiel_name')
     dic = []
     for referentiel in Family.query.all():
@@ -316,103 +364,117 @@ def fetch_data_source_referentiels():
                 count = d["count"]
         dic.append({"value": referentiel.value, "count": count})
     dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Family.query.all())
+
 
 @app.route('/api/data-sources/sensibilities', methods=['GET'])
 def fetch_data_source_sensibilities():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'sensibility_name')
-    dic = []
-    for sensibility in Sensibility.query.all():
-        unaccent = remove_accent(sensibility.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": sensibility.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for sensibility in Sensibility.query.all():
+    #     unaccent = remove_accent(sensibility.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": sensibility.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Sensibility.query.all())
+
 
 @app.route('/api/data-sources/open-data', methods=['GET'])
 def fetch_data_source_open_data():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'open_data_name')
-    dic = []
-    for open_data in OpenData.query.all():
-        unaccent = remove_accent(open_data.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": open_data.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for open_data in OpenData.query.all():
+    #     unaccent = remove_accent(open_data.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": open_data.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, OpenData.query.all())
+
 
 @app.route('/api/data-sources/expositions', methods=['GET'])
 def fetch_data_source_expositions():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'exposition_name')
-    dic = []
-    for exposition in Exposition.query.all():
-        unaccent = remove_accent(exposition.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": exposition.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for exposition in Exposition.query.all():
+    #     unaccent = remove_accent(exposition.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": exposition.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Exposition.query.all())
+
 
 @app.route('/api/data-sources/origins', methods=['GET'])
 def fetch_data_source_origins():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'origin_name')
-    dic = []
-    for origin in Origin.query.all():
-        unaccent = remove_accent(origin.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": origin.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for origin in Origin.query.all():
+    #     unaccent = remove_accent(origin.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": origin.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Origin.query.all())
+
 
 @app.route('/api/data-sources/classifications', methods=['GET'])
 def fetch_data_source_classifications():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'classification_name')
-    dic = []
-    for referentiel in Family.query.all():
-        unaccent = remove_accent(referentiel.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": referentiel.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for referentiel in Family.query.all():
+    #     unaccent = remove_accent(referentiel.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": referentiel.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Family.query.all())
+
 
 @app.route('/api/data-sources/tags', methods=['GET'])
 def fetch_data_source_tags():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
+    query, request_args = get_request_args_data_source(request)
+    fields, values = get_fields_values(request_args)
     field_count = DataSource.query_count(query, fields, values, 'tag_name')
-    dic = []
-    for tag in Tag.query.all():
-        unaccent = remove_accent(tag.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": tag.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    # dic = []
+    # for tag in Tag.query.all():
+    #     unaccent = remove_accent(tag.value)
+    #     count = 0
+    #     for d in field_count:
+    #         if d["value"] == unaccent:
+    #             count = d["count"]
+    #     dic.append({"value": tag.value, "count": count})
+    # dic.sort(key=lambda d: d["count"], reverse=True)
+    # return jsonify(dic)
+    return build_tree_format(fields, values, field_count, Tag.query.all())
+
 
 
 @app.route('/api/data-sources/<data_source_id>', methods=['GET'])

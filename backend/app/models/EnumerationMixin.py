@@ -10,7 +10,7 @@ class EnumerationMixin(BaseModel):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    value = db.Column(db.String, nullable=False, unique=True)
+    value = db.Column(db.String, nullable=False, unique=False)
 
     @declared_attr
     def parent_id(cls):
@@ -19,6 +19,12 @@ class EnumerationMixin(BaseModel):
             db.ForeignKey(f'{cls.__tablename__}.id'),
             nullable=True,
         )
+
+    @property
+    def full_path(self):
+        if self.parent_id is not None:
+            return self.parent.full_path +' > '+self.value
+        return self.value
 
     @declared_attr
     def children(cls):

@@ -7,6 +7,8 @@ import DataSourceResult from "./results/DataSourceResult";
 import ApplicationResult from './results/ApplicationResult';
 import './SearchPage.css';
 import SearchFilter from "./SearchFilter";
+import SearchTree from "./SearchTree";
+
 import {
     searchDataSources, searchApplicationsOfDataSources, searchOrganizations, searchFamilies, searchTypes,
     searchReferentiels, searchSensibilities, searchOpenData, searchExpositions, searchOrigins, searchClassifications,
@@ -55,17 +57,18 @@ class SearchPage extends React.Component {
 
     parseQuery = () => {
         const values = queryString.parse(this.props.location.search);
+        console.log("parsequery "+this.stringToList(values.family));
         return {
             query: this.readString(values.q),
-            selectedOrganization: this.readString(values.organization),
+            selectedOrganization: this.stringToList(values.organization),
             selectedFamily: this.stringToList(values.family),
-            selectedType: this.readString(values.type),
-            selectedApplication: this.readString(values.application),
-            selectedReferentiel: this.readString(values.referentiel),
-            selectedSensibility: this.readString(values.sensibility),
-            selectedOpenData: this.readString(values.open_data),
+            selectedType: this.stringToList(values.type),
+            selectedApplication: this.stringToList(values.application),
+            selectedReferentiel: this.stringToList(values.referentiel),
+            selectedSensibility: this.stringToList(values.sensibility),
+            selectedOpenData: this.stringToList(values.open_data),
             selectedExposition: this.stringToList(values.exposition),
-            selectedOrigin: this.readString(values.origin),
+            selectedOrigin: this.stringToList(values.origin),
             selectedClassification: this.stringToList(values.classification),
             selectedTag: this.stringToList(values.tag)
         }
@@ -73,9 +76,9 @@ class SearchPage extends React.Component {
 
     isFirstTime = () => {
         if (this.state.query || this.state.selectedOrganization || this.state.selectedFamily.length !== 0 ||
-            this.state.selectedType || this.state.selectedApplication || this.state.selectedReferentiel ||
-            this.state.selectedSensibility || this.state.selectedOpenData || this.state.selectedExposition.length !== 0 ||
-            this.state.selectedOrigin || this.state.selectedClassification.length !== 0 || this.state.selectedTag.length !== 0) {
+            this.state.selectedType.length !== 0 || this.state.selectedApplication.length !== 0 || this.state.selectedReferentiel.length !== 0 ||
+            this.state.selectedSensibility.length !== 0 || this.state.selectedOpenData.length !== 0 || this.state.selectedExposition.length !== 0 ||
+            this.state.selectedOrigin.length !== 0 || this.state.selectedClassification.length !== 0 || this.state.selectedTag.length !== 0) {
             return false;
         }
         else {
@@ -102,25 +105,30 @@ class SearchPage extends React.Component {
     }
 
     listToString(value) {
+        // debugger;
+        // console.log("list to string "+value);
+        // if(value['checked']){
+        //     return value['checked'].join(";");
+        // }
         return value.join(";");
     }
 
     getQuery(query) {
         return "?q=" + this.readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
             + "&family=" + this.listToString(this.state.selectedFamily)
-            + "&type=" + this.readString(this.state.selectedType) + "&organization=" + this.readString(this.state.selectedOrganization)
-            + "&application=" + this.readString(this.state.selectedApplication) + "&referentiel=" + this.readString(this.state.selectedReferentiel)
-            + "&sensibility=" + this.readString(this.state.selectedSensibility) + "&open_data=" + this.readString(this.state.selectedOpenData)
-            + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.readString(this.state.selectedOrigin)
+            + "&type=" + this.listToString(this.state.selectedType) + "&organization=" + this.listToString(this.state.selectedOrganization)
+            + "&application=" + this.listToString(this.state.selectedApplication) + "&referentiel=" + this.listToString(this.state.selectedReferentiel)
+            + "&sensibility=" + this.listToString(this.state.selectedSensibility) + "&open_data=" + this.listToString(this.state.selectedOpenData)
+            + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.listToString(this.state.selectedOrigin)
             + "&classification=" + this.listToString(this.state.selectedClassification) + "&tag=" + this.listToString(this.state.selectedTag);
     }
 
     componentDidMount() {
         this.setStatePromise({ homeDescription: this.isFirstTime() })
-            .then(this.onSearch);
+            .then(this.onSearch).then(() => {console.log(this.state['selectedFamily'])});
     }
 
-    componentDidUpdate(prevProps) {
+    async componentDidUpdate(prevProps) {
         setTimeout(function () { }, 1000)
         if (this.props.location.search !== prevProps.location.search) {
             let newState = { ...{ homeDescription: this.isFirstTime() }, ...this.parseQuery() };
@@ -220,52 +228,52 @@ class SearchPage extends React.Component {
         return queryResume;
     }
 
-
+    //cliked on tag X below searchbar
     onFilterSelect = (key, value) => {
+        console.log("onFilterSelect "+key);
         let filter;
-        if (key === "selectedClassification" || key === "selectedTag" || key === "selectedFamily" || key === "selectedExposition") {
-            filter = this.state[key];
-            if (filter.includes(value)) {
-                filter = filter.filter(item => item !== value);
-            }
-            else {
-                filter.push(value);
-            }
-        }
-        else {
-            filter = this.state[key];
-            if (filter !== value) {
-                filter = value;
-            }
-            else {
-                filter = null;
-            }
-        }
+        console.log('On filter select '+value)
+        filter = this.state[key];
+        var valuesToUncheck = [value];
+        // while(value.lastIndexOf('>') != -1){
+        //     var lastIndexOf = value.lastIndexOf('>');
+        //     var tmp_parent = value.slice(0, lastIndexOf).trim();
+        //     valuesToUncheck.push(tmp_parent);
+        //     value=tmp_parent;
+        // }
+        for (const valueToUncheck of valuesToUncheck){
+            filter = filter.filter(item => item !== valueToUncheck);
+        } 
         this.setStatePromise({ [key]: filter, page_data_source: 1, })
             .then(() => this.onSearch());
-
-
     }
 
-    renderFilter = (name, list, key, color, tooltip) => {
-        return (<SearchFilter
-            filters={[{
-                category: name,
-                enumerations: list,
-            }]}
-            onFilterSelect={(value) => {
-                this.onFilterSelect(key, value);
-            }
-            }
-            currentValue={this.state[key]}
-            color={color}
-            tooltip={tooltip}
-            number_of_data_source={this.state.total_count_data_source}
-        />)
+    onSelectedFiltersChange = (key, value) => {
+        console.log('received '+key+' '+value);
+        console.log("key "+key+" before setstate "+this.state[key]);
+        this.setStatePromise({ [key]: value, page_data_source: 1, })
+            .then(() => this.onSearch());
+
+        console.log("key "+key+" after setstate "+this.state[key]);
+    }
+    
+    renderFilter = (name, list, key, color, tooltip, multiple=false) => {
+        return (
+            <SearchTree 
+                filterCategoryName = {name}
+                treeData = {list}
+                tooltip = {tooltip}
+                color = {color}
+                multiple={multiple}
+                onSelectedFiltersChange = {value => this.onSelectedFiltersChange(key,value)}
+               //expandedKeys={this.state[key]}
+                searchPageCheckedKeys={this.state[key]}
+            //selectedKeys={}   
+            />
+        )
     }
 
     renderDataSourcesResults = () => {
-
 
         if (this.state.loading) {
             return <Loading />
@@ -273,19 +281,18 @@ class SearchPage extends React.Component {
         if (this.state.error) {
             return <Error error={this.state.error} />
         }
-
         const filters = [];
-        filters.push(this.renderFilter("Familles", this.state.families, "selectedFamily", "blue", "Famille fonctionnelle de la donnée"))
+        filters.push(this.renderFilter("Familles", this.state.families, "selectedFamily", "blue", "Famille fonctionnelle de la donnée", true))
         filters.push(this.renderFilter("Organisations", this.state.organizations, "selectedOrganization", "volcano", "MOA propriétaire de la donnée"))
         filters.push(this.renderFilter("Applications", this.state.applications, "selectedApplication", "magenta", "Application hébergeant la donnée"))
         filters.push(this.renderFilter("Types", this.state.types, "selectedType", "red", "Type de la donnée"))
         filters.push(this.renderFilter("Référentiels", this.state.referentiels, "selectedReferentiel", "orange", "Type de référentiel s’il s’agit d’une donnée référentielle (par opposition aux données opérationnelles)"))
         filters.push(this.renderFilter("Sensibilités", this.state.sensibilities, "selectedSensibility", "lime", "Sensibilité des données identifiantes"))
         filters.push(this.renderFilter("Open Data", this.state.open_data, "selectedOpenData", "green", "La donnée est-elle publiable en Open Data ?"))
-        filters.push(this.renderFilter("Expositions", this.state.expositions, "selectedExposition", "gold", "Type de mises à disposition"))
+        filters.push(this.renderFilter("Expositions", this.state.expositions, "selectedExposition", "gold", "Type de mises à disposition", true))
         filters.push(this.renderFilter("Origines", this.state.origins, "selectedOrigin", "geekblue", "Origine fonctionnelle de la donnée"))
-        filters.push(this.renderFilter("Axes d'analyse", this.state.classifications, "selectedClassification", "purple", "Types de référentiels utilisés pour classifier la donnée"))
-        filters.push(this.renderFilter("Tags", this.state.tags, "selectedTag", undefined, "Tags de la donnée"))
+        filters.push(this.renderFilter("Axes d'analyse", this.state.classifications, "selectedClassification", "purple", "Types de référentiels utilisés pour classifier la donnée", true))
+        filters.push(this.renderFilter("Tags", this.state.tags, "selectedTag", undefined, "Tags de la donnée", true))
         return (<>
             {this.renderSearchPageHeader()}
             <div className="content">
@@ -394,33 +401,33 @@ class SearchPage extends React.Component {
     }
 
     renderTagList = (key, color) => {
-        if (this.state[key]) {
-            return this.state[key].map((value) =>
-                <Tag color={color} closable onClose={(e) => {
-                    this.onFilterSelect(key, value)
-                }
-                }
-                    key={value}
-                >
-                    {value}
-                </Tag>
-            );
+        if (this.state[key] && this.state[key].length > 0) {
+            return this.state[key].map((value) => {
+                if(value != ''){
+                    return (<Tag color={color} closable onClose={(e) => {
+                                                this.onFilterSelect(key, value)
+                                            }
+                                        }
+                                        key={value}
+                                    >
+                                        {value}
+                                    </Tag>);
+            }});
         }
+       // return null;
     }
 
     renderDataSourceSelectedTags = () => {
-        const tags = [];
-        tags.push(this.renderTagList("selectedFamily", "blue"))
-        tags.push(this.renderTag("selectedOrganization", "volcano"))
-        tags.push(this.renderTag("selectedApplication", "magenta"))
-        tags.push(this.renderTag("selectedType", "red"))
-        tags.push(this.renderTag("selectedReferentiel", "orange"))
-        tags.push(this.renderTag("selectedSensibility", "lime"))
-        tags.push(this.renderTag("selectedOpenData", "green"))
-        tags.push(this.renderTagList("selectedExposition", "gold"))
-        tags.push(this.renderTag("selectedOrigin", "geekblue"))
-        tags.push(this.renderTagList("selectedClassification", "purple"))
-        tags.push(this.renderTagList("selectedTag"))
+        var tags = [];
+        const tagNames = ["selectedFamily","selectedOrganization","selectedApplication", "selectedType","selectedReferentiel", "selectedSensibility","selectedOpenData", "selectedExposition",
+        "selectedOrigin","selectedClassification", "selectedTag"]
+        const colors = ["blue", "volcano", "magenta", "red",  "orange", "lime", "green", "gold", "geekblue", "purple", ""]
+        for(let i =0; i<tagNames.length;i++){
+            var temp = this.renderTagList(tagNames[i], colors[i]);
+            if(temp != null){
+                tags.push(temp);
+            }
+        }
         return (
             <div className="Tags">
                 {tags}

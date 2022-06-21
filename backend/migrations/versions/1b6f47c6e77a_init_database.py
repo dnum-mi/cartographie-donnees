@@ -26,7 +26,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'exposition.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('family',
                     sa.Column('id', sa.Integer(),
@@ -36,7 +35,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'family.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('open_data',
                     sa.Column('id', sa.Integer(),
@@ -46,7 +44,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'open_data.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('organization',
                     sa.Column('id', sa.Integer(),
@@ -56,7 +53,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'organization.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('origin',
                     sa.Column('id', sa.Integer(),
@@ -66,7 +62,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'origin.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('sensibility',
                     sa.Column('id', sa.Integer(),
@@ -76,7 +71,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'sensibility.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('tag',
                     sa.Column('id', sa.Integer(),
@@ -86,7 +80,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'tag.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('type',
                     sa.Column('id', sa.Integer(),
@@ -96,7 +89,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'type.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('update_frequency',
                     sa.Column('id', sa.Integer(),
@@ -106,7 +98,6 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id'),
                     sa.ForeignKeyConstraint(['parent_id'], [
                         'update_frequency.id'], ),
-                    sa.UniqueConstraint('value')
                     )
     op.create_table('user',
                     sa.Column('id', sa.Integer(),
