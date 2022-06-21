@@ -178,20 +178,20 @@ const ApplicationForm = ({ onSubmit, user, application = {} }) => {
                 </Form.Item>)
             }
             <Form.Item
-                label="Date de validation"
-                name="validation_date"
-                tooltip="Validité de la présente cartographie pour publication"
-            >
-            <DatePicker
-                format={dateFormat}
-            />
-            </Form.Item>
-            <Form.Item
                 label="Historique"
                 name="historic"
                 tooltip="Année création des  données les plus anciennes"
             >
                 <Input type="number" min="-2147483648" max="2147483647"/>
+            </Form.Item>
+            <Form.Item
+                label="Date de validation"
+                name="validation_date"
+                tooltip="Validité de la présente cartographie pour publication"
+            >
+                <DatePicker
+                    format={dateFormat}
+                />
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}>

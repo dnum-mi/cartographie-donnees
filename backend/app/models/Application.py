@@ -1,3 +1,4 @@
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import validates
 from app import db
@@ -51,6 +52,10 @@ class Application(SearchableMixin, BaseModel):
             raise ValueError("L'organisation '{}' n'existe pas.".format(organization_name))
         self.organization_id = organization_id.id
 
+    @hybrid_property
+    def data_source_count(self):
+        return self.data_sources.count()
+
     @validates('access_url')
     def validate_access_url(self, key, access_url):
         if not access_url:
@@ -103,7 +108,8 @@ class Application(SearchableMixin, BaseModel):
             'monthly_connection_count_comment': self.monthly_connection_count_comment,
             'context_email': self.context_email,
             'validation_date': self.validation_date.strftime("%d/%m/%Y") if self.validation_date else None,
-            'historic': self.historic
+            'historic': self.historic,
+            'data_source_count': self.data_source_count
         }
 
         if populate_data_sources:

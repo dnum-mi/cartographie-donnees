@@ -32,12 +32,12 @@ class ApplicationSection extends React.Component {
         {this.getAttributeElement('name')}
         {this.getAttributeElement('organization_name')}
         {this.getAttributeElement('context_email')}
-        {this.getAttributeElement('data_sources_count')}
+        {this.getAttributeElement('data_source_count')}
         {this.getAttributeElement('operator_count')}
         {this.getAttributeElement('user_count')}
         {this.getAttributeElement('monthly_connection_count')}
-        {this.getAttributeElement('validation_date')}
         {this.getAttributeElement('historic')}
+        {this.getAttributeElement('validation_date')}
       </div>
     );
   }

@@ -76,9 +76,13 @@ class DataSourcePage extends React.Component {
         })
     };
 
+    submit = (event) => {
+        this.props.handleSubmit(event, this.state.dataSource)
+    }
+
     renderContent() {
         return (
-            <form onSubmit={this.props.handleSubmit}>
+            <form onSubmit={this.submit}>
                 {(this.props.forceEdit || this.props.currentUser.userHasAdminRightsToDatasource(this.state.dataSource)) && (
                     <DataSourceAdminHeader
                       editMode={this.state.editMode}

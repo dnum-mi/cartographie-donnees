@@ -29,8 +29,8 @@ class ApplicationAttributes extends React.Component {
             <p><b>Nombre de connexions mensuelles <QuestionCircleOutlined title="Nb de connexions d’utilisateurs uniques de l’application par mois" /> : </b>{this.toLocaleString(this.props.application.monthly_connection_count)}
                         <span className="gris">{this.props.application.monthly_connection_count_comment ? " (" + this.props.application.monthly_connection_count_comment + ")" : null}</span></p>
             <div className="grid">
-                <span className="shortLabel one"> <b>Date de validation <QuestionCircleOutlined title="Validité de la présente cartographie pour publication" /> : </b>{this.props.application.validation_date}</span>
                 <span className="shortLabel two"> <b>Historique <QuestionCircleOutlined title="Année création des  données les plus anciennes"/> : </b>{this.props.application.historic}</span>
+                <span className="shortLabel one"> <b>Date de validation <QuestionCircleOutlined title="Validité de la présente cartographie pour publication" /> : </b>{this.props.application.validation_date}</span>
             </div>
         </div>);
     }

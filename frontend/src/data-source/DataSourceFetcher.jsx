@@ -54,8 +54,7 @@ class DataSourceFetcher extends React.Component {
             });
     }
 
-    handleSubmit = (event) => {
-        let dataSource = event.target.value
+    handleSubmit = (event, dataSource) => {
         event.preventDefault();
         this.setState({
             loading: true,

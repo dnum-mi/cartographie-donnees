@@ -1,16 +1,14 @@
 import React from 'react';
-import { withRouter, Link } from 'react-router-dom';
-import { Modal, Button, Upload } from 'antd';
-import { ExclamationCircleOutlined, UploadOutlined, DownloadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import {Redirect, withRouter} from 'react-router-dom';
+import {Modal} from 'antd';
+import {ExclamationCircleOutlined} from '@ant-design/icons';
 
-import { readApplication, deleteApplication, importDataSourceByApplication, exportDataSourcesOfApplication } from '../api';
-import Loading from '../components/Loading';
-import Error from '../components/Error';
-import ApplicationAttributes from './ApplicationAttributes';
-import ApplicationContact from './ApplicationContact';
+import {deleteApplication, exportDataSourcesOfApplication, importDataSourceByApplication, readApplication} from '../api';
 import './ApplicationPage.css';
-import DataSourceResult from "../search/results/DataSourceResult";
-import UserResult from "../search/results/UserResult";
+import DataSourcePage from "../data-source/DataSourcePage";
+import emptyDataSource from "./emptyDataSourceForApplication.json";
+import Error from "../components/Error";
+import Loading from "../components/Loading";
 
 const { confirm } = Modal;
 
@@ -139,88 +137,23 @@ class ApplicationPage extends React.Component {
         this.props.user.is_admin
     );
 
-    renderContent() {
+    render() {
         if (this.state.loading) {
             return <Loading />;
         }
-        return (<>
-            {this.state.error ? (<Error error={this.state.error}/>) : null}
-            <div className="column">
-                <div className="left" >
-                    <h1 className="typePage">
-                        Fiche de l'application
-                    </h1>
-                    <h1>
-                        {this.state.application.name} {"(" + this.state.application.data_sources.length + " données)"}
-                    </h1>
-                    {this.userOwnsApplication() && (
-                    <p className="actions">
-                        <Link to={'/admin/applications/' + this.props.match.params.applicationId + '/update'}>
-                            <Button type="default">
-                                Modifier
-                            </Button>
-                        </Link>
-                        <Button type="danger" onClick={this.showDeleteConfirm}>
-                            Supprimer
-                        </Button>
-                    </p>
-                    )}
-                    <div className="attributs" >
-                        <ApplicationAttributes application={this.state.application} />
-                        {this.userHasAdminPrivileges() && (
-                        <div className="section">
-                                <h2 title="Administrateurs de l'application">
-                                    Propriétaires
-                                </h2>
-                            <div className="owners">
-                                {this.state.application.owners.map((owner) => (
-                                    <UserResult user={owner} />
-                                ))}
-                            </div>
-                        </div>
-                        )}
-                        <div className="section">
-                            <div>
-                                    <h2 title="Données de l'application">
-                                        Données
-                                    </h2>
-                                    {this.userOwnsApplication() && (
-                                    <span className="actions">
-                                    <Upload
-                                        className="import"
-                                        customRequest={this.uploadfile}
-                                        maxCount={1}
-                                        showUploadList={false}
-                                    >
-                                        <Button icon={<UploadOutlined />} type="default">Import</Button>
-                                    </Upload>
-                                    <Button onClick={this.export} type="default" icon={<DownloadOutlined />}>Export</Button>
-                                    <Link to={"/admin/data-sources/create?application="+this.state.application.id}><Button type="default" icon={<DownloadOutlined />}>Créer une donnée</Button></Link>
-                                    </span>
-                                    )}
-                            </div>
-                            <div className="data-sources">
-                                {this.state.application.data_sources.map((dataSource) => (
-                                    <DataSourceResult dataSource={dataSource} not_search={true}/>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="right">
-                    <ApplicationContact application={this.state.application} />
-                </div>
-            </div>
-        </>
-        );
-    }
-
-    render() {
-        return (
-            <div className="ApplicationPage">
-                {this.renderContent()}
-            </div>
-        );
+        if (this.state.error) {
+            <Error error={this.state.error}/>
+        }
+        emptyDataSource.application = this.state.application
+        return this.state.application.data_source_count > 0 ?
+            (
+                <Redirect to={{
+                    pathname: "/search",
+                    search: "?application="+this.state.application.name
+                }}/>
+            ) : (
+                <DataSourcePage dataSource={emptyDataSource}/>
+            );
     }
 }
 

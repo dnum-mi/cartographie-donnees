@@ -2,7 +2,7 @@ export default {
   name: {
     attributeId: 'name',
     label: 'Nom',
-    headingLevel: 1,
+    headingLevel: 3,
     type: 'text',
     tooltip: 'Nom de la donnée',
   },
@@ -192,8 +192,8 @@ export default {
       type: 'text',
       tooltip: "Contact de l'application",
     },
-    data_sources_count: {
-      attributeId: 'data_sources_count',
+    data_source_count: {
+      attributeId: 'data_source_count',
       label: "Nombre de données décrites",
       type: 'text',
       inputType: 'number',
@@ -230,17 +230,17 @@ export default {
       suffixAttributeId: 'monthly_connection_count_comment',
       suffixAttributeLabel: 'Commentaire sur le nombre de connexions mensuelles',
     },
-    validation_date: {
-      attributeId: 'application_validation_date',
-      label: 'Date de validation',
-      type: 'text',
-      tooltip: 'Date de validation',
-    },
     historic: {
       attributeId: 'application_historic',
       label: 'Historique',
       type: 'text',
       tooltip: "Historique",
+    },
+    validation_date: {
+      attributeId: 'application_validation_date',
+      label: 'Date de validation',
+      type: 'text',
+      tooltip: 'Date de validation',
     },
   },
 };
