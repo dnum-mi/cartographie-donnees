@@ -23,7 +23,10 @@ class EnumerationItem extends React.Component {
     }
 
     updateEnumerationFromApi() {
-        updateEnumeration(this.props.item.id, {category: this.props.item.category, value: this.state.value})
+        updateEnumeration(this.props.item.id, {
+            category: this.props.item.category,
+            full_path: this.state.value,
+        })
             .then(() => {
             })
             .catch((error) => {

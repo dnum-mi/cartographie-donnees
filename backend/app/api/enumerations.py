@@ -103,6 +103,7 @@ def update_enumeration(enumeration_id):
         enumeration.update_from_dict(json)
         db.session.commit()
         db.session.refresh(enumeration)
+        Application.reindex()
         DataSource.reindex()
         return jsonify(enumeration.to_dict())
     except Exception as e:

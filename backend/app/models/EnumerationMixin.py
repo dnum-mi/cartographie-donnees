@@ -57,9 +57,10 @@ class EnumerationMixin(BaseModel):
         }
 
     def update_from_dict(self, data):
-        # An enumeration category cannot be changed
-        # The administrator has to delete and recreate it
-        self.value = data.get('value')
+        value, parent = self.get_value_and_parent_from_full_path(data['full_path'])
+        self.value = value
+        if parent:
+            parent.children.append(self)
 
     @classmethod
     def get_or_create_parent_from_full_path(cls, full_path):
@@ -72,14 +73,19 @@ class EnumerationMixin(BaseModel):
         return parent
 
     @classmethod
-    def from_dict(cls, data):
-        if FULL_PATH_DELIMITER in data['full_path']:
-            splitted = data['full_path'].rsplit(FULL_PATH_DELIMITER, 1)
+    def get_value_and_parent_from_full_path(cls, full_path):
+        if FULL_PATH_DELIMITER in full_path:
+            splitted = full_path.rsplit(FULL_PATH_DELIMITER, 1)
             parent = cls.get_or_create_parent_from_full_path(splitted[0].strip())
             value = splitted[1].strip()
         else:
-            value = data['full_path'].strip()
+            value = full_path.strip()
             parent = None
+        return value, parent
+
+    @classmethod
+    def from_dict(cls, data):
+        value, parent = cls.get_value_and_parent_from_full_path(data['full_path'])
         new_enumeration = cls(value=value)
         if parent:
             parent.children.append(new_enumeration)
