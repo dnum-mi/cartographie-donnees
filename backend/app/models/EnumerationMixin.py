@@ -9,9 +9,11 @@ from sqlalchemy.ext.declarative import declared_attr
 class EnumerationMixin(BaseModel):
 
     __abstract__ = True
+    __table_args__ = (db.UniqueConstraint('value', 'parent_id'),)
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    value = db.Column(db.String, nullable=False, unique=True)
+    value = db.Column(db.String, nullable=False)
+    label = db.Column(db.String)
 
     @declared_attr
     def parent_id(cls):
@@ -48,17 +50,20 @@ class EnumerationMixin(BaseModel):
         return {
             'value': self.value,
             'full_path': self.full_path,
+            'label': self.label,
             'id': self.id
         }
 
     def to_export(self):
         return {
             'full_path': self.full_path,
+            'label': self.label,
         }
 
     def update_from_dict(self, data):
         value, parent = self.get_value_and_parent_from_full_path(data['full_path'])
         self.value = value
+        self.label = data.get('label')
         if parent:
             parent.children.append(self)
 
@@ -86,7 +91,7 @@ class EnumerationMixin(BaseModel):
     @classmethod
     def from_dict(cls, data):
         value, parent = cls.get_value_and_parent_from_full_path(data['full_path'])
-        new_enumeration = cls(value=value)
+        new_enumeration = cls(value=value, label=data.get('label'))
         if parent:
             parent.children.append(new_enumeration)
         return new_enumeration
