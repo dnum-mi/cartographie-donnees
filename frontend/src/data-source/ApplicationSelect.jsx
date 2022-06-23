@@ -1,7 +1,8 @@
 import React from "react";
-import {Select, Spin} from "antd";
+import {Divider, Select, Spin} from "antd";
 import {fetchApplications} from "../api";
 import Loading from "../components/Loading";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 
 export default class ApplicationSelect extends React.Component {
     constructor(props) {
@@ -25,19 +26,31 @@ export default class ApplicationSelect extends React.Component {
             return <Loading />;
         }
         return (
-            <Select
-                value={this.props.value.id}
-                placeholder="Sélectionnez une application"
-                showSearch
-                onChange={this.onChange}
-                style={{ width: '100%' }}
-            >
-                {this.state.applications.map((application) =>
-                    <Select.Option key={application.id} value={application.id}>
-                        {application.name}
-                    </Select.Option>
-                )}
-            </Select>
+            <div className="attribute">
+                <label
+                    className="attribute-label"
+                >
+                    Choix d'Application
+                    <QuestionCircleOutlined
+                        className="attribute-tooltip"
+                        title="xxxx"
+                    />
+                </label>
+                <Select
+                    value={this.props.value.id}
+                    placeholder="Sélectionnez une application"
+                    showSearch
+                    onChange={this.onChange}
+                    style={{ width: '100%' }}
+                >
+                    {this.state.applications.map((application) =>
+                        <Select.Option key={application.id} value={application.id}>
+                            {application.name}
+                        </Select.Option>
+                    )}
+                </Select>
+                <Divider/>
+            </div>
         );
     }
 }

@@ -18,7 +18,7 @@ import emptyDataSource from "./emptyDataSourceForApplication.json";
 import Error from "../components/Error";
 import Loading from "../components/Loading";
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 
 class ApplicationPage extends React.Component {
@@ -63,60 +63,27 @@ class ApplicationPage extends React.Component {
             });
     }
 
-    showDeleteConfirm = () => {
-        this.setState({
-            loading: true,
-            error: null,
-        });
-        confirm({
-            title: 'Êtes-vous sûr de vouloir supprimer cette Application ?',
-            icon: <ExclamationCircleOutlined />,
-            content: 'Vérifier qu\'aucunes données n\'est liées à cette application',
-            okText: 'Oui',
-            okType: 'danger',
-            cancelText: 'Non',
-            onOk: () => {
-                deleteApplication(this.props.match.params.applicationId)
-                    .then(() => {
-                        this.props.history.replace('/admin/applications');
-                        this.setState({
-                            loading: false,
-                    })
-                    })
-                    .catch((error) => {
-                        this.setState({
-                            loading: false,
-                            error: error,
-                    })
-                });
-            },
-            onCancel: () => {
-                console.log('Cancel');
-            },
-        });
-    }
-
-      uploadfile = ({ onSuccess, onError, file }) => {
+    uploadfile = ({onSuccess, onError, file}) => {
         confirm({
             title: 'Import des données',
-            icon: <ExclamationCircleOutlined />,
-            content: "Vous êtes sur le point de remplacer les données présentes dans l'application "+this.state.application.name+". Cette action est irréversible ! \
+            icon: <ExclamationCircleOutlined/>,
+            content: "Vous êtes sur le point de remplacer les données présentes dans l'application " + this.state.application.name + ". Cette action est irréversible ! \
             Vous pouvez comparer votre fichier avec la base actuelle en téléchargeant le fichier CSV à l'aide du bouton\
             d'export. Vérifiez que vous avez bien importé les applications nécessaires.",
-                onOk: () => {
-                    this.setState({
-                        loading: true,
-                        error: null,
-                    });
-                    const formData = new FormData();
-                    formData.append("file", file);
-                    formData.append("application_id", this.state.application.id);
-                    importDataSourceByApplication(formData, this.props.match.params.applicationId)
+            onOk: () => {
+                this.setState({
+                    loading: true,
+                    error: null,
+                });
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("application_id", this.state.application.id);
+                importDataSourceByApplication(formData, this.props.match.params.applicationId)
                     .then((res) => {
                         onSuccess(null, file);
                         this.readApplicationFromApi();
                         this.setState({
-                            error:null,
+                            error: null,
                         });
                     })
                     .catch((error) => {
@@ -125,12 +92,12 @@ class ApplicationPage extends React.Component {
                             error: error,
                         });
                     });
-                },
-                onCancel() {
-                    console.log('Cancel');
-                },
-            });
-        };
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
 
     export = () => {
         exportDataSourcesOfApplication("Données_de_" + this.state.application.name + ".csv", this.state.application.id);
@@ -146,13 +113,19 @@ class ApplicationPage extends React.Component {
             dataSource.application.id,
             dataSource.application,
         )
-            .then(() => {
-                if(dataSource.name) {
+            .then((response) => {
+                if (dataSource.name) {
                     createDataSource(
                         dataSource,
                     ).then((results) => {
-                        this.props.history.push("datasource/"+results.data.id)
+                        this.props.history.push("datasources/" + results.data.id)
                     })
+                } else {
+                    this.setState({
+                        application: response.data,
+                        loading: false,
+                        error: null,
+                    });
                 }
             })
             .catch((error) => {
@@ -165,7 +138,7 @@ class ApplicationPage extends React.Component {
 
     render() {
         if (this.state.loading) {
-            return <Loading />;
+            return <Loading/>;
         }
         if (this.state.error) {
             return <Error error={this.state.error}/>
@@ -175,7 +148,7 @@ class ApplicationPage extends React.Component {
             (
                 <Redirect to={{
                     pathname: "/search",
-                    search: "?application="+this.state.application.name
+                    search: "?application=" + this.state.application.name
                 }}/>
             ) : (
                 <DataSourcePage dataSource={emptyDataSource} handleSubmit={this.handleSubmit}/>

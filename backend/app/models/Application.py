@@ -228,7 +228,6 @@ class Application(SearchableMixin, BaseModel):
 
     @validates('historic')
     def validate_historic(self, key, historic):
-        print(historic)
         if not historic:
             return historic
         elif isinstance(historic, int):

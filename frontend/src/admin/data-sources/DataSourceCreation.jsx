@@ -1,10 +1,10 @@
 import React from 'react';
 import queryString from 'query-string'
-import { withRouter } from 'react-router-dom';
-import { Spin } from 'antd';
+import {withRouter} from 'react-router-dom';
+import {Spin} from 'antd';
 
-import { createDataSource } from "../../api";
-import { readApplication } from '../../api';
+import {createDataSource, updateApplication, updateDataSource} from "../../api";
+import {readApplication} from '../../api';
 import Error from "../../components/Error";
 
 import './DataSourceCreation.css';
@@ -22,7 +22,7 @@ class DataSourceCreation extends React.Component {
             error: null,
             application_id: application_id,
         };
-        if (application_id != undefined){
+        if (application_id != undefined) {
             this.readApplicationFromApi();
         }
     }
@@ -48,11 +48,22 @@ class DataSourceCreation extends React.Component {
             });
     }
 
-    submitForm = (dataSource) => {
-        this.setState({ loading: true });
-        createDataSource(dataSource)
-            .then(() => {
-                this.props.history.push('/admin/data-sources');
+    handleSubmit = (event, dataSource) => {
+        event.preventDefault();
+        this.setState({
+            loading: true,
+            error: null,
+        });
+        updateApplication(
+            dataSource.application.id,
+            dataSource.application,
+        )
+            .then((response) => {
+                createDataSource(
+                    dataSource,
+                ).then((results) => {
+                    this.props.history.push("datasources/" + results.data.id)
+                })
             })
             .catch((error) => {
                 this.setState({
@@ -64,16 +75,16 @@ class DataSourceCreation extends React.Component {
 
     render() {
         let dataSource = {}
-        if (this.state.application){
+        if (this.state.application) {
             dataSource["application_name"] = this.state.application.name;
             dataSource["application"] = this.state.application;
         }
         return (
             <Spin tip="Envoi en cours..." spinning={this.state.loading}>
                 <div className="DataSourceCreation">
-                    {this.state.error && <Error error={this.state.error} />}
+                    {this.state.error && <Error error={this.state.error}/>}
                     <div>
-                        <DataSourcePage forceEdit={true} dataSource={emptyDataSource}/>
+                        <DataSourcePage forceEdit={true} dataSource={emptyDataSource} handleSubmit={this.handleSubmit}/>
                     </div>
                 </div>
             </Spin>
