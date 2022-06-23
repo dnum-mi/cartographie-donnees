@@ -76,6 +76,7 @@ class TextAttribute extends React.Component {
         <TextArea
           id={this.props.attributeId}
           defaultValue={this.props.value}
+          value={this.props.value}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
           onChange={(e) => this.props.onChange(e.target.value)}
@@ -86,6 +87,7 @@ class TextAttribute extends React.Component {
         <Input
           id={this.props.attributeId}
           defaultValue={this.props.value}
+          value={this.props.value}
           type={this.props.inputType}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}

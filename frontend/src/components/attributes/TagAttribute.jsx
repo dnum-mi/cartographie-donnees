@@ -29,6 +29,7 @@ class TagAttribute extends React.Component {
           mode={this.props.tagMode === 'multiple' ? 'multiple' : null}
           onChange={this.props.onChange}
           defaultValue={this.props.value}
+          value={this.props.value}
         />
       </div>
     )

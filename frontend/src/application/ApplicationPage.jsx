@@ -3,7 +3,15 @@ import {Redirect, withRouter} from 'react-router-dom';
 import {Modal} from 'antd';
 import {ExclamationCircleOutlined} from '@ant-design/icons';
 
-import {deleteApplication, exportDataSourcesOfApplication, importDataSourceByApplication, readApplication} from '../api';
+import {
+    createDataSource,
+    deleteApplication,
+    exportDataSourcesOfApplication,
+    importDataSourceByApplication,
+    readApplication,
+    updateApplication,
+    updateDataSource
+} from '../api';
 import './ApplicationPage.css';
 import DataSourcePage from "../data-source/DataSourcePage";
 import emptyDataSource from "./emptyDataSourceForApplication.json";
@@ -128,21 +136,39 @@ class ApplicationPage extends React.Component {
         exportDataSourcesOfApplication("Données_de_" + this.state.application.name + ".csv", this.state.application.id);
     }
 
-    userOwnsApplication = () => this.state.application && this.props.user &&
-        ((this.props.user.applications
-            .map((app) => app.id)
-            .indexOf(this.state.application.id) > -1) || this.userHasAdminPrivileges())
-
-    userHasAdminPrivileges = () => this.props.user && (
-        this.props.user.is_admin
-    );
+    handleSubmit = (event, dataSource) => {
+        event.preventDefault();
+        this.setState({
+            loading: true,
+            error: null,
+        });
+        updateApplication(
+            dataSource.application.id,
+            dataSource.application,
+        )
+            .then(() => {
+                if(dataSource.name) {
+                    createDataSource(
+                        dataSource,
+                    ).then((results) => {
+                        this.props.history.push("datasource/"+results.data.id)
+                    })
+                }
+            })
+            .catch((error) => {
+                this.setState({
+                    loading: false,
+                    error,
+                });
+            });
+    };
 
     render() {
         if (this.state.loading) {
             return <Loading />;
         }
         if (this.state.error) {
-            <Error error={this.state.error}/>
+            return <Error error={this.state.error}/>
         }
         emptyDataSource.application = this.state.application
         return this.state.application.data_source_count > 0 ?
@@ -152,7 +178,7 @@ class ApplicationPage extends React.Component {
                     search: "?application="+this.state.application.name
                 }}/>
             ) : (
-                <DataSourcePage dataSource={emptyDataSource}/>
+                <DataSourcePage dataSource={emptyDataSource} handleSubmit={this.handleSubmit}/>
             );
     }
 }

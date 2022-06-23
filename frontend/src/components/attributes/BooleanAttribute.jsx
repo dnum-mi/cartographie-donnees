@@ -16,6 +16,7 @@ class BooleanAttribute extends React.Component {
         <Checkbox
           id={this.props.attributeId}
           defaultChecked={this.props.value}
+          checked={this.props.value}
           className="attribute-input"
           onChange={(e) => this.props.onChange(e.target.checked)}
         />
