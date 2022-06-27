@@ -118,12 +118,10 @@ def search_applications_limited():
     count = int(request.args.get('count', 1000))
     query = request.args.get('q', '', type=str)
     organization = request.args.get('organization', '', type=str)
-    fields = []
-    values = []
+    request_args = {}
     if organization:
-        fields.append("organization")
-        values.append(organization)
-    applications, total, total_count = Application.search_with_filter(query, fields, values, page, count)
+        request_args["organization"] = [organization]
+    applications, total, total_count = Application.search_with_filter(query, request_args, page, count)
     if not current_user.is_admin:
         application_of_user = []
         for application in applications:
@@ -136,6 +134,7 @@ def search_applications_limited():
         results=[application.to_dict() for application in application_of_user]
     ))
 
+
 @app.route('/api/applications/search', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
@@ -144,16 +143,15 @@ def search_applications():
     count = int(request.args.get('count', 1000))
     query = request.args.get('q', '', type=str)
     organization = request.args.get('organization', '', type=str)
-    fields = []
-    values = []
+    request_args = {}
     if organization:
-        fields.append("organization")
-        values.append(organization)
-    applications, total, total_count = Application.search_with_filter(query, fields, values, page, count)
+        request_args["organization"] = [organization]
+    applications, total, total_count = Application.search_with_filter(query, request_args, page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
     ))
+
 
 @app.route('/api/applications/count', methods=['GET'])
 def count_applications():
@@ -161,6 +159,7 @@ def count_applications():
     if not current_user.is_admin:
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     return str(base_query.count())
+
 
 @app.route('/api/applications/organizations', methods=['GET'])
 def fetch_application_organizations():

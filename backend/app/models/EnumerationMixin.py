@@ -9,7 +9,10 @@ from sqlalchemy.ext.declarative import declared_attr
 class EnumerationMixin(BaseModel):
 
     __abstract__ = True
-    __table_args__ = (db.UniqueConstraint('value', 'parent_id'),)
+
+    @declared_attr
+    def __table_args__(cls):
+        return tuple([db.UniqueConstraint('value', 'parent_id')])
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     value = db.Column(db.String, nullable=False)
@@ -46,13 +49,19 @@ class EnumerationMixin(BaseModel):
     def __repr__(self):
         return f'<{type(self).__name__} {self.value}>'
 
-    def to_dict(self):
-        return {
+    def to_dict(self, populate_children=False, populate_tree=False):
+        return_dict = {
             'value': self.value,
             'full_path': self.full_path,
             'label': self.label,
             'id': self.id
         }
+        if populate_children:
+            return_dict['children'] = [
+                child.to_dict(populate_children=populate_tree)
+                for child in self.children
+            ]
+        return return_dict
 
     def to_export(self):
         return {
@@ -66,6 +75,31 @@ class EnumerationMixin(BaseModel):
         self.label = data.get('label')
         if parent:
             parent.children.append(self)
+
+    def get_children_recursively(self):
+        rv = []
+        for child in self.children:
+            rv.append(child)
+            if len(child.children):
+                rv = rv.concat(child.get_children_recursively())
+        return rv
+
+    def get_children_full_paths_recursively(self):
+        return [child.full_path for child in self.get_children_recursively()]
+
+    @classmethod
+    def find_by_full_path(cls, full_path):
+        all_records = cls.query.all()
+        matches = [record for record in all_records if record.full_path == full_path]
+        if len(matches) == 0:
+            raise ValueError(f'Enumeration {full_path} of class {cls.__name__} not found')
+        return matches[0]
+
+    @classmethod
+    def get_tree_dict(cls):
+        """Fetch all records from db and return a tree of the results"""
+        record_list = cls.query.filter_by(parent_id=None).all()
+        return [record.to_dict(populate_children=True) for record in record_list]
 
     @classmethod
     def get_or_create_parent_from_full_path(cls, full_path):

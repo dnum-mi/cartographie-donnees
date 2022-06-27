@@ -1,6 +1,10 @@
+import copy
+import json
+
 from flask import current_app
 from app import app
 import unidecode
+
 
 def remove_accent(string):
     if isinstance(string, str):
@@ -10,6 +14,7 @@ def remove_accent(string):
         return [remove_accent(s) for s in string]
     else:
         return string
+
 
 def add_to_index(index, model):
     if not current_app.elasticsearch:
@@ -25,6 +30,7 @@ def remove_all_from_index(index):
         return
     if current_app.elasticsearch.indices.exists(index=index):
         current_app.elasticsearch.delete_by_query(index=index, body={"query": {"match_all": {}}})
+
 
 def remove_from_index(index, model):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
@@ -56,7 +62,56 @@ def query_index(index, query, searchable_fields, page, per_page):
     return ids, search['hits']['total']['value']
 
 
-def create_query_filter(index, query, fields, values, searchable_fields):
+def create_filter_value_query(field, value):
+    from .models import get_enumeration_model_by_name
+    cls = get_enumeration_model_by_name(field)
+    instance = cls.find_by_full_path(value)
+    enum_instances_to_search = instance.get_children_recursively()
+    if len(enum_instances_to_search) == 0:
+        return {
+            'term': {
+                field + "_name.keyword": remove_accent(instance.full_path)
+            }
+        }
+    enum_instances_to_search.append(instance)
+    result = {
+        "bool": {
+            "should": [],
+            "minimum_should_match": 1
+        }
+    }
+    for enum_instance in enum_instances_to_search:
+        result['bool']['should'].append({
+            'term': {
+                field + "_name.keyword": remove_accent(enum_instance.full_path)
+            }
+        })
+    return result
+
+
+def add_filters_query(body, filters_dict):
+    from .models import get_enumeration_type_by_name
+    result = copy.deepcopy(body)
+    for field, field_values in filters_dict.items():
+        if len(field_values) > 0:
+            enum_type = get_enumeration_type_by_name(field)
+            bool_condition = 'must' if enum_type == 'multiple' else 'should'
+            if (
+                'query' not in result or
+                'bool' not in result['query'] or
+                bool_condition not in result['query']['bool']
+            ):
+                result["query"]["bool"][bool_condition] = []
+            for v in field_values:
+                result["query"]["bool"][bool_condition].append(
+                    create_filter_value_query(field, v)
+                )
+            if bool_condition == 'should':
+                result["query"]["bool"]["minimum_should_match"] = 1
+    return result
+
+
+def create_query_filter(query, filters_dict, searchable_fields):
     query = '*' + query + '*'
     app.logger.info('Searching with query : ' + query)
     body = {
@@ -71,32 +126,17 @@ def create_query_filter(index, query, fields, values, searchable_fields):
             },
         }
     }
-    if fields:
-        for field, value in zip(fields, values):
-            if isinstance(value, list):
-                for v in value:
-                    body["query"]["bool"]["must"].append(
-                        {
-                            'terms': {
-                                field + ".keyword": remove_accent([v])
-                            }
-                        }
-                    )
-            else:
-                body["query"]["bool"]["must"].append(
-                    {
-                        'term': {
-                            field+".keyword": remove_accent(value)
-                        }
-                    }
-                )
+    if filters_dict:
+        body = add_filters_query(body, filters_dict)
+    print(json.dumps(body))
     return body
 
-def query_index_with_filter(index, query, fields, values, searchable_fields, page, per_page):
+
+def query_index_with_filter(index, query, filters_dict, searchable_fields, page, per_page):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return [], 0, 0
 
-    body = create_query_filter(index, query, fields, values, searchable_fields)
+    body = create_query_filter(query, filters_dict, searchable_fields)
 
     total_count = current_app.elasticsearch.count(index=index, body=body)["count"]
 
@@ -112,16 +152,17 @@ def query_index_with_filter(index, query, fields, values, searchable_fields, pag
     app.logger.info('Number of results : ' + str(len(ids)))
     return ids, search['hits']['total'], total_count
 
+
 def query_count(index, query, fields, values, searchable_fields, field):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return [], 0, 0
 
     body = create_query_filter(index, query, fields, values, searchable_fields)
     body["aggs"] = {
-        'fields':{
-            'terms':{
-                'field': field+".keyword",
-                "size":500
+        'fields': {
+            'terms': {
+                'field': field + ".keyword",
+                "size": 500
             }
         }
     }

@@ -8,7 +8,7 @@ class SearchableMixin(object):
     def search(cls, expression, page, per_page):
         ids, total = query_index(cls.__tablename__, expression, cls.__searchable__, page, per_page)
         if total == 0:
-            return cls.query.filter_by(id=0), 0
+            return [], 0
         when = []
         for i in range(len(ids)):
             when.append((ids[i], i))
@@ -16,10 +16,10 @@ class SearchableMixin(object):
             db.case(when, value=cls.id)), total
 
     @classmethod
-    def search_with_filter(cls, expression, fields, values, page, per_page):
-        ids, total, total_count = query_index_with_filter(cls.__tablename__, expression, fields, values, cls.__searchable__, page, per_page)
+    def search_with_filter(cls, query, filters_dict, page, per_page):
+        ids, total, total_count = query_index_with_filter(cls.__tablename__, query, filters_dict, cls.__searchable__, page, per_page)
         if total == 0:
-            return cls.query.filter_by(id=0), 0, total_count
+            return [], 0, total_count
         when = []
         for i in range(len(ids)):
             when.append((ids[i], i))

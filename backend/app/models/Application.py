@@ -1,7 +1,6 @@
-from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import validates
 from app import db
-from app.models import SearchableMixin, User, BaseModel, Organization
+from app.models import User, BaseModel, Organization, SearchableMixin
 
 from app.search import remove_accent
 

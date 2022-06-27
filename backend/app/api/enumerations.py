@@ -6,7 +6,8 @@ import csv
 from app import app, db
 from app.decorators import admin_required, admin_or_any_owner_required
 from flask_login import login_required
-from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, UpdateFrequency, Origin, Tag
+from app.models import DataSource, Application, Type, Family, Organization, Exposition, \
+    Sensibility, OpenData, UpdateFrequency, Origin, Tag, get_enumeration_model_by_name
 from app.constants import field_english_to_french_dic, field_french_to_english_dic, enumeration_english_to_french, enumeration_french_to_english
 
 from app.search import remove_accent
@@ -15,35 +16,12 @@ all_category = [Family, Organization, Type, Sensibility, OpenData, Exposition, O
 required = [Type, Family, Organization]
 
 
-def get_enumeration_model_by_name(name):
-    if name.lower() == "type":
-        return Type
-    elif name.lower() == "family":
-        return Family
-    elif name.lower() == "organization":
-        return Organization
-    elif name.lower() == "sensibility":
-        return Sensibility
-    elif name.lower() == "classification":
-        return Family
-    elif name.lower() == "exposition":
-        return Exposition
-    elif name.lower() == "referentiel":
-        return Family
-    elif name.lower() == "open_data":
-        return OpenData
-    elif name.lower() == "update_frequency":
-        return UpdateFrequency
-    elif name.lower() == "origin":
-        return Origin
-    elif name.lower() == "tag":
-        return Tag
-
 @app.route('/api/enumerations/categories', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def get_enumeration_categories():
     return jsonify([enumeration_english_to_french[category.__tablename__] for category in all_category])
+
 
 @app.route('/api/enumerations', methods=['GET'])
 @login_required
