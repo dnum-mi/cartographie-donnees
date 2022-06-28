@@ -128,7 +128,6 @@ def create_query_filter(query, filters_dict, searchable_fields):
     }
     if filters_dict:
         body = add_filters_query(body, filters_dict)
-    print(json.dumps(body))
     return body
 
 

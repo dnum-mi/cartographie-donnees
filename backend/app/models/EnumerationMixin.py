@@ -49,7 +49,7 @@ class EnumerationMixin(BaseModel):
     def __repr__(self):
         return f'<{type(self).__name__} {self.value}>'
 
-    def to_dict(self, populate_children=False, populate_tree=False):
+    def to_dict(self, populate_children=False):
         return_dict = {
             'value': self.value,
             'full_path': self.full_path,
@@ -58,7 +58,7 @@ class EnumerationMixin(BaseModel):
         }
         if populate_children:
             return_dict['children'] = [
-                child.to_dict(populate_children=populate_tree)
+                child.to_dict(populate_children=populate_children)
                 for child in self.children
             ]
         return return_dict
@@ -99,7 +99,10 @@ class EnumerationMixin(BaseModel):
     def get_tree_dict(cls):
         """Fetch all records from db and return a tree of the results"""
         record_list = cls.query.filter_by(parent_id=None).all()
-        return [record.to_dict(populate_children=True) for record in record_list]
+        return [
+            record.to_dict(populate_children=True)
+            for record in record_list
+        ]
 
     @classmethod
     def get_or_create_parent_from_full_path(cls, full_path):

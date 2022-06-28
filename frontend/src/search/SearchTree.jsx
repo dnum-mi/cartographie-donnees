@@ -1,18 +1,58 @@
 import React from "react";
 import { Collapse, Tree } from 'antd';
+import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import './SearchTree.css';
 const { Panel } = Collapse;
 
-class SearchTree extends React.Component{
+class SearchTree extends React.Component {
     constructor(props){
         super(props);
         this.state = {
             expandedKeys : this.props.expandedKeys,
             selectedKeys : this.props.selectedKeys,
             autoExpandParent : true,
+            expanded: false,
         }
     }
+
+    isExpanded = () => !this.hasMoreChoices() || this.state.expanded;
+
+    hasMoreChoices = () => this.props.treeData && this.props.treeData.length > this.props.countToShow;
+
+    nodeCount = (tree) => {
+        let result = 0;
+        for (let root of tree) {
+            result += 1;  // Count this root
+            if (root.children && root.children.length > 0) {
+                result += this.nodeCount(root.children);
+            }
+        }
+        return result;
+    }
+
+    number_not_shown = () => {
+        if (!this.props.treeData) {
+            return null;
+        }
+        const hiddenTree = this.props.treeData.filter((val, i) => i >= this.props.countToShow);
+        return this.nodeCount(hiddenTree);
+    };
+
+    prepareTreeData = (treeData) => {
+        return this.filterMoreChoices(treeData);
+    };
+
+    filterMoreChoices = (treeData) => {
+        if (!treeData) {
+            return [];
+        }
+        if (this.isExpanded()) {
+            return treeData
+        }
+        return treeData.filter((val, i) => i < this.props.countToShow);
+    };
 
     flatTree = (treeData) => {
         let result = [];
@@ -26,7 +66,6 @@ class SearchTree extends React.Component{
     }
 
     addChildren = (keys) => {
-        console.log('addChildren');
         console.log(keys);
         let result = [...keys];
         for (let key of keys) {
@@ -77,10 +116,28 @@ class SearchTree extends React.Component{
         }
     }
 
-    render(){
+    renderMoreChoices = () => (
+        <div
+          className="more-choice"
+          onClick={() => {
+              this.setState({
+                  expanded: true,
+              });
+          }}
+        >
+            <span>
+                Plus de choix ({this.number_not_shown()})...
+            </span>
+            <span>
+                - / -
+            </span>
+        </div>
+    )
+
+    render() {
         return(
             <Collapse
-                className="SearchFilter"
+                className="SearchTree"
                 onChange={this.onClickHeader}
             >
                 <Panel
@@ -96,13 +153,28 @@ class SearchTree extends React.Component{
                         autoExpandParent={this.state.autoExpandParent}
                         onCheck={this.onCheck}
                         checkedKeys={this.addChildren(this.props.checkedKeys)}
-                        treeData={this.props.treeData}
+                        treeData={this.prepareTreeData(this.props.treeData)}
                         fieldNames={{ title: 'value', key: 'full_path', children: 'children' }}
                     />
+                    {!this.isExpanded() && this.renderMoreChoices()}
                 </Panel>
             </Collapse>
         )
     }
+}
+
+SearchTree.defaultProps = {
+    countToShow: 5,
+}
+
+SearchTree.propTypes = {
+    filterCategoryName: PropTypes.string,
+    treeData: PropTypes.array,
+    tooltip: PropTypes.string,
+    countToShow: PropTypes.number,
+    multiple: PropTypes.bool,
+    onSelectedFiltersChange: PropTypes.func,
+    checkedKeys: PropTypes.arrayOf(PropTypes.string),
 }
 
 export default withRouter(SearchTree);

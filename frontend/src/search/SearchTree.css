@@ -1,31 +1,33 @@
-.SearchFilter .filter-row {
+.SearchTree .filter-row {
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     cursor: pointer;
 }
 
-.SearchFilter .filter-row.selected {
+.SearchTree .filter-row.selected {
     font-weight:bold;
 }
 
-.SearchFilter .filter-row:hover {
+.SearchTree .filter-row:hover {
     color: rgba(0, 0, 0, 0.5);
 }
 
-.SearchFilter .filter-row .filter-count {
+.SearchTree .filter-row .filter-count {
     color: rgba(0, 0, 0, 0.5);
 }
 
-.SearchFilter .more-choice {
+.SearchTree .more-choice {
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     color: rgba(0, 0, 0, 0.7);
     cursor: pointer;
+    margin-top: 5px;
+    margin-left: 24px;
 }
 
-.SearchFilter {
+.SearchTree {
     margin-bottom: 10px;
 }
 

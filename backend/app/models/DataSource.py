@@ -343,6 +343,7 @@ class DataSource(SearchableMixin, BaseModel):
             'exposition_name': self.exposition_name,
             'origin_name': self.origin_name,
             'application': self.application.to_dict(),
+            'organization_name': self.application.organization_name,
             'origin_application': self.origin_application.to_dict() if self.origin_application else None,
             'transformation': self.transformation,
             'reutilizations': [application.to_dict() for application in self.reutilizations],

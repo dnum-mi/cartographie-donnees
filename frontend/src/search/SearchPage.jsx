@@ -5,7 +5,6 @@ import { Input, Tag, Pagination, Button } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
-import SearchFilter from "./SearchFilter";
 import SearchTree from "./SearchTree";
 
 import {
@@ -15,6 +14,7 @@ import {
 } from "../api";
 import Loading from "../components/Loading";
 import Error from "../components/Error";
+import filters from "../filters";
 
 const { Search } = Input;
 
@@ -71,8 +71,7 @@ class SearchPage extends React.Component {
     }
 
     isFirstTime = () => {
-        if (
-          this.state.query
+        return !(this.state.query
           || this.state.selectedOrganization.length !== 0
           || this.state.selectedFamily.length !== 0
           || this.state.selectedType.length !== 0
@@ -83,13 +82,7 @@ class SearchPage extends React.Component {
           || this.state.selectedExposition.length !== 0
           || this.state.selectedOrigin.length !== 0
           || this.state.selectedClassification.length !== 0
-          || this.state.selectedTag.length !== 0
-        ) {
-            return false;
-        }
-        else {
-            return true;
-        }
+          || this.state.selectedTag.length !== 0);
     }
 
     readString(value) {
@@ -227,7 +220,12 @@ class SearchPage extends React.Component {
         const firstPage = 1 + (this.state.page_data_source - 1) * this.state.count_data_source;
         const lastPage = this.state.page_data_source * this.state.count_data_source;
         const totalElement = this.state.total_count_data_source;
-        const queryResume = 'Données ' + Math.min(firstPage, totalElement).toString() + ' à ' + Math.min(lastPage, totalElement).toString() + ' sur ' + totalElement.toString();
+        const queryResume = 'Données '
+          + Math.min(firstPage, totalElement).toString()
+          + ' à '
+          + Math.min(lastPage, totalElement).toString()
+          + ' sur '
+          + totalElement.toString();
         return queryResume;
     }
 
@@ -250,18 +248,37 @@ class SearchPage extends React.Component {
             .then(() => this.onSearch());
     }
 
-    renderFilter = (name, list, key, color, tooltip, multiple=false) => {
-        return (
-            <SearchTree
-                filterCategoryName={name}
-                treeData={list}
-                tooltip={tooltip}
-                color={color}
-                multiple={multiple}
-                onSelectedFiltersChange={(value) => this.onSelectedFiltersChange(key,value)}
-                checkedKeys={this.state[key]}
-            />
-        )
+    computeCount = (dataSourceValues, value) => {
+        return dataSourceValues.filter((dataSourceValue) => {
+            if (Array.isArray(dataSourceValue)) {
+                return dataSourceValue
+                  .map((val) => val.indexOf(value) > -1)
+                  .reduce((acc, val) => acc || val, false);
+            }
+            return dataSourceValue && dataSourceValue.indexOf(value) > -1;
+        }).length;
+    }
+
+    flatTree = (treeData) => {
+        let result = [];
+        for (let node of treeData) {
+            result.push(node.full_path);
+            if (node.children) {
+                result = result.concat(this.flatTree(node.children));
+            }
+        }
+        return result;
+    }
+
+    computeCountObject = (stateKey, attributeKey) => {
+        const countObject = {};
+        if (this.state[stateKey]) {
+            for (let value of this.flatTree(this.state[stateKey])) {
+                const values = this.state.dataSources.map((dataSource) => dataSource[attributeKey]);
+                countObject[value] = this.computeCount(values, value);
+            }
+        }
+        return countObject;
     }
 
     renderDataSourcesResults = () => {
@@ -272,25 +289,24 @@ class SearchPage extends React.Component {
         if (this.state.error) {
             return <Error error={this.state.error} />
         }
-        const filters = [];
-        filters.push(this.renderFilter("Familles", this.state.families, "selectedFamily", "blue", "Famille fonctionnelle de la donnée", true))
-        filters.push(this.renderFilter("Organisations", this.state.organizations, "selectedOrganization", "volcano", "MOA propriétaire de la donnée"))
-        filters.push(this.renderFilter("Applications", this.state.applications, "selectedApplication", "magenta", "Application hébergeant la donnée"))
-        filters.push(this.renderFilter("Types", this.state.types, "selectedType", "red", "Type de la donnée"))
-        filters.push(this.renderFilter("Référentiels", this.state.referentiels, "selectedReferentiel", "orange", "Type de référentiel s’il s’agit d’une donnée référentielle (par opposition aux données opérationnelles)"))
-        filters.push(this.renderFilter("Sensibilités", this.state.sensibilities, "selectedSensibility", "lime", "Sensibilité des données identifiantes"))
-        filters.push(this.renderFilter("Open Data", this.state.open_data, "selectedOpenData", "green", "La donnée est-elle publiable en Open Data ?"))
-        filters.push(this.renderFilter("Expositions", this.state.expositions, "selectedExposition", "gold", "Type de mises à disposition", true))
-        filters.push(this.renderFilter("Origines", this.state.origins, "selectedOrigin", "geekblue", "Origine fonctionnelle de la donnée"))
-        filters.push(this.renderFilter("Axes d'analyse", this.state.classifications, "selectedClassification", "purple", "Types de référentiels utilisés pour classifier la donnée", true))
-        filters.push(this.renderFilter("Tags", this.state.tags, "selectedTag", undefined, "Tags de la donnée", true))
         return (<>
             {this.renderSearchPageHeader()}
             <div className="content">
                 {this.renderLeftCol()}
                 <div className="right-col">
                     <div className="filters">
-                        {filters}
+                        {Object.keys(filters).map((key) => (
+                          <SearchTree
+                            filterCategoryName={filters[key].categoryName}
+                            treeData={this.state[filters[key].listKey]}
+                            tooltip={filters[key].tooltip}
+                            color={filters[key].color}
+                            multiple={filters[key].multiple}
+                            onSelectedFiltersChange={(value) => this.onSelectedFiltersChange(filters[key].selectedKey, value)}
+                            checkedKeys={this.state[filters[key].selectedKey]}
+                            resultsCount={this.computeCountObject(filters[key].listKey, filters[key].attributeKey)}
+                          />
+                          ))}
                     </div>
                 </div>
             </div>
@@ -299,7 +315,7 @@ class SearchPage extends React.Component {
 
     renderSearchPageHeader = () => {
         if (this.state.homeDescription) {
-            return;
+            return null;
         }
         else {
             return (
@@ -309,7 +325,14 @@ class SearchPage extends React.Component {
                             {this.getQueryResume()}
                         </span>
                         <div className="download-search">
-                            <Button onClick={this.export} type="secondary" icon={<DownloadOutlined />} disabled={!this.state.dataSources.length}>Télécharger les résultats</Button>
+                            <Button
+                              onClick={this.export}
+                              type="secondary"
+                              icon={<DownloadOutlined />}
+                              disabled={!this.state.dataSources.length}
+                            >
+                                Télécharger les résultats
+                            </Button>
                         </div>
                     </div>
                     <div>
@@ -394,34 +417,31 @@ class SearchPage extends React.Component {
     renderTagList = (key, color) => {
         if (this.state[key] && this.state[key].length > 0) {
             return this.state[key].map((value) => {
-                if(value != ''){
-                    return (<Tag color={color} closable onClose={(e) => {
-                                                this.onFilterSelect(key, value)
-                                            }
-                                        }
-                                        key={value}
-                                    >
-                                        {value}
-                                    </Tag>);
-            }});
+                return value ? (
+                    <Tag
+                        color={color}
+                        closable
+                        onClose={(e) => this.onFilterSelect(key, value)}
+                        key={value}
+                    >
+                        {value}
+                    </Tag>
+                ) : null;
+            });
         }
-       // return null;
     }
 
     renderDataSourceSelectedTags = () => {
-        var tags = [];
-        const tagNames = ["selectedFamily","selectedOrganization","selectedApplication", "selectedType","selectedReferentiel", "selectedSensibility","selectedOpenData", "selectedExposition",
-        "selectedOrigin","selectedClassification", "selectedTag"]
-        const colors = ["blue", "volcano", "magenta", "red",  "orange", "lime", "green", "gold", "geekblue", "purple", ""]
-        for(let i =0; i<tagNames.length;i++){
-            var temp = this.renderTagList(tagNames[i], colors[i]);
-            if(temp != null){
-                tags.push(temp);
-            }
-        }
         return (
             <div className="Tags">
-                {tags}
+                {
+                    Object.keys(filters)
+                      .map((key) => this.renderTagList(
+                        filters[key].selectedKey,
+                        filters[key].color,
+                      ))
+                      .filter((tagList) => tagList !== null)
+                }
             </div>
         );
     }
