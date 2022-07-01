@@ -210,7 +210,7 @@ def delete_enumeration(category, enumeration_id):
         if category == "Exposition":
             db.session.execute(f"DELETE FROM association_exposition WHERE exposition_id={enumeration_id}")
         if category == "Tag":
-            db.session.execute(f"DELETE FROM association_exposition WHERE tag_id={enumeration_id}")
+            db.session.execute(f"DELETE FROM association_tag WHERE tag_id={enumeration_id}")
         category = enumeration_french_to_english[category]
         Enumeration = get_enumeration_model_by_name(category)
         enumeration = get_enumeration(Enumeration, enumeration_id)
