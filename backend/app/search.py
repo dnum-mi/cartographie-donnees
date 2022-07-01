@@ -57,7 +57,8 @@ def bulk_add_to_index(index, models):
         for model in models
     ]
     flattened_body = [x for array in body for x in array]
-    return current_app.elasticsearch.bulk(body=flattened_body)
+    if len(flattened_body):
+        current_app.elasticsearch.bulk(body=flattened_body)
 
 
 def get_french_analyzer_payload():
