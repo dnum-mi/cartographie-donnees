@@ -62,7 +62,7 @@ class SearchTree extends React.Component {
     convertTitles = (treeData) => {
         return treeData.map((node) => {
             node.titleComponent = (
-              <div className="search-tree-row">
+              <div className="search-tree-row" title={node.label || node.value}>
                   <span className="search-tree-label">
                       {node.value}
                   </span>
