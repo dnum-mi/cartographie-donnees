@@ -94,7 +94,6 @@ def export_applications():
     return export_resource(Application, "applications.csv")
 
 
-
 @app.route('/api/applications/import', methods=['POST'])
 @login_required
 @admin_required

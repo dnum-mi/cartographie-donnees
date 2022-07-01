@@ -71,8 +71,7 @@ def create_data_source():
 @app.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
     query, request_args = get_request_args_data_source(request)
-    fields, values = get_fields_values(request_args)
-    data_sources, total, total_count = get_data_sources(query, 1, 10000, fields, values)
+    data_sources, total_count = DataSource.search_with_filter(query, request_args, 1, 10000)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
 
@@ -81,8 +80,7 @@ def export_data_source_request():
 @admin_or_owner_required
 def export_data_source_of_application(application_id):
     application = Application.query.get(application_id)
-    data_sources, total, total_count = get_data_sources("", 1, 10000, ["application_name"], [application.name])
-    return export_resource(DataSource, "data_sources_of_%s.csv" % (application.name), data_sources)
+    return export_resource(DataSource, f"data_sources_of_{application.name}.csv", application.data_sources)
 
 
 @app.route('/api/data-sources/export', methods=['GET'])
