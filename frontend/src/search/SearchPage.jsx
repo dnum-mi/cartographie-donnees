@@ -10,7 +10,7 @@ import SearchTree from "./SearchTree";
 import {
     searchDataSources, searchApplicationsOfDataSources, searchOrganizations, searchFamilies, searchTypes,
     searchReferentiels, searchSensibilities, searchOpenData, searchExpositions, searchOrigins, searchClassifications,
-    searchTags, exportSearchDataSources
+    searchTags, exportSearchDataSources, countDataSourcesByEnumeration
 } from "../api";
 import Loading from "../components/Loading";
 import Error from "../components/Error";
@@ -48,6 +48,7 @@ class SearchPage extends React.Component {
             origins: [],
             classifications: [],
             tags: [],
+            filtersCount: null,
         };
         return { ...state, ...this.parseQuery() }
     }
@@ -139,6 +140,9 @@ class SearchPage extends React.Component {
     refreshDataSources = (query) => searchDataSources(query || '')
         .then((response) => this.setStatePromise({ dataSources: response.data.results, total_count_data_source: response.data.total_count }));
 
+    refreshFilterCount = (query) => countDataSourcesByEnumeration(query || '')
+        .then((response) => this.setStatePromise({ filtersCount: response.data.results }));
+
     refreshFilters = () => Promise.all([
       this.refreshOrganizations(),
         this.refreshFamilies(),
@@ -192,7 +196,8 @@ class SearchPage extends React.Component {
         });
 
         this.refreshDataSources(search)
-            .then((response) => this.setStatePromise({ loading: false, error: null }))
+            .then(() => this.refreshFilterCount(search))
+            .then(() => this.setStatePromise({ loading: false, error: null }))
             .catch((error) => this.setStatePromise({ loading: false, error }));
     }
 
@@ -220,13 +225,12 @@ class SearchPage extends React.Component {
         const firstPage = 1 + (this.state.page_data_source - 1) * this.state.count_data_source;
         const lastPage = this.state.page_data_source * this.state.count_data_source;
         const totalElement = this.state.total_count_data_source;
-        const queryResume = 'Données '
+        return 'Données '
           + Math.min(firstPage, totalElement).toString()
           + ' à '
           + Math.min(lastPage, totalElement).toString()
           + ' sur '
           + totalElement.toString();
-        return queryResume;
     }
 
     //cliked on tag X below searchbar
@@ -281,6 +285,42 @@ class SearchPage extends React.Component {
         return countObject;
     }
 
+    enrichTreeWithNodeCount = (treeData, countObject) => {
+        const result = JSON.parse(JSON.stringify(treeData));
+        let sum = 0;
+        for (let node of result) {
+            let sumOfChildren = 0;
+            const count = countObject[node.full_path] || 0;
+            node.count = count
+            sum += count;
+            if (node.children) {
+                [node.children, sumOfChildren] = this.enrichTreeWithNodeCount(node.children, countObject);
+            }
+            node.count += sumOfChildren;
+        }
+        return [result, sum];
+    };
+
+    sortTree = (treeData) => {
+        const result = JSON.parse(JSON.stringify(treeData));
+        result.sort((a, b) => b.count - a.count);
+        for (let node of result) {
+            if (node.children && node.children.length) {
+                node.children = this.sortTree(node.children);
+            }
+        }
+        return result;
+    };
+
+    getFilterData = (key) => {
+        const treeData = this.state[filters[key].listKey];
+        const [treeDataWithCount, _] = this.enrichTreeWithNodeCount(
+          treeData,
+          this.state.filtersCount[filters[key].attributeKey],
+        );
+        return this.sortTree(treeDataWithCount);
+    };
+
     renderDataSourcesResults = () => {
 
         if (this.state.loading) {
@@ -298,13 +338,13 @@ class SearchPage extends React.Component {
                         {Object.keys(filters).map((key) => (
                           <SearchTree
                             filterCategoryName={filters[key].categoryName}
-                            treeData={this.state[filters[key].listKey]}
+                            treeData={this.getFilterData(key)}
                             tooltip={filters[key].tooltip}
                             color={filters[key].color}
                             multiple={filters[key].multiple}
                             onSelectedFiltersChange={(value) => this.onSelectedFiltersChange(filters[key].selectedKey, value)}
                             checkedKeys={this.state[filters[key].selectedKey]}
-                            resultsCount={this.computeCountObject(filters[key].listKey, filters[key].attributeKey)}
+                            resultsCount={this.state.total_count_data_source}
                           />
                           ))}
                     </div>

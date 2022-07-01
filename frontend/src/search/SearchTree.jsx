@@ -23,25 +23,64 @@ class SearchTree extends React.Component {
 
     nodeCount = (tree) => {
         let result = 0;
-        for (let root of tree) {
-            result += 1;  // Count this root
-            if (root.children && root.children.length > 0) {
-                result += this.nodeCount(root.children);
+        for (let node of tree) {
+            result += 1;  // Count this node
+            if (node.children && node.children.length > 0) {
+                result += this.nodeCount(node.children);
             }
         }
         return result;
     }
 
-    number_not_shown = () => {
+    nodeCountSum = (tree) => {
+        let result = 0;
+        for (let node of tree) {
+            result += node.count;
+            if (node.children && node.children.length > 0) {
+                result += this.nodeCountSum(node.children);
+            }
+        }
+        return result;
+    }
+
+    hiddenTree = () => this.props.treeData.filter((val, i) => i >= this.props.countToShow);
+
+    numberNotShown = () => {
         if (!this.props.treeData) {
             return null;
         }
-        const hiddenTree = this.props.treeData.filter((val, i) => i >= this.props.countToShow);
-        return this.nodeCount(hiddenTree);
+        return this.nodeCount(this.hiddenTree());
+    };
+
+    countOfNotShown = () => {
+        if (!this.props.treeData) {
+            return null;
+        }
+        return this.nodeCountSum(this.hiddenTree());
+    };
+
+    convertTitles = (treeData) => {
+        return treeData.map((node) => {
+            node.titleComponent = (
+              <div className="search-tree-row">
+                  <span className="search-tree-label">
+                      {node.value}
+                  </span>
+                  <span className="search-tree-count">
+                      {node.count}/{this.props.resultsCount}
+                  </span>
+              </div>
+            );
+            if (node.children && node.children.length) {
+                node.children = this.convertTitles(node.children);
+            }
+            return node;
+        });
     };
 
     prepareTreeData = (treeData) => {
-        return this.filterMoreChoices(treeData);
+        const filteredTree = this.filterMoreChoices(treeData);
+        return this.convertTitles(filteredTree);
     };
 
     filterMoreChoices = (treeData) => {
@@ -66,7 +105,6 @@ class SearchTree extends React.Component {
     }
 
     addChildren = (keys) => {
-        console.log(keys);
         let result = [...keys];
         for (let key of keys) {
             const children = this.flatTree(this.props.treeData)
@@ -126,10 +164,10 @@ class SearchTree extends React.Component {
           }}
         >
             <span>
-                Plus de choix ({this.number_not_shown()})...
+                Plus de choix ({this.numberNotShown()})...
             </span>
             <span>
-                - / -
+                {this.countOfNotShown()} / {this.props.resultsCount}
             </span>
         </div>
     )
@@ -147,6 +185,7 @@ class SearchTree extends React.Component {
                 >
                     <Tree
                         checkable
+                        blockNode
                         multiple={this.props.multiple}
                         onExpand={this.onExpand}
                         expandedKeys={this.state.expandedKeys}
@@ -154,7 +193,7 @@ class SearchTree extends React.Component {
                         onCheck={this.onCheck}
                         checkedKeys={this.addChildren(this.props.checkedKeys)}
                         treeData={this.prepareTreeData(this.props.treeData)}
-                        fieldNames={{ title: 'value', key: 'full_path', children: 'children' }}
+                        fieldNames={{ title: 'titleComponent', key: 'full_path', children: 'children' }}
                     />
                     {!this.isExpanded() && this.renderMoreChoices()}
                 </Panel>
@@ -174,6 +213,7 @@ SearchTree.propTypes = {
     countToShow: PropTypes.number,
     multiple: PropTypes.bool,
     onSelectedFiltersChange: PropTypes.func,
+    resultsCount: PropTypes.number,
     checkedKeys: PropTypes.arrayOf(PropTypes.string),
 }
 

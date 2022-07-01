@@ -13,8 +13,6 @@ from app.api.applications import get_application_by_name
 from app.api.commons import import_resource, export_resource
 from app.exceptions import CSVFormatError
 
-from app.search import remove_accent
-
 
 @app.route('/api/data-sources', methods=['GET'])
 @login_required
@@ -27,9 +25,8 @@ def fetch_data_sources():
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     datasources = base_query.all()
     total_count = base_query.count()
-    _list = [(data_source.id, remove_accent(data_source.name)) for data_source in datasources]
-    _list.sort(key=lambda tup: tup[1])
-    datasources = [DataSource.query.filter_by(id=id).one() for id, _ in _list][(page - 1) * count:page * count]
+    datasources = datasources[(page - 1) * count:page * count]
+    datasources = sorted(datasources, key=lambda ds: str.lower(ds.name))
     return jsonify(dict(
         total_count=total_count,
         results=[datasource.to_dict() for datasource in datasources]
@@ -182,16 +179,27 @@ def search_data_sources():
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
     query, request_args = get_request_args_data_source(request)
-    data_sources, total, total_count = DataSource.search_with_filter(query, request_args, page, count)
+    data_sources, total_count = DataSource.search_with_filter(
+        query, request_args, page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[data_source.to_dict() for data_source in data_sources]
     ))
 
 
+@app.route('/api/data-sources/count_by_enumeration', methods=['GET'])
+def count_data_sources_by_enumeration():
+    query, request_args = get_request_args_data_source(request)
+    count_dict, total_count = DataSource.query_count(query, request_args)
+    return jsonify(dict(
+        total_count=total_count,
+        results=count_dict,
+    ))
+
+
+@app.route('/api/data-sources/count', methods=['GET'])
 @login_required
 @admin_or_owner_required
-@app.route('/api/data-sources/count', methods=['GET'])
 def count_data_sources():
     base_query = DataSource.query
     if not current_user.is_admin:

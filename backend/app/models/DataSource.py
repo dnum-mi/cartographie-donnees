@@ -54,9 +54,12 @@ association_tag_table = db.Table(
 
 
 class DataSource(SearchableMixin, BaseModel):
-    __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name',
-                      'open_data_name', 'exposition_name', 'origin_name', 'application_name', 'application_potential_experimentation',
-                      'organization_name', 'application_goals', 'tag_name']
+    __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
+                      'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
+                      'application_potential_experimentation', 'organization_name', 'application_goals', 'tag_name']
+    __search_count__ = ['family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name',
+                        'open_data_name', 'exposition_name', 'origin_name', 'application_name',
+                        'organization_name', 'tag_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, server_default="", nullable=False)

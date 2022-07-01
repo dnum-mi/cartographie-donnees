@@ -16,6 +16,7 @@ ownerships = db.Table(
 
 class Application(SearchableMixin, BaseModel):
     __searchable__ = ['name', 'potential_experimentation', "goals", 'organization_name']
+    __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
@@ -106,15 +107,15 @@ class Application(SearchableMixin, BaseModel):
         }
 
         if populate_data_sources:
-            _list = [(data_source, remove_accent(data_source.name)) for data_source in self.data_sources]
-            _list.sort(key=lambda tup: tup[1])
-            data_sources = [data_source[0].to_dict() for data_source in _list]
-            result['data_sources'] = data_sources
+            result['data_sources'] = [
+                data_source.to_dict()
+                for data_source in sorted(self.data_sources, key=lambda ds: str.lower(ds.name))
+            ]
         if populate_owners:
-            _list = [(user, remove_accent(user.last_name)) for user in self.owners]
-            _list.sort(key=lambda tup: tup[1])
-            users = [user[0].to_dict() for user in _list]
-            result['owners'] = users
+            result['owners'] = [
+                owner.to_dict()
+                for owner in sorted(self.owners, key=lambda user: str.lower(user.last_name))
+            ]
         return result
 
     def to_export(self):
