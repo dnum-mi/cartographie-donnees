@@ -298,7 +298,7 @@ const DataSourceForm = ({ onSubmit, dataSource = {} }) => {
             >
                 <EnumSelect
                     mode="multiple"
-                    category="Classification"
+                    category="Axes d'analyse"
                 />
             </Form.Item>
 
