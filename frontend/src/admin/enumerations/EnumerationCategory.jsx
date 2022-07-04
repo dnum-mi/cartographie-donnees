@@ -45,13 +45,13 @@ class EnumerationCategory extends React.Component {
             });
     };
     createItem = () => {
-        if (this.state.newValue != ''){
+        if (this.state.newValue){
             this.setState({
-                loading: false
+                loading: true
             });
             createEnumeration({
                 category: this.props.category,
-                value: this.state.newValue,
+                full_path: this.state.newValue,
             })
                 .then(() => {
                     this.setState({
