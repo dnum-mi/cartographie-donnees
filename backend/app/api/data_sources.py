@@ -197,7 +197,7 @@ def count_data_sources_by_enumeration():
 
 @app.route('/api/data-sources/count', methods=['GET'])
 @login_required
-@admin_or_owner_required
+@admin_or_any_owner_required
 def count_data_sources():
     base_query = DataSource.query
     if not current_user.is_admin:
