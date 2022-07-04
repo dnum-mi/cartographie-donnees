@@ -70,6 +70,9 @@ class EnumerationCategory extends React.Component {
     };
 
     deleteEnumerationApi = (id) => {
+        this.setState({
+            loading: true
+        });
         deleteEnumeration(this.props.category, id)
         .then((response) => {
             this.setState({
@@ -95,7 +98,13 @@ class EnumerationCategory extends React.Component {
                 {this.state.items.map((item) => {
                     item["category"] = this.props.category;
                     return (
-                        <EnumerationItem key={item.id} item={item} onDelete={this.deleteEnumerationApi} error={this.props.error} fetch={this.fetchEnumerationsFromApi}/>
+                        <EnumerationItem
+                          key={item.id}
+                          item={item}
+                          onDelete={this.deleteEnumerationApi}
+                          error={this.props.error}
+                          fetch={this.fetchEnumerationsFromApi}
+                        />
                     )})}
                 <div className="actions">
                     <Input

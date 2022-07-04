@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
-import { deleteEnumeration, updateEnumeration } from "../../api";
+import { updateEnumeration } from "../../api";
 import './EnumerationItem.css';
 
 
@@ -23,13 +23,24 @@ class EnumerationItem extends React.Component {
     }
 
     updateEnumerationFromApi() {
+        this.setState({
+            loading: true,
+        });
         updateEnumeration(this.props.item.id, {
             category: this.props.item.category,
             full_path: this.state.value,
         })
             .then(() => {
+                this.setState({
+                    loading: false,
+                });
+                this.props.error();
+                this.props.fetch();
             })
             .catch((error) => {
+                this.setState({
+                    loading: false,
+                });
                 this.props.error(error);
                 this.props.fetch()
             });
