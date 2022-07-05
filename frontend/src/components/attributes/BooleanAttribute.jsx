@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox } from "antd";
+import { Checkbox, Form } from "antd";
 import { commonPropTypes, booleanPropTypes} from "./attributePropTypes";
 import { commonDefaultProps, booleanDefaultProps } from "./attributeDefaultProps";
 
@@ -13,13 +13,17 @@ class BooleanAttribute extends React.Component {
   writeElement() {
     return (
       <div className="attribute-input-container">
-        <Checkbox
-          id={this.props.attributeId}
-          defaultChecked={this.props.value}
-          checked={this.props.value}
-          className="attribute-input"
-          onChange={(e) => this.props.onChange(e.target.checked)}
-        />
+        <Form.Item name={this.props.label} initialValue={this.props.value} rules={[{
+          required: this.props.required
+        }]}>
+          <Checkbox
+            id={this.props.attributeId}
+            defaultChecked={this.props.value}
+            checked={this.props.value}
+            className="attribute-input"
+            onChange={(e) => this.props.onChange(e.target.checked)}
+          />
+        </Form.Item>
       </div>
     )
   }

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import './ApplicationSection.css';
 import Attribute from "../components/Attribute";
 import attributes from "./attributes";
-import ApplicationSearchTag from "../components/ApplicationSearchTag";
 import ApplicationSelect from "./ApplicationSelect";
 
 class ApplicationSection extends React.Component {
@@ -37,6 +36,7 @@ class ApplicationSection extends React.Component {
       <div className="application-section">
         {this.props.editMode ? <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> : undefined}
         {this.getAttributeElement('name')}
+        {this.getAttributeElement('access_url')}
         {this.getAttributeElement('organization_name')}
         {this.getAttributeElement('context_email')}
         {this.getAttributeElement('data_source_count')}

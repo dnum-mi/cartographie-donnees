@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row, Button } from "antd";
+import { Col, Row, Button, Form } from "antd";
 
 import './DataSourceAdminHeader.css';
 
@@ -27,9 +27,11 @@ class DataSourceAdminHeader extends React.Component {
     return (
       <Row>
         <Col className="datasource-admin-header-link">
-          <Button type="link" htmlType="submit">
-            Valider la modification
-          </Button>
+            <Form.Item {...this.props} noStyle>
+                <Button type="link" htmlType="submit">
+                    Valider la modification
+                </Button>
+            </Form.Item>
         </Col>
         <Col className="datasource-admin-header-link">
           <Button type="link" onClick={(e) => this.props.onCancelEdition(e)} danger>

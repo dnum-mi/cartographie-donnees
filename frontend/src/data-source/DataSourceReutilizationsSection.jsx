@@ -13,7 +13,7 @@ class DataSourceReutilizationsSection extends React.Component {
       return (
         <>
           {this.props.dataSource.reutilizations
-            .map((application) => <ApplicationCard application={application} />)}
+            .map((application) => <ApplicationCard application={application} key={application.id} />)}
         </>
       );
     }

@@ -48,8 +48,7 @@ class DataSourceCreation extends React.Component {
             });
     }
 
-    handleSubmit = (event, dataSource) => {
-        event.preventDefault();
+    handleSubmit = (data, dataSource) => {
         this.setState({
             loading: true,
             error: null,

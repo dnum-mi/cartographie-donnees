@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Modal} from 'antd';
+import {Form, Modal} from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 import {deleteDataSource} from '../api';
@@ -16,6 +16,7 @@ import withCurrentUser from "../hoc/user/withCurrentUser";
 const { confirm } = Modal;
 
 class DataSourcePage extends React.Component {
+    formRef = React.createRef();
 
     static defaultProps = {
         forceEdit: false
@@ -30,7 +31,6 @@ class DataSourcePage extends React.Component {
     }
 
     showDeleteConfirm = (event) => {
-        event.preventDefault();
         confirm({
             title: 'Êtes-vous sûr de vouloir supprimer cette donnée ?',
             icon: <ExclamationCircleOutlined />,
@@ -48,7 +48,6 @@ class DataSourcePage extends React.Component {
     }
 
     activateEdition = (event) => {
-        event.preventDefault();
         this.setState({ editMode: true })
     };
 
@@ -68,12 +67,12 @@ class DataSourcePage extends React.Component {
     };
 
     onCancelEdition = (event) => {
-        event.preventDefault();
         const freshDataSource = Object.assign({}, this.props.dataSource);
         this.setState({
             dataSource: freshDataSource,
             editMode: false,
         })
+        this.formRef.current.resetFields()
     };
 
     submit = (event) => {
@@ -81,8 +80,11 @@ class DataSourcePage extends React.Component {
     }
 
     renderContent() {
+        const validateMessages = {
+            required: "'${name}' est requis!"
+        };
         return (
-            <form onSubmit={this.submit}>
+            <Form onFinish={this.submit} ref={this.formRef} validateMessages={validateMessages}>
                 {(this.props.forceEdit || this.props.currentUser.userHasAdminRightsToDatasource(this.state.dataSource)) && (
                     <DataSourceAdminHeader
                       editMode={this.state.editMode}
@@ -106,7 +108,7 @@ class DataSourcePage extends React.Component {
                   dataSource={this.state.dataSource}
                   onChange={this.updateDataSourceState}
                 />
-            </form>
+            </Form>
         );
     }
 

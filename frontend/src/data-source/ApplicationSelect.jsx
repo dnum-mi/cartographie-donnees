@@ -27,9 +27,7 @@ export default class ApplicationSelect extends React.Component {
         }
         return (
             <div className="attribute">
-                <label
-                    className="attribute-label"
-                >
+                <label className="attribute-label">
                     Choix d'Application
                     <QuestionCircleOutlined
                         className="attribute-tooltip"

@@ -2,7 +2,7 @@ import React from "react";
 import { commonPropTypes } from "./attributePropTypes";
 import { commonDefaultProps } from "./attributeDefaultProps";
 import ApplicationSearchSelect from "../ApplicationSearchSelect";
-
+import {Form} from 'antd'
 
 class ApplicationAttribute extends React.Component {
 
@@ -16,12 +16,16 @@ class ApplicationAttribute extends React.Component {
   writeElement() {
     return (
       <div className="attribute-input-container">
-        <ApplicationSearchSelect
-          limited={false}
-          onChange={this.props.onChange}
-          defaultValue={this.props.value}
-          value={this.props.value}
-        />
+        <Form.Item name={this.props.label} initialValue={this.props.value} rules={[{
+          required: this.props.required
+        }]}>
+          <ApplicationSearchSelect
+            limited={false}
+            onChange={this.props.onChange}
+            defaultValue={this.props.value}
+            value={this.props.value}
+          />
+        </Form.Item>
       </div>
     )
   }

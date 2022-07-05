@@ -9,7 +9,6 @@ import { commonDefaultProps } from "./attributes/attributeDefaultProps";
 import { commonPropTypes } from "./attributes/attributePropTypes";
 import ApplicationAttribute from "./attributes/ApplicationAttribute";
 
-
 class Attribute extends React.Component {
 
   attributeValue() {
@@ -35,6 +34,7 @@ class Attribute extends React.Component {
           className="attribute-label"
         >
           {this.props.label}
+          {this.props.required ? "*" : undefined}
           <QuestionCircleOutlined
             className="attribute-tooltip"
             title={this.props.tooltip}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Typography } from "antd";
+import { Input, Typography, Form } from "antd";
 import { commonPropTypes, textPropTypes } from "./attributePropTypes";
 import { commonDefaultProps, textDefaultProps } from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
@@ -60,6 +60,14 @@ class TextAttribute extends React.Component {
           {this.props.suffixValue ? this.suffixElement() : null}
         </Title>
       )
+    } else if (this.props.isLink && this.props.value) {
+      return (
+          <a href={textValue}>{textValue}</a>
+      )
+    } else if (this.props.isMail && this.props.value) {
+      return (
+          <a href={"mailto:"+textValue}>{textValue}</a>
+      )
     }
     return (
       <>
@@ -97,7 +105,11 @@ class TextAttribute extends React.Component {
     }
     return (
       <div className="attribute-input-container">
-        {input}
+        <Form.Item name={this.props.label} initialValue={this.props.value} rules={[{
+          required: this.props.required
+        }]}>
+          {input}
+        </Form.Item>
         {this.props.hasSuffixValue ? this.suffixInput() : null}
       </div>
     )

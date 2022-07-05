@@ -5,6 +5,7 @@ export default {
     headingLevel: 3,
     type: 'text',
     tooltip: 'Nom de la donnée',
+    required: true
   },
   description: {
     attributeId: 'description',
@@ -27,6 +28,7 @@ export default {
     tooltip: 'Famille de la donnée',
     tagCategory: 'Famille',
     tagMode: 'multiple',
+    required: true
   },
   classification_name: {
     attributeId: 'classification_name',
@@ -167,6 +169,7 @@ export default {
       type: 'text',
       isTextArea: true,
       tooltip: 'Finalité de l\'application',
+      required: true
     },
     name: {
       attributeId: 'application_name',
@@ -174,8 +177,17 @@ export default {
       type: 'text',
       tooltip: "Le nom de l'application hébergeant la donnée",
       headingLevel: 3,
+      required: true
       // hasSuffixValue: true,
       // suffixAttributeId: 'application_long_name',
+    },
+    access_url: {
+      attributeId: 'access_url',
+      label: 'Site',
+      type: 'text',
+      isLink: true,
+      tooltip: 'xxxx',
+      required: true
     },
     organization_name: {
       attributeId: 'application_organization',
@@ -183,6 +195,7 @@ export default {
       type: 'tag',
       tagMode: 'simple',
       tooltip: 'Organisation',
+      required: true
       // hasSuffixValue: true,
       // suffixAttributeId: 'organization_long_name',
     },
@@ -191,6 +204,8 @@ export default {
       label: 'Contact',
       type: 'text',
       tooltip: "Contact de l'application",
+      isMail: true,
+      required: true
     },
     data_source_count: {
       attributeId: 'data_source_count',

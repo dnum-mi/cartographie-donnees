@@ -11,7 +11,7 @@ export const commonPropTypes = {
 };
 
 export const textPropTypes = {
-  value: PropTypes.string,
+  value: PropTypes.any,
   headingLevel: PropTypes.number,
   editionPlaceholder: PropTypes.string,
   hasSuffixValue: PropTypes.bool,
