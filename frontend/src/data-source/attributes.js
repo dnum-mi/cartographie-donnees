@@ -147,8 +147,8 @@ export default {
     inputType: 'number',
     tooltip: "Nombre de tables dans la base contenant la donnée",
   },
-  field: {
-    attributeId: 'field',
+  fields: {
+    attributeId: 'fields',
     label: "Champs",
     type: 'text',
     tooltip: "Noms des champs de la table contenant la donnée",
