@@ -44,7 +44,8 @@ export default {
     type: 'tag',
     tooltip: "Type de la donnée",
     tagMode: 'simple',
-    tagCategory: 'Type'
+    tagCategory: 'Type',
+    required: true
   },
   is_reference: {
     attributeId: 'is_reference',
@@ -186,8 +187,7 @@ export default {
       label: 'Site',
       type: 'text',
       isLink: true,
-      tooltip: 'xxxx',
-      required: true
+      tooltip: 'xxxx'
     },
     organization_name: {
       attributeId: 'application_organization',
@@ -204,8 +204,7 @@ export default {
       label: 'Contact',
       type: 'text',
       tooltip: "Contact de l'application",
-      isMail: true,
-      required: true
+      isMail: true
     },
     data_source_count: {
       attributeId: 'data_source_count',

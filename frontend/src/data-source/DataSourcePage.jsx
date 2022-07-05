@@ -63,25 +63,31 @@ class DataSourcePage extends React.Component {
                 ...newApplicationProps,
             };
         }
-        this.setState({ dataSource: newDataSource })
+        this.setState({ dataSource: newDataSource }, () => {
+            this.formRef.current.setFieldsValue(this.state.dataSource)
+        })
     };
 
     onCancelEdition = (event) => {
         const freshDataSource = Object.assign({}, this.props.dataSource);
+        this.formRef.current.resetFields()
         this.setState({
             dataSource: freshDataSource,
             editMode: false,
         })
-        this.formRef.current.resetFields()
     };
 
     submit = (event) => {
-        this.props.handleSubmit(event, this.state.dataSource)
+        this.props.handleSubmit(this.state.dataSource)
     }
 
     renderContent() {
         const validateMessages = {
-            required: "'${name}' est requis!"
+            required: "'${name}' est requis!",
+            types: {
+                email: "${name} n'est pas un email valide (ie: ____@----.**",
+                url: "${name} n'est pas une url valide (ie: http://www.___.**)",
+            },
         };
         return (
             <Form onFinish={this.submit} ref={this.formRef} validateMessages={validateMessages}>

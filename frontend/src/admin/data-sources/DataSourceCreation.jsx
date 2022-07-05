@@ -48,7 +48,8 @@ class DataSourceCreation extends React.Component {
             });
     }
 
-    handleSubmit = (data, dataSource) => {
+    handleSubmit = (dataSource) => {
+        dataSource.id = undefined
         this.setState({
             loading: true,
             error: null,
@@ -61,7 +62,12 @@ class DataSourceCreation extends React.Component {
                 createDataSource(
                     dataSource,
                 ).then((results) => {
-                    this.props.history.push("datasources/" + results.data.id)
+                    this.props.history.push("/data-source/" + results.data.id)
+                }).catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
                 })
             })
             .catch((error) => {

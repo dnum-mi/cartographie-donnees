@@ -70,11 +70,29 @@ class TextAttribute extends React.Component {
       )
     }
     return (
-      <>
+      <div style={{"white-space": "pre-line"}}>
         {textValue}
         {this.props.suffixValue ? this.suffixElement() : null}
-      </>
+      </div>
     )
+  }
+
+  rules = () => {
+    if (this.props.isLink) {
+      return [{
+        required: this.props.required,
+        type: "url"
+      }]
+    } else if (this.props.isMail) {
+      return [{
+        required: this.props.required,
+        type: "email"
+      }]
+    } else {
+      return [{
+        required: this.props.required
+      }]
+    }
   }
 
   writeElement() {
@@ -83,7 +101,6 @@ class TextAttribute extends React.Component {
       input = (
         <TextArea
           id={this.props.attributeId}
-          defaultValue={this.props.value}
           value={this.props.value}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
@@ -94,7 +111,6 @@ class TextAttribute extends React.Component {
       input = (
         <Input
           id={this.props.attributeId}
-          defaultValue={this.props.value}
           value={this.props.value}
           type={this.props.inputType}
           placeholder={this.props.editionPlaceholder}
@@ -105,9 +121,7 @@ class TextAttribute extends React.Component {
     }
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.label} initialValue={this.props.value} rules={[{
-          required: this.props.required
-        }]}>
+        <Form.Item name={this.props.id} label={this.props.name} initialValue={this.props.value} rules={this.rules()}>
           {input}
         </Form.Item>
         {this.props.hasSuffixValue ? this.suffixInput() : null}
@@ -116,7 +130,7 @@ class TextAttribute extends React.Component {
   }
 
   render() {
-    if (this.props.editMode) {
+    if (this.props.editMode && !this.props.readOnly) {
       return this.writeElement();
     } else {
       return (

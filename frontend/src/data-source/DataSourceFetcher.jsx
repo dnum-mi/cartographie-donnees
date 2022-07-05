@@ -54,8 +54,7 @@ class DataSourceFetcher extends React.Component {
             });
     }
 
-    handleSubmit = (event, dataSource) => {
-        event.preventDefault();
+    handleSubmit = (dataSource) => {
         this.setState({
             loading: true,
             error: null,
@@ -67,7 +66,12 @@ class DataSourceFetcher extends React.Component {
             .then(() => updateDataSource(
                 this.props.match.params.dataSourceId,
                 dataSource,
-            ))
+            ).catch((error) => {
+                this.setState({
+                    loading: false,
+                    error,
+                });
+            }))
             .then(() => this.readDataSourceFromApi())
             .then(() => {
                 this.setState({
