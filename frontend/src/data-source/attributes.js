@@ -195,6 +195,7 @@ export default {
       type: 'tag',
       tagMode: 'simple',
       tooltip: 'Organisation',
+      tagCategory: 'Organisation',
       required: true
       // hasSuffixValue: true,
       // suffixAttributeId: 'organization_long_name',

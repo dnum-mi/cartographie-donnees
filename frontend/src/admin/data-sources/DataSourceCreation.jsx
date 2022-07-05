@@ -3,7 +3,7 @@ import queryString from 'query-string'
 import {withRouter} from 'react-router-dom';
 import {Spin} from 'antd';
 
-import {createDataSource, updateApplication, updateDataSource} from "../../api";
+import {createApplication, createDataSource, updateApplication, updateDataSource} from "../../api";
 import {readApplication} from '../../api';
 import Error from "../../components/Error";
 
@@ -49,16 +49,15 @@ class DataSourceCreation extends React.Component {
     }
 
     handleSubmit = (dataSource) => {
-        dataSource.id = undefined
         this.setState({
             loading: true,
             error: null,
         });
-        updateApplication(
-            dataSource.application.id,
-            dataSource.application,
-        )
-            .then((response) => {
+        if (dataSource.application.id) {
+            updateApplication(
+                dataSource.application.id,
+                dataSource.application,
+            ).then((response) => {
                 createDataSource(
                     dataSource,
                 ).then((results) => {
@@ -69,13 +68,34 @@ class DataSourceCreation extends React.Component {
                         error,
                     });
                 })
-            })
-            .catch((error) => {
+            }).catch((error) => {
                 this.setState({
                     loading: false,
                     error,
                 });
-            });
+            })
+        } else {
+            createApplication(
+                dataSource.application
+            ).then((response) => {
+                dataSource.application.id = response.data.id
+                createDataSource(
+                    dataSource,
+                ).then((results) => {
+                    this.props.history.push("/data-source/" + results.data.id)
+                }).catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
+                })
+            }).catch((error) => {
+                this.setState({
+                    loading: false,
+                    error,
+                });
+            })
+        }
     };
 
     render() {
