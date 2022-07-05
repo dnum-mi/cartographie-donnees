@@ -5,6 +5,7 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
+import emptyDataSourceForApplication from '../application/emptyDataSourceForApplication.json'
 
 import NotFound from '../components/NotFound';
 import ApplicationPage from '../application/ApplicationPage';
@@ -35,6 +36,11 @@ function Router({ user, onLogin }) {
         <Route path="/reset-password/:token" exact>
           <ResetPasswordPage />
         </Route>
+        {user.is_admin && (
+            <Route path="/application/create" exact>
+              <DataSourceCreation initialDataSource={emptyDataSourceForApplication}/>
+            </Route>
+        )}
         <Route path="/application/:applicationId">
           <ApplicationPage user={user} />
         </Route>

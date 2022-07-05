@@ -104,12 +104,16 @@ class DataSourceCreation extends React.Component {
             dataSource["application_name"] = this.state.application.name;
             dataSource["application"] = this.state.application;
         }
+        let initialDataSource = emptyDataSource
+        if (this.props.initialDataSource) {
+            initialDataSource = this.props.initialDataSource
+        }
         return (
             <Spin tip="Envoi en cours..." spinning={this.state.loading}>
                 <div className="DataSourceCreation">
                     {this.state.error && <Error error={this.state.error}/>}
                     <div>
-                        <DataSourcePage forceEdit={true} dataSource={emptyDataSource} handleSubmit={this.handleSubmit}/>
+                        <DataSourcePage forceEdit={true} dataSource={initialDataSource} handleSubmit={this.handleSubmit}/>
                     </div>
                 </div>
             </Spin>
