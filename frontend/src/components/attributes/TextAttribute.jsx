@@ -70,7 +70,7 @@ class TextAttribute extends React.Component {
       )
     }
     return (
-      <div style={{"white-space": "pre-line"}}>
+      <div style={{"whiteSpace": "pre-line"}}>
         {textValue}
         {this.props.suffixValue ? this.suffixElement() : null}
       </div>
@@ -80,17 +80,17 @@ class TextAttribute extends React.Component {
   rules = () => {
     if (this.props.isLink) {
       return [{
-        required: this.props.required,
+        required: !!this.props.required,
         type: "url"
       }]
     } else if (this.props.isMail) {
       return [{
-        required: this.props.required,
+        required: !!this.props.required,
         type: "email"
       }]
     } else {
       return [{
-        required: this.props.required
+        required: !!this.props.required,
       }]
     }
   }
@@ -121,7 +121,7 @@ class TextAttribute extends React.Component {
     }
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.id} label={this.props.name} initialValue={this.props.value} rules={this.rules()}>
+        <Form.Item name={this.props.label} initialValue={this.props.value} rules={this.rules()}>
           {input}
         </Form.Item>
         {this.props.hasSuffixValue ? this.suffixInput() : null}
