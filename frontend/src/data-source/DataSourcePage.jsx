@@ -11,7 +11,7 @@ import './DataSourcePage.css';
 import DataSourceMetricsSection from "./DataSourceMetricsSection";
 import DataSourceReutilisationsSection from "./DataSourceReutilizationsSection";
 import withCurrentUser from "../hoc/user/withCurrentUser";
-
+import attributes from './attributes'
 
 const { confirm } = Modal;
 
@@ -53,17 +53,25 @@ class DataSourcePage extends React.Component {
         this.setState({ editMode: true })
     };
 
-    updateDataSourceState = (newProps, all) => {
-        const {
-            application: newApplicationProps,
-            ...newDataSourceProps
-        } = newProps;
-        const newDataSource = {...this.state.dataSource, ...newDataSourceProps};
-        if (newApplicationProps) {
-            newDataSource.application = {
-                ...this.state.dataSource.application,
-                ...newApplicationProps,
-            };
+    updateDataSourceState = (newAttribute, all) => {
+        const newDataSource = {...this.state.dataSource}
+        newDataSource.application = {...newDataSource.application}
+        let attributeId = Object.keys(newAttribute)[0]
+        for (let attributeKey in attributes) {
+            if (attributes[attributeKey].attributeId === attributeId) {
+                newDataSource[attributeKey] = newAttribute[attributeId]
+                break
+            } else if (attributes[attributeKey].suffixAttributeId === attributeId) {
+                newDataSource[attributeId] = newAttribute[attributeId]
+            }
+        }
+        for (let attributeKey in attributes.application) {
+            if (attributes.application[attributeKey].attributeId === attributeId) {
+                newDataSource.application[attributeKey] = newAttribute[attributeId]
+                break
+            } else if (attributes.application[attributeKey].suffixAttributeId === attributeId) {
+                newDataSource.application[attributeId] = newAttribute[attributeId]
+            }
         }
         this.setState({ dataSource: newDataSource })
     };
@@ -71,9 +79,23 @@ class DataSourcePage extends React.Component {
     onApplicationUpdate = (application) => {
         const newDataSource = {...this.state.dataSource}
         newDataSource.application = {...application.application}
+        let newFields = {}
+        for (let attributeApplication in attributes.application) {
+            let attribute = attributes.application[attributeApplication]
+            newFields[attribute.attributeId] = application.application[attributeApplication]
+            if(attribute.hasSuffixValue) {
+                newFields[attribute.suffixAttributeId] = application.application[attribute.suffixAttributeId]
+            }
+        }
         this.setState({ dataSource: newDataSource }, () => {
-            this.formRef.current.setFieldsValue(application.application)
+            this.formRef.current.setFieldsValue(newFields)
         })
+    }
+
+    onReutilisationUpdate = (reutilization) => {
+        const newDataSource = {...this.state.dataSource}
+        newDataSource.reutilization = {...reutilization}
+        this.setState({ dataSource: newDataSource })
     }
 
     onCancelEdition = (event) => {
@@ -116,12 +138,11 @@ class DataSourcePage extends React.Component {
                 <DataSourceMetricsSection
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
-                  onChange={this.onApplicationUpdate}
                 />
                 <DataSourceReutilisationsSection
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
-                  onChange={this.onApplicationUpdate}
+                  onChange={this.onReutilisationUpdate}
                 />
             </Form>
         );

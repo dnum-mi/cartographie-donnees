@@ -34,13 +34,9 @@ class TextAttribute extends React.Component {
         <Form.Item name={this.props.suffixAttributeId} initialValue={this.props.suffixValue} rules={this.rules()}>
           <Input
             id={this.props.suffixAttributeId}
-            defaultValue={this.props.suffixValue}
             type="text"
             placeholder={this.props.suffixEditionPlaceholder}
             className="attribute-input"
-            onChange={(e) => {
-              this.props.onChange(e.target.value, true)
-            }}
           />
         </Form.Item>
       </div>
@@ -103,21 +99,17 @@ class TextAttribute extends React.Component {
       input = (
         <TextArea
           id={this.props.attributeId}
-          value={this.props.value}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
-          onChange={(e) => this.props.onChange(e.target.value)}
         />
       );
     } else {
       input = (
         <Input
           id={this.props.attributeId}
-          value={this.props.value}
           type={this.props.inputType}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
-          onChange={(e) => this.props.onChange(e.target.value)}
         />
       );
     }

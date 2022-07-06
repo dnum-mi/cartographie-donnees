@@ -19,13 +19,6 @@ class DataSourceMetricsSection extends React.Component {
         value={data[attributeKey]}
         suffixValue={data[config.suffixAttributeId]}
         editMode={this.props.editMode}
-        onChange={(value, fromSuffix = false) => {
-          if (fromSuffix) {
-            this.props.onChange({[config.suffixAttributeId]: value})
-          } else {
-            this.props.onChange({[attributeKey]: value})
-          }
-        }}
         {...config}
       />
     );

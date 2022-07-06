@@ -16,13 +16,6 @@ class ApplicationSection extends React.Component {
         value={this.props.application[attributeKey]}
         suffixValue={this.props.application[config.suffixAttributeId]}
         editMode={this.props.editMode}
-        onChange={(value, fromSuffix = false) => {
-          if (fromSuffix) {
-            this.props.onChange({ application: {[config.suffixAttributeId]: value} })
-          } else {
-            this.props.onChange({ application: { [attributeKey]: value} })
-          }
-        }}
         {...config}
       />
     );
