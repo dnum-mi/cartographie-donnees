@@ -36,7 +36,7 @@ function Router({ user, onLogin }) {
         <Route path="/reset-password/:token" exact>
           <ResetPasswordPage />
         </Route>
-        {user.is_admin && (
+        {user && user.is_admin && (
             <Route path="/application/create" exact>
               <DataSourceCreation fromAppCreation initialDataSource={emptyDataSourceForApplication}/>
             </Route>
