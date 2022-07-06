@@ -1,32 +1,29 @@
-.SearchFilter .filter-row {
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    cursor: pointer;
-}
-
-.SearchFilter .filter-row.selected {
-    font-weight:bold;
-}
-
-.SearchFilter .filter-row:hover {
-    color: rgba(0, 0, 0, 0.5);
-}
-
-.SearchFilter .filter-row .filter-count {
-    color: rgba(0, 0, 0, 0.5);
-}
-
-.SearchFilter .more-choice {
+.SearchTree .more-choice {
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     color: rgba(0, 0, 0, 0.7);
     cursor: pointer;
+    margin-top: 5px;
+    margin-left: 24px;
 }
 
-.SearchFilter {
+.SearchTree {
     margin-bottom: 10px;
+}
+
+.SearchTree .search-tree-row {
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.SearchTree .search-tree-row .search-tree-count {
+    color: rgba(0, 0, 0, .5);
+}
+
+.ant-collapse-content > .ant-collapse-content-box {
+    padding-left: 0;
 }
 
 .ant-collapse > .ant-collapse-item.red> .ant-collapse-header {

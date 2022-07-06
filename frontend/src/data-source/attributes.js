@@ -36,7 +36,7 @@ export default {
     type: 'tag',
     tooltip: "Axes d'analyse",
     tagMode: 'multiple',
-    tagCategory: 'Classification'
+    tagCategory: "Axes d'analyse",
   },
   type_name: {
     attributeId: 'type_name',

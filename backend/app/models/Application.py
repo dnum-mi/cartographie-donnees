@@ -1,8 +1,8 @@
+from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import validates
 from app import db
-from app.models import SearchableMixin, User, BaseModel, Organization
+from app.models import User, BaseModel, Organization, SearchableMixin
 
 from app.search import remove_accent
 
@@ -18,6 +18,7 @@ ownerships = db.Table(
 
 class Application(SearchableMixin, BaseModel):
     __searchable__ = ['name', 'potential_experimentation', "goals", 'organization_name']
+    __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
@@ -41,16 +42,16 @@ class Application(SearchableMixin, BaseModel):
 
     @property
     def organization_name(self):
-        return self.organization.value
+        return self.organization.full_path
 
     @organization_name.setter
     def organization_name(self, organization_name):
         if not organization_name:
             raise ValueError("L'organisation est un champ obligatoire.")
-        organization_id = Organization.query.filter_by(value=organization_name).first()
-        if not organization_id:
+        organizations = [org for org in Organization.query.all() if org.full_path == organization_name]
+        if len(organizations) == 0:
             raise ValueError("L'organisation '{}' n'existe pas.".format(organization_name))
-        self.organization_id = organization_id.id
+        self.organization_id = organizations[0].id
 
     @hybrid_property
     def data_source_count(self):
@@ -113,15 +114,15 @@ class Application(SearchableMixin, BaseModel):
         }
 
         if populate_data_sources:
-            _list = [(data_source, remove_accent(data_source.name)) for data_source in self.data_sources]
-            _list.sort(key=lambda tup: tup[1])
-            data_sources = [data_source[0].to_dict() for data_source in _list]
-            result['data_sources'] = data_sources
+            result['data_sources'] = [
+                data_source.to_dict()
+                for data_source in sorted(self.data_sources, key=lambda ds: str.lower(ds.name))
+            ]
         if populate_owners:
-            _list = [(user, remove_accent(user.last_name)) for user in self.owners]
-            _list.sort(key=lambda tup: tup[1])
-            users = [user[0].to_dict() for user in _list]
-            result['owners'] = users
+            result['owners'] = [
+                owner.to_dict()
+                for owner in sorted(self.owners, key=lambda user: str.lower(user.last_name))
+            ]
         return result
 
     def to_export(self):

@@ -15,6 +15,7 @@ export const textDefaultProps = {
   suffixEditionPlaceholder: null,
   suffixAttributeLabel: null,
   isTextArea: false,
+  title: null,
 };
 
 export const tagDefaultProps = {};

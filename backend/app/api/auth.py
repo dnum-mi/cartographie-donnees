@@ -16,7 +16,7 @@ def load_user(id):
 def load_user_from_request(request):
     # Log in using a JWT token
     auth_header = request.headers.get('Authorization')
-    if auth_header:
+    if auth_header and 'Bearer' in auth_header:
         token = auth_header.replace('Bearer ', '', 1)
         try:
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])

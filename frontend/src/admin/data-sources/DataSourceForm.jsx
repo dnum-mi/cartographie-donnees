@@ -298,7 +298,7 @@ const DataSourceForm = ({ onSubmit, dataSource = {} }) => {
             >
                 <EnumSelect
                     mode="multiple"
-                    category="Classification"
+                    category="Axes d'analyse"
                 />
             </Form.Item>
 
@@ -336,7 +336,7 @@ const DataSourceForm = ({ onSubmit, dataSource = {} }) => {
                 name="origin_application"
                 tooltip="Application d’origine le cas échéant"
             >
-                <ApplicationSearchSelect limited={false} />
+                <ApplicationSearchSelect allowClear={true} limited={false} />
             </Form.Item>
 
             <Form.Item

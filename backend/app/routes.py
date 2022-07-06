@@ -1,3 +1,5 @@
+import os
+
 from app import app
 from app.api import data_sources, applications, enumerations, auth, users
 
@@ -15,4 +17,7 @@ from app.api import data_sources, applications, enumerations, auth, users
 @app.route('/admin/applications/<string:path>/update')
 @app.route('/reset-password/<string:path>')
 def catch_all(path):
+    static_file_path = os.path.join(app.static_folder, path)
+    if os.path.isfile(static_file_path):
+        return app.send_static_file(path)
     return app.send_static_file('index.html')

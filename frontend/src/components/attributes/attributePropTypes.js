@@ -11,7 +11,7 @@ export const commonPropTypes = {
 };
 
 export const textPropTypes = {
-  value: PropTypes.any,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   headingLevel: PropTypes.number,
   editionPlaceholder: PropTypes.string,
   hasSuffixValue: PropTypes.bool,
@@ -32,6 +32,7 @@ export const tagPropTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]),
   tagCategory: PropTypes.string,
+  title: PropTypes.string,
 }
 
 export const booleanPropTypes = {

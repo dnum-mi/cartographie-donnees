@@ -19,6 +19,8 @@ export const countApplication = () => axios.get(API_HOST + '/applications/count'
 export const fetchDataSources = (page, count) => axios.get(API_HOST + '/data-sources?page=' + page + '&count=' + count);
 export const searchDataSources = (location) =>
         axios.get(API_HOST + '/data-sources/search' + location);
+export const countDataSourcesByEnumeration = (location) =>
+  axios.get(API_HOST + '/data-sources/count_by_enumeration' + location);
 
 export const createDataSource = (dataSource) => axios.post(API_HOST + '/data-sources', dataSource);
 export const readDataSource = (dataSourceId) => axios.get(API_HOST + '/data-sources/' + dataSourceId);
@@ -29,17 +31,17 @@ export const importDataSourceByApplication = (file, applicationId) => axios.post
 export const exportDataSourceUrl = API_HOST + '/data-sources/export';
 export const countDataSource = () => axios.get(API_HOST + '/data-sources/count');
 
-export const searchApplicationsOfDataSources = (location) => axios.get(API_HOST + '/data-sources/applications' + location);
-export const searchOrganizations = (location) => axios.get(API_HOST + '/data-sources/organizations' + location);
-export const searchFamilies = (location) => axios.get(API_HOST + '/data-sources/families' + location);
-export const searchTypes = (location) => axios.get(API_HOST + '/data-sources/types' + location);
-export const searchReferentiels = (location) => axios.get(API_HOST + '/data-sources/referentiels' + location);
-export const searchSensibilities = (location) => axios.get(API_HOST + '/data-sources/sensibilities' + location);
-export const searchOpenData = (location) => axios.get(API_HOST + '/data-sources/open-data' + location);
-export const searchExpositions = (location) => axios.get(API_HOST + '/data-sources/expositions' + location);
-export const searchOrigins = (location) => axios.get(API_HOST + '/data-sources/origins' + location);
-export const searchClassifications = (location) => axios.get(API_HOST + '/data-sources/classifications' + location);
-export const searchTags = (location) => axios.get(API_HOST + '/data-sources/tags' + location);
+export const searchApplicationsOfDataSources = () => axios.get(API_HOST + '/data-sources/applications');
+export const searchOrganizations = () => axios.get(API_HOST + '/data-sources/organizations');
+export const searchFamilies = () => axios.get(API_HOST + '/data-sources/families');
+export const searchTypes = () => axios.get(API_HOST + '/data-sources/types');
+export const searchReferentiels = () => axios.get(API_HOST + '/data-sources/referentiels');
+export const searchSensibilities = () => axios.get(API_HOST + '/data-sources/sensibilities');
+export const searchOpenData = () => axios.get(API_HOST + '/data-sources/open-data');
+export const searchExpositions = () => axios.get(API_HOST + '/data-sources/expositions');
+export const searchOrigins = () => axios.get(API_HOST + '/data-sources/origins');
+export const searchClassifications = () => axios.get(API_HOST + '/data-sources/classifications');
+export const searchTags = () => axios.get(API_HOST + '/data-sources/tags');
 
 /** Enumerations API */
 const enumEndpoint = API_HOST + '/enumerations';
