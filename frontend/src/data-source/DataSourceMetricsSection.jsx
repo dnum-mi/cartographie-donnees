@@ -15,6 +15,7 @@ class DataSourceMetricsSection extends React.Component {
     const data = fromApplication ? this.props.dataSource.application : this.props.dataSource;
     return (
       <Attribute
+        id={attributeKey}
         value={data[attributeKey]}
         suffixValue={data[config.suffixAttributeId]}
         editMode={this.props.editMode}

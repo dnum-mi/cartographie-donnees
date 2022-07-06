@@ -31,16 +31,18 @@ class TextAttribute extends React.Component {
             title="Commentaire sur cette valeur"
           />
         </label>
-        <Input
-          id={this.props.suffixAttributeId}
-          defaultValue={this.props.suffixValue}
-          type="text"
-          placeholder={this.props.suffixEditionPlaceholder}
-          className="attribute-input"
-          onChange={(e) => {
-            this.props.onChange(e.target.value, true)
-          }}
-        />
+        <Form.Item name={this.props.suffixAttributeId} initialValue={this.props.suffixValue} rules={this.rules()}>
+          <Input
+            id={this.props.suffixAttributeId}
+            defaultValue={this.props.suffixValue}
+            type="text"
+            placeholder={this.props.suffixEditionPlaceholder}
+            className="attribute-input"
+            onChange={(e) => {
+              this.props.onChange(e.target.value, true)
+            }}
+          />
+        </Form.Item>
       </div>
     );
   }
@@ -121,7 +123,7 @@ class TextAttribute extends React.Component {
     }
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.label} initialValue={this.props.value} rules={this.rules()}>
+        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
           {input}
         </Form.Item>
         {this.props.hasSuffixValue ? this.suffixInput() : null}

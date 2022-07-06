@@ -38,14 +38,14 @@ function Router({ user, onLogin }) {
         </Route>
         {user.is_admin && (
             <Route path="/application/create" exact>
-              <DataSourceCreation initialDataSource={emptyDataSourceForApplication}/>
+              <DataSourceCreation fromAppCreation initialDataSource={emptyDataSourceForApplication}/>
             </Route>
         )}
         <Route path="/application/:applicationId">
           <ApplicationPage user={user} />
         </Route>
         <Route path="/data-source/create" exact>
-          <DataSourceCreation/>
+          <DataSourceCreation fromDataSourceCreation/>
         </Route>
         <Route path="/data-source/:dataSourceId">
           <DataSourceFetcher/>

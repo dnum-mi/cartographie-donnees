@@ -21,6 +21,7 @@ class DataSourceMainSection extends React.Component {
     const onChange = fromApplication ? this.updateApplication : this.props.onChange;
     return (
       <Attribute
+        id={attributeKey}
         value={data[attributeKey]}
         suffixValue={data[config.suffixAttributeId]}
         editMode={this.props.editMode}
@@ -89,6 +90,7 @@ class DataSourceMainSection extends React.Component {
             </Col>
             <Col span={8}>
               <ApplicationSection
+                allowAppSelection={this.props.allowAppSelection}
                 application={this.props.dataSource.application}
                 editMode={this.props.editMode}
                 onChange={this.props.onChange}

@@ -13,7 +13,7 @@ class BooleanAttribute extends React.Component {
   writeElement() {
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.label} initialValue={this.props.value} rules={[{
+        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={[{
           required: this.props.required
         }]}>
           <Checkbox

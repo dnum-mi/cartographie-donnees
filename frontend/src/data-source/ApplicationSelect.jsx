@@ -1,6 +1,6 @@
 import React from "react";
 import {Divider, Select, Spin} from "antd";
-import {fetchApplications} from "../api";
+import {fetchApplications, searchApplicationsLimited} from "../api";
 import Loading from "../components/Loading";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 
@@ -14,7 +14,7 @@ export default class ApplicationSelect extends React.Component {
     }
 
     componentDidMount() {
-        fetchApplications(1,1000).then((data)=> this.setState({applications: data.data.results, loading: false}))
+        searchApplicationsLimited("").then((data)=> this.setState({applications: data.data.results, loading: false}))
     }
 
     onChange = (newChoice) => {

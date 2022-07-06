@@ -12,6 +12,7 @@ class ApplicationSection extends React.Component {
     const config = attributes.application[attributeKey];
     return (
       <Attribute
+        id={attributeKey}
         value={this.props.application[attributeKey]}
         suffixValue={this.props.application[config.suffixAttributeId]}
         editMode={this.props.editMode}
@@ -34,7 +35,7 @@ class ApplicationSection extends React.Component {
   render() {
     return (
       <div className="application-section">
-        {this.props.editMode ? <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> : undefined}
+        {this.props.editMode && this.props.allowAppSelection ? <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> : undefined}
         {this.getAttributeElement('name')}
         {this.getAttributeElement('access_url')}
         {this.getAttributeElement('organization_name')}

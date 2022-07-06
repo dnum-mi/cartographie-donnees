@@ -19,7 +19,9 @@ class DataSourcePage extends React.Component {
     formRef = React.createRef();
 
     static defaultProps = {
-        forceEdit: false
+        forceEdit: false,
+        fromAppCreation: false,
+        fromDataSourceCreation: false
     }
 
     constructor(props) {
@@ -51,7 +53,7 @@ class DataSourcePage extends React.Component {
         this.setState({ editMode: true })
     };
 
-    updateDataSourceState = (newProps) => {
+    updateDataSourceState = (newProps, all) => {
         const {
             application: newApplicationProps,
             ...newDataSourceProps
@@ -63,10 +65,16 @@ class DataSourcePage extends React.Component {
                 ...newApplicationProps,
             };
         }
-        this.setState({ dataSource: newDataSource }, () => {
-            this.formRef.current.setFieldsValue(this.state.dataSource)
-        })
+        this.setState({ dataSource: newDataSource })
     };
+
+    onApplicationUpdate = (application) => {
+        const newDataSource = {...this.state.dataSource}
+        newDataSource.application = {...application.application}
+        this.setState({ dataSource: newDataSource }, () => {
+            this.formRef.current.setFieldsValue(application.application)
+        })
+    }
 
     onCancelEdition = (event) => {
         const freshDataSource = Object.assign({}, this.props.dataSource);
@@ -83,14 +91,14 @@ class DataSourcePage extends React.Component {
 
     renderContent() {
         const validateMessages = {
-            required: "'${name}' est requis!",
+            required: "'Ce champ est requis!",
             types: {
-                email: "${name} n'est pas un email valide (ie: ____@----.**",
-                url: "${name} n'est pas une url valide (ie: http://www.___.**)",
+                email: "Ce n'est pas un email valide (ie: ____@----.**",
+                url: "Ce n'est pas une url valide (ie: http://www.___.**)",
             },
         };
         return (
-            <Form onFinish={this.submit} ref={this.formRef} validateMessages={validateMessages}>
+            <Form onFinish={this.submit} ref={this.formRef} validateMessages={validateMessages} onValuesChange={this.updateDataSourceState}>
                 {(this.props.forceEdit || this.props.currentUser.userHasAdminRightsToDatasource(this.state.dataSource)) && (
                     <DataSourceAdminHeader
                       editMode={this.state.editMode}
@@ -100,19 +108,20 @@ class DataSourcePage extends React.Component {
                     />
                 )}
                 <DataSourceMainSection
+                  allowAppSelection={!this.props.fromAppCreation}
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
-                  onChange={this.updateDataSourceState}
+                  onChange={this.onApplicationUpdate}
                 />
                 <DataSourceMetricsSection
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
-                  onChange={this.updateDataSourceState}
+                  onChange={this.onApplicationUpdate}
                 />
                 <DataSourceReutilisationsSection
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
-                  onChange={this.updateDataSourceState}
+                  onChange={this.onApplicationUpdate}
                 />
             </Form>
         );
