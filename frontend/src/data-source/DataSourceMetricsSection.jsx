@@ -46,7 +46,7 @@ class DataSourceMetricsSection extends React.Component {
               </Col>
               <Col span={8}>
                 {this.getAttributeElement('field_count')}
-                {this.getAttributeElement('field')}
+                {this.getAttributeElement('fields')}
               </Col>
             </Row>
           </div>

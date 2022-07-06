@@ -252,39 +252,6 @@ class SearchPage extends React.Component {
             .then(() => this.onSearch());
     }
 
-    computeCount = (dataSourceValues, value) => {
-        return dataSourceValues.filter((dataSourceValue) => {
-            if (Array.isArray(dataSourceValue)) {
-                return dataSourceValue
-                  .map((val) => val.indexOf(value) > -1)
-                  .reduce((acc, val) => acc || val, false);
-            }
-            return dataSourceValue && dataSourceValue.indexOf(value) > -1;
-        }).length;
-    }
-
-    flatTree = (treeData) => {
-        let result = [];
-        for (let node of treeData) {
-            result.push(node.full_path);
-            if (node.children) {
-                result = result.concat(this.flatTree(node.children));
-            }
-        }
-        return result;
-    }
-
-    computeCountObject = (stateKey, attributeKey) => {
-        const countObject = {};
-        if (this.state[stateKey]) {
-            for (let value of this.flatTree(this.state[stateKey])) {
-                const values = this.state.dataSources.map((dataSource) => dataSource[attributeKey]);
-                countObject[value] = this.computeCount(values, value);
-            }
-        }
-        return countObject;
-    }
-
     enrichTreeWithNodeCount = (treeData, countObject) => {
         const result = JSON.parse(JSON.stringify(treeData));
         let sum = 0;

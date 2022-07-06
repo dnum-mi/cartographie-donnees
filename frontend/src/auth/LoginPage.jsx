@@ -57,7 +57,7 @@ class LoginPage extends React.Component {
                     onFinish={this.onFinish}
                     onFinishFailed={() => {}}
                 >
-                <EmailField tooltip="L'email de l'utilisateur" required={true} name="email"/>
+                <EmailField tooltip="L'email de l'administrateur" required={true} name="email"/>
 
                     <Form.Item
                         label="Mot de passe"

@@ -34,7 +34,7 @@ function Navigation({ user }) {
             <a className="home" href="/">
               <img alt="Ministère de l'intérieur" src={logo} height="90" />
               <span className="home-title">
-                Cartographie des données
+                Cartographie des données MI
               </span>
             </a>
         </span>

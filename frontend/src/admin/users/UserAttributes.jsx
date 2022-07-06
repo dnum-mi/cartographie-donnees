@@ -12,10 +12,10 @@ class UserAttributes extends React.Component {
 
     render() {
         return (<div className="UserAttributes">
-            <p><b>Prénom <QuestionCircleOutlined title="Prénom de l'utilisateur"/> : </b> {this.props.user.first_name}</p>
-            <p><b>Nom <QuestionCircleOutlined title="Nom de l'utilisateur"/> : </b> {this.props.user.last_name}</p>
-            <p><b>Email <QuestionCircleOutlined title="Mail de l'utilisateur"/> : </b>{this.props.user.email}</p>
-            <span className="shortLabel"><b>Administrateur ? <QuestionCircleOutlined title="L'utilisateur est-il administrateur ?"/> : </b>{this.props.user.is_admin ? <span>Oui</span> : <span>Non</span>}</span>
+            <p><b>Prénom <QuestionCircleOutlined title="Prénom de l'administrateur"/> : </b> {this.props.user.first_name}</p>
+            <p><b>Nom <QuestionCircleOutlined title="Nom de l'administrateur"/> : </b> {this.props.user.last_name}</p>
+            <p><b>Email <QuestionCircleOutlined title="Mail de l'administrateur"/> : </b>{this.props.user.email}</p>
+            <span className="shortLabel"><b>Administrateur général <QuestionCircleOutlined title="L'utilisateur est-il administrateur général ?"/> : </b>{this.props.user.is_admin ? <span>Oui</span> : <span>Non</span>}</span>
             <div className="applications">
                 <h2 title="Applications dont il est propriétaire">
                     Applications

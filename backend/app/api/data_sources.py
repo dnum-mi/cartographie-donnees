@@ -218,7 +218,12 @@ def fetch_data_source_types():
 @app.route('/api/data-sources/applications', methods=['GET'])
 def fetch_data_source_applications():
     return jsonify([
-        {'id': application.id, 'value': application.name}
+        {
+            'id': application.id,
+            'value': application.name,
+            'full_path': application.name,
+            'children': [],
+        }
         for application in Application.query.all()
     ])
 

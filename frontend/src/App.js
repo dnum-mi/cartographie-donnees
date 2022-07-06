@@ -24,7 +24,6 @@ class App extends React.Component {
 
   componentDidMount() {
     this.refreshUser();
-     document.title = "Cartographie Données MI"
   }
 
   setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
