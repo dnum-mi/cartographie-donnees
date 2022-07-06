@@ -113,7 +113,7 @@ class DataSourceCreation extends React.Component {
                 <div className="DataSourceCreation">
                     {this.state.error && <Error error={this.state.error}/>}
                     <div>
-                        <DataSourcePage forceEdit={true} dataSource={initialDataSource} handleSubmit={this.handleSubmit}/>
+                        <DataSourcePage forceEdit={true} dataSource={initialDataSource} handleSubmit={this.handleSubmit} fromAppCreation={this.props.fromAppCreation} fromDataSourceCreation={this.props.fromDataSourceCreation}/>
                     </div>
                 </div>
             </Spin>

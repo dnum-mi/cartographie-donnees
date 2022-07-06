@@ -127,6 +127,7 @@ class DataSourcePage extends React.Component {
                       onActivateEdition={(e) => this.activateEdition(e)}
                       onCancelEdition={(e) => this.onCancelEdition(e)}
                       onDelete={(e) => this.showDeleteConfirm(e)}
+                      fromCreation={this.props.fromAppCreation || this.props.fromDataSourceCreation}
                     />
                 )}
                 <DataSourceMainSection

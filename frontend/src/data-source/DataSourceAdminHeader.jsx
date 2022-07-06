@@ -29,15 +29,17 @@ class DataSourceAdminHeader extends React.Component {
         <Col className="datasource-admin-header-link">
             <Form.Item {...this.props} noStyle>
                 <Button type="link" htmlType="submit">
-                    Valider la modification
+                    {this.props.fromCreation ? "Valider la création " : "Valider la modification"}
                 </Button>
             </Form.Item>
         </Col>
+        {!this.props.fromCreation ? (
         <Col className="datasource-admin-header-link">
           <Button type="link" onClick={(e) => this.props.onCancelEdition(e)} danger>
             Annuler la modification
           </Button>
         </Col>
+        ): undefined}
       </Row>
     )
   }
