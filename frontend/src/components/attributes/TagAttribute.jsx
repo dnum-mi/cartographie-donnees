@@ -21,12 +21,20 @@ class TagAttribute extends React.Component {
     return <Tag color={this.props.tagColor}>{this.props.value}</Tag>
   }
 
+  rules = () => {
+    if (this.props.noRules) {
+      return undefined
+    } else {
+      return [{
+        required: this.props.required
+      }]
+    }
+  }
+
   writeElement() {
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={[{
-          required: this.props.required
-        }]}>
+        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
           <EnumSelect
             category={this.props.tagCategory}
             mode={this.props.tagMode === 'multiple' ? 'multiple' : null}

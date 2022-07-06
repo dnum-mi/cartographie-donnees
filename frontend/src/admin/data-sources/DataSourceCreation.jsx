@@ -79,16 +79,20 @@ class DataSourceCreation extends React.Component {
                 dataSource.application
             ).then((response) => {
                 dataSource.application.id = response.data.id
-                createDataSource(
-                    dataSource,
-                ).then((results) => {
-                    this.props.history.push("/data-source/" + results.data.id)
-                }).catch((error) => {
-                    this.setState({
-                        loading: false,
-                        error,
-                    });
-                })
+                if (dataSource.name) {
+                    createDataSource(
+                        dataSource,
+                    ).then((results) => {
+                        this.props.history.push("/data-source/" + results.data.id)
+                    }).catch((error) => {
+                        this.setState({
+                            loading: false,
+                            error,
+                        });
+                    })
+                } else {
+                    this.props.history.push("/application/" + response.data.id)
+                }
             }).catch((error) => {
                 this.setState({
                     loading: false,

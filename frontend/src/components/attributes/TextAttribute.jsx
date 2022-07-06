@@ -76,6 +76,9 @@ class TextAttribute extends React.Component {
   }
 
   rules = () => {
+    if (this.props.noRules) {
+      return undefined
+    }
     if (this.props.isLink) {
       return [{
         required: !!this.props.required,

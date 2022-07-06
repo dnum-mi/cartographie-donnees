@@ -10,12 +10,20 @@ class BooleanAttribute extends React.Component {
       return this.props.value ? 'Oui' : 'Non';
   }
 
+  rules = () => {
+    if (this.props.noRules) {
+      return undefined
+    } else {
+      return [{
+        required: this.props.required
+      }]
+    }
+  }
+
   writeElement() {
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={[{
-          required: this.props.required
-        }]}>
+        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
           <Checkbox
             id={this.props.attributeId}
             defaultChecked={this.props.value}

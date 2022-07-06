@@ -29,6 +29,7 @@ class DataSourcePage extends React.Component {
         this.state = {
             dataSource: Object.assign({}, this.props.dataSource),
             editMode: props.forceEdit,
+            noRules: this.props.fromAppCreation
         }
     }
 
@@ -57,12 +58,16 @@ class DataSourcePage extends React.Component {
         const newDataSource = {...this.state.dataSource}
         newDataSource.application = {...newDataSource.application}
         let attributeId = Object.keys(newAttribute)[0]
+        let noRules = this.state.noRules
         for (let attributeKey in attributes) {
             if (attributes[attributeKey].attributeId === attributeId) {
                 newDataSource[attributeKey] = newAttribute[attributeId]
+                noRules = false
                 break
             } else if (attributes[attributeKey].suffixAttributeId === attributeId) {
                 newDataSource[attributeId] = newAttribute[attributeId]
+                noRules = false
+                break
             }
         }
         for (let attributeKey in attributes.application) {
@@ -71,9 +76,10 @@ class DataSourcePage extends React.Component {
                 break
             } else if (attributes.application[attributeKey].suffixAttributeId === attributeId) {
                 newDataSource.application[attributeId] = newAttribute[attributeId]
+                break
             }
         }
-        this.setState({ dataSource: newDataSource })
+        this.setState({ dataSource: newDataSource, noRules: noRules})
     };
 
     onApplicationUpdate = (application) => {
@@ -131,6 +137,7 @@ class DataSourcePage extends React.Component {
                     />
                 )}
                 <DataSourceMainSection
+                  noRules={this.state.noRules}
                   allowAppSelection={!this.props.fromAppCreation}
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
