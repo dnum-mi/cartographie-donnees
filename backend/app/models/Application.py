@@ -177,7 +177,7 @@ class Application(SearchableMixin, BaseModel):
                 user = User.query.filter_by(email=owner_email).first()
                 if user is None:
                     raise ValueError("L'adresse email {} ne correspond "
-                                     "à aucun utilisateur".format(owner_email))
+                                     "à aucun administrateur".format(owner_email))
                 owners_ids.append(user)
             new_import_dict['owners'] = owners_ids
         else:

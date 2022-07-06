@@ -37,7 +37,7 @@ class UserCreation extends React.Component {
             <Spin tip="Envoi en cours..." spinning={this.state.loading}>
                 <div className="UserCreation">
                     <h1>
-                        Création d'un utilisateur
+                        Création d'un administrateur
                     </h1>
                     {this.state.error && <Error error={this.state.error} />}
                     <div>

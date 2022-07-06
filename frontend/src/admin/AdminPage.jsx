@@ -50,10 +50,10 @@ class AdminPage extends React.Component {
                 defaultSelectedKeys={[this.currentPage()]}
             >
                 <Menu.Item key="applications">
-                    {"Applications (" + this.state.application_count + ")"}
+                    Applications ({this.state.application_count})
                 </Menu.Item>
                 <Menu.Item key="data-sources">
-                    {"Données (" + this.state.data_source_count + ")"}
+                    Données ({this.state.data_source_count})
                 </Menu.Item>
                 {this.props.user.is_admin && (
                 <Menu.Item key="enumerations">
@@ -62,7 +62,7 @@ class AdminPage extends React.Component {
                 )}
                 {this.props.user.is_admin && (
                 <Menu.Item key="users">
-                    {"Utilisateurs (" + this.state.user_count + ")"}
+                    Administrateurs ({this.state.user_count})
                 </Menu.Item>
                 )}
             </Menu>
@@ -166,15 +166,15 @@ class AdminPage extends React.Component {
                     </p>
 
                     <h3>
-                        Importer des utilisateurs
+                        Importer des administrateurs
                     </h3>
                     <p>
-                        Les utilisateurs peuvent être entièrement importées par un administrateur depuis le bouton
-                        "import" de la page administration des utilisateurs. Pour importer les utilisateurs, il faut
-                        s'assurer qu'aucunes données et qu'aucune applications ne soient encore présentes. Pour cela,
+                        Les administrateurs peuvent être entièrement importées par un administrateur général depuis le bouton
+                        "import" de la page administration des administrateurs. Pour importer les administrateurs, il faut
+                        s'assurer qu'aucune donnée et qu'aucune application ne soit encore présente. Pour cela,
                         il est conseillé d'importer un fichier de données ne contenant que les en-têtes puis un fichier
                         d'application ne contenant que les en-têtes. Les données et applications seront supprimées.
-                        Les utilisateurs seront tous supprimés avant d’importer les nouveaux utilisateurs.
+                        Les administrateurs seront tous supprimés avant d’importer les nouveaux administrateurs.
                     </p>
 
                     <h3>
@@ -191,7 +191,7 @@ class AdminPage extends React.Component {
                     <ol>
                         <li>Vider les données (il est conseillé d'importer un fichier de données ne contenant que les en-têtes)</li>
                         <li>Vider les applications (il est conseillé d'importer un fichier d'application ne contenant que les en-têtes) </li>
-                        <li>Importer les utilisateurs</li>
+                        <li>Importer les administrateurs</li>
                         <li>Importer les filtres</li>
                         <li>Importer les applications</li>
                         <li>Importer les données</li>
