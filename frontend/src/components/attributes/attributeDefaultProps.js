@@ -18,6 +18,8 @@ export const textDefaultProps = {
   title: null,
 };
 
-export const tagDefaultProps = {};
+export const tagDefaultProps = {
+  tagColor: null,
+};
 
 export const booleanDefaultProps = {};

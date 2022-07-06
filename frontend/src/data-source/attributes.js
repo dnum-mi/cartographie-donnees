@@ -27,6 +27,7 @@ export default {
     tooltip: 'Famille fonctionnelle de la donnée',
     tagCategory: 'Famille',
     tagMode: 'multiple',
+    tagColor: 'blue',
   },
   classification_name: {
     attributeId: 'classification_name',
@@ -35,6 +36,7 @@ export default {
     tooltip: "Types de référentiels utilisés pour classifier la donnée",
     tagMode: 'multiple',
     tagCategory: "Axes d'analyse",
+    tagColor: 'purple',
   },
   type_name: {
     attributeId: 'type_name',
@@ -42,7 +44,8 @@ export default {
     type: 'tag',
     tooltip: "Type de la donnée",
     tagMode: 'simple',
-    tagCategory: 'Type'
+    tagCategory: 'Type',
+    tagColor: 'red',
   },
   is_reference: {
     attributeId: 'is_reference',
@@ -57,6 +60,7 @@ export default {
     tooltip: "Origine fonctionnelle de la donnée",
     tagMode: 'simple',
     tagCategory: 'Origine',
+    tagColor: 'geekblue',
   },
   origin_application: {
     attributeId: 'origin_application',
@@ -71,6 +75,7 @@ export default {
     tooltip: "La donnée est-elle publiable en Open Data ?",
     tagMode: 'simple',
     tagCategory: 'OpenData',
+    tagColor: 'green',
   },
   exposition_name: {
     attributeId: 'exposition_name',
@@ -79,6 +84,7 @@ export default {
     tooltip: "Type de mises à disposition",
     tagMode: 'multiple',
     tagCategory: 'Exposition',
+    tagColor: 'gold',
   },
   sensibility_name: {
     attributeId: 'sensibility_name',
@@ -87,6 +93,7 @@ export default {
     tooltip: "Sensibilité des données identifiantes",
     tagMode: 'simple',
     tagCategory: 'Sensibilité',
+    tagColor: 'lime',
   },
   tag_name: {
     attributeId: 'tag_name',
@@ -184,6 +191,7 @@ export default {
       tagMode: 'simple',
       tooltip: 'MOA propriétaire de l\'application',
       tagCategory: 'Organisation',
+      tagColor: 'volcano',
       // hasSuffixValue: true,
       // suffixAttributeId: 'organization_long_name',
     },

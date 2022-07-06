@@ -33,6 +33,7 @@ export const tagPropTypes = {
   ]),
   tagCategory: PropTypes.string,
   title: PropTypes.string,
+  tagColor: PropTypes.string,
 }
 
 export const booleanPropTypes = {
