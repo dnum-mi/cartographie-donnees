@@ -1,10 +1,7 @@
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.inspection import inspect
 from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
-
-from app.search import remove_accent
 
 import datetime
 
@@ -17,14 +14,13 @@ ownerships = db.Table(
 
 
 class Application(SearchableMixin, BaseModel):
-    __searchable__ = ['name', 'potential_experimentation', "goals", 'organization_name']
+    __searchable__ = ['name', "goals", 'organization_name']
     __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
     goals = db.Column(db.Text, nullable=False)
-    potential_experimentation = db.Column(db.Text)
     access_url = db.Column(db.Text)
     operator_count = db.Column(db.Integer)
     operator_count_comment = db.Column(db.String)
@@ -97,7 +93,6 @@ class Application(SearchableMixin, BaseModel):
         result = {
             'id': self.id,
             'name': self.name,
-            'potential_experimentation': self.potential_experimentation,
             'organization_name': self.organization_name,
             'goals': self.goals,
             'access_url': self.access_url,
@@ -133,7 +128,6 @@ class Application(SearchableMixin, BaseModel):
 
     def update_from_dict(self, data):
         self.name = data.get('name')
-        self.potential_experimentation = data.get('potential_experimentation')
         self.organization_id = data.get('organization_id')
         self.goals = data.get('goals')
         self.access_url = data.get('access_url')
@@ -154,7 +148,6 @@ class Application(SearchableMixin, BaseModel):
         application = Application(
             id=data.get('id'),
             name=data.get('name'),
-            potential_experimentation=data.get('potential_experimentation'),
             organization_id=data.get('organization_id'),
             goals=data.get('goals'),
             access_url=data.get('access_url'),
