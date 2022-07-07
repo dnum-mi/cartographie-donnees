@@ -16,7 +16,8 @@
     flex-wrap: wrap;
 }
 
-.datasource-reutilizations-section .datasource-reutilizations-container .application-card {
+.datasource-reutilizations-section .datasource-reutilizations-container .ant-card {
     margin-bottom: 20px;
     margin-right: 20px;
+    width: 300px;
 }

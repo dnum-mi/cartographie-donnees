@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import './ApplicationCard.css';
-import { Tag, Card } from "antd";
+import { Tag, Card, Typography } from "antd";
 import {withRouter} from "react-router-dom";
+
+const { Paragraph } = Typography;
 
 class ApplicationCard extends React.Component {
   handleClick = () => {
@@ -12,7 +13,11 @@ class ApplicationCard extends React.Component {
 
   render() {
     return (
-      <Card hoverable onClick={this.handleClick} title={this.props.application.name}>
+      <Card
+        hoverable
+        onClick={this.handleClick}
+        title={this.props.application.name}
+      >
         {this.props.application.organization_name && (
           <p>
               <Tag>
@@ -20,9 +25,9 @@ class ApplicationCard extends React.Component {
               </Tag>
           </p>
         )}
-        <p className="application-card-description">
+        <Paragraph ellipsis={{ rows: 4 }} className="application-card-description">
           {this.props.application.goals}
-        </p>
+        </Paragraph>
       </Card>
     );
   }

@@ -87,8 +87,8 @@ ApplicationSearchTag.defaultProps = {
 
 ApplicationSearchTag.propTypes = {
     value: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string),
+        PropTypes.object,
+        PropTypes.arrayOf(PropTypes.object),
     ]),
     mode: PropTypes.string,
     required: PropTypes.bool,

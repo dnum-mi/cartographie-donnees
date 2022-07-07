@@ -13,7 +13,12 @@ class DataSourceReutilizationsSection extends React.Component {
       return (
         <>
           {this.props.dataSource.reutilizations
-            .map((application) => <ApplicationCard application={application} key={application.id} />)}
+            .map((application) => (
+              <ApplicationCard
+                application={application}
+                key={application.id}
+              />
+              ))}
         </>
       );
     }
@@ -29,7 +34,7 @@ class DataSourceReutilizationsSection extends React.Component {
       <ApplicationSearchTag
         limited={false}
         value={this.props.dataSource.reutilizations}
-        onChange={(reutilizations) => this.props.onChange({ reutilizations })}
+        onChange={(reutilizations) => this.props.onChange(reutilizations)}
       />
     );
   }
