@@ -39,6 +39,16 @@ class DataSourceReutilizationsSection extends React.Component {
     );
   }
 
+  description = () => {
+    const reutilizationCount = this.props.dataSource.reutilizations.length
+    let result = 'Liste des '
+    if (reutilizationCount > 1) {
+      result += `${reutilizationCount} `;
+    }
+    result += `applications réutilisant cette donnée.`
+    return result
+  }
+
   render() {
     return (
       <div className="datasource-reutilizations-section">
@@ -48,7 +58,7 @@ class DataSourceReutilizationsSection extends React.Component {
               Réutilisations
             </h2>
             <p className="datasource-reutilizations-description">
-              Liste des applications réutilisant cette donnée.
+              {this.description()}
             </p>
             <div className="datasource-reutilizations-container">
               {this.props.editMode ? this.writeComponent() : this.readComponent()}
