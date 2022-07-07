@@ -5,6 +5,12 @@ from flask import current_app
 
 
 def create_filter_value_query(field, value):
+    if field == 'application':
+        return {
+            'term': {
+                field + "_name.keyword": value
+            }
+        }
     from ..models import get_enumeration_model_by_name
     cls = get_enumeration_model_by_name(field)
     instance = cls.find_by_full_path(value)
@@ -58,11 +64,17 @@ def create_filters_query(filters_dict):
     }
     if len(filters_dict.keys()) == 1:
         filter_key = list(filters_dict.keys())[0]
-        enum_type = get_enumeration_type_by_name(filter_key)
+        if filter_key == 'application':
+            enum_type = 'simple'
+        else:
+            enum_type = get_enumeration_type_by_name(filter_key)
         return create_filter_query(filter_key, filters_dict[filter_key], enum_type)
     for field, field_values in filters_dict.items():
         if len(field_values) > 0:
-            enum_type = get_enumeration_type_by_name(field)
+            if field == 'application':
+                enum_type = 'simple'
+            else:
+                enum_type = get_enumeration_type_by_name(field)
             result['bool']['must'].append(create_filter_query(field, field_values, enum_type))
     return result
 
