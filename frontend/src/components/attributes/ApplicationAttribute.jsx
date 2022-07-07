@@ -31,6 +31,7 @@ class ApplicationAttribute extends React.Component {
             limited={false}
             onChange={this.props.onChange}
             value={this.props.value}
+            allowClear
           />
         </Form.Item>
       </div>
