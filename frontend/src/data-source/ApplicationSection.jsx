@@ -5,6 +5,7 @@ import './ApplicationSection.css';
 import Attribute from "../components/Attribute";
 import attributes from "./attributes";
 import ApplicationSelect from "./ApplicationSelect";
+import {Link} from "react-router-dom";
 
 class ApplicationSection extends React.Component {
 
@@ -15,6 +16,29 @@ class ApplicationSection extends React.Component {
         id={attributeKey}
         value={this.props.application[attributeKey]}
         suffixValue={this.props.application[config.suffixAttributeId]}
+        editMode={this.props.editMode}
+        {...config}
+      />
+    );
+  }
+
+  linkToDataSources = () => (
+    <Link to={{
+      pathname: "/search",
+      search: "?application=" + this.props.application.name
+    }}>
+      Liste des données
+    </Link>
+  );
+
+  getDataSourceCountElement() {
+    const config = attributes.application.data_source_count;
+
+    return (
+      <Attribute
+        id='data_source_count'
+        value={this.props.application.data_source_count}
+        suffixValue={this.linkToDataSources()}
         editMode={this.props.editMode}
         {...config}
       />
@@ -33,7 +57,7 @@ class ApplicationSection extends React.Component {
         {this.getAttributeElement('access_url')}
         {this.getAttributeElement('organization_name')}
         {this.getAttributeElement('context_email')}
-        {this.getAttributeElement('data_source_count')}
+        {this.getDataSourceCountElement()}
         {this.getAttributeElement('operator_count')}
         {this.getAttributeElement('user_count')}
         {this.getAttributeElement('monthly_connection_count')}
