@@ -256,7 +256,8 @@ export default {
     historic: {
       attributeId: 'application_historic',
       label: 'Historique',
-      type: 'number',
+      type: 'text',
+      inputType: 'number',
       tooltip: "Année création des données les plus anciennes",
     },
     validation_date: {
