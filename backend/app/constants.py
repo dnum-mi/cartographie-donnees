@@ -2,8 +2,6 @@ field_english_to_french_dic = {
     "id": "id",
     "name": "Nom",
     "description": "Description",
-    "ministry_interior": "Ministère de l'intérieur ?",
-    "geo_localizable": "Géolocalisable ?",
     "application_name": "Application",
     "family_name": "Famille",
     "tag_name": "Tag",
@@ -50,18 +48,15 @@ field_english_to_french_dic = {
     "is_admin": "Administrateur ?",
     "password_hash": "Mot de passe",
     "owners": "Propriétaires",
-    "potential_experimentation": "Expérimentations potentielles",
     "historic": "Historique",
-    'transformation': "Transformation",
-    'origin_application_name': "Application d\'origine"
+    'origin_application_name': "Application d\'origine",
+    'data_source_count': 'Nombre de données',
 }
 
 field_french_to_english_dic = {
     "id": "id",
     "Nom": "name",
     "Description": "description",
-    "Ministère de l'intérieur ?": "ministry_interior",
-    "Géolocalisable ?": "geo_localizable",
     "Application": "application_name",
     "Famille": "family_name",
     "Tag": "tag_name",
@@ -108,10 +103,9 @@ field_french_to_english_dic = {
     "Administrateur ?": "is_admin",
     "Mot de passe": "password_hash",
     "Propriétaires": "owners",
-    "Expérimentations potentielles": "potential_experimentation",
     "Historique": "historic",
-    'Transformation': "transformation",
-    'Application d\'origine': "origin_application_name"
+    'Application d\'origine': "origin_application_name",
+    'Nombre de données': 'data_source_count',
 }
 
 

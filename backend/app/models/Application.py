@@ -168,6 +168,8 @@ class Application(SearchableMixin, BaseModel):
     @classmethod
     def filter_import_dict(cls, import_dict):
         new_import_dict = super().filter_import_dict(import_dict)
+        if 'data_source_count' in new_import_dict:
+            del new_import_dict['data_source_count']
         if import_dict['owners']:
             # Transform owners string into an array of emails
             owner_emails = import_dict['owners'].split(',')
