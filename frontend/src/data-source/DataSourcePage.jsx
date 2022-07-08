@@ -138,7 +138,7 @@ class DataSourcePage extends React.Component {
                 )}
                 <DataSourceMainSection
                   noRules={this.state.noRules}
-                  allowAppSelection={!this.props.fromAppCreation}
+                  allowAppSelection={!this.props.fromAppCreation || !this.props.fromAppModification}
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
                   onChange={this.onApplicationUpdate}

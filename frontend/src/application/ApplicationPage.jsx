@@ -151,7 +151,7 @@ class ApplicationPage extends React.Component {
                     search: "?application=" + this.state.application.name
                 }}/>
             ) : (
-                <DataSourcePage dataSource={emptyDataSource} handleSubmit={this.handleSubmit}/>
+                <DataSourcePage dataSource={emptyDataSource} handleSubmit={this.handleSubmit} fromAppModification/>
             );
     }
 }
