@@ -68,7 +68,7 @@ class TextAttribute extends React.Component {
       )
     }
     return (
-      <div style={{"whiteSpace": "pre-line"}}>
+      <div style={{"whiteSpace": "pre-line", "wordBreak": "break-all"}}>
         {textValue}
         {this.props.suffixValue ? this.suffixElement() : null}
       </div>

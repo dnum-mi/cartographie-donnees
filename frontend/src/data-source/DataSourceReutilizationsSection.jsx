@@ -13,7 +13,12 @@ class DataSourceReutilizationsSection extends React.Component {
       return (
         <>
           {this.props.dataSource.reutilizations
-            .map((application) => <ApplicationCard application={application} key={application.id} />)}
+            .map((application) => (
+              <ApplicationCard
+                application={application}
+                key={application.id}
+              />
+              ))}
         </>
       );
     }
@@ -29,9 +34,19 @@ class DataSourceReutilizationsSection extends React.Component {
       <ApplicationSearchTag
         limited={false}
         value={this.props.dataSource.reutilizations}
-        onChange={(reutilizations) => this.props.onChange({ reutilizations })}
+        onChange={(reutilizations) => this.props.onChange(reutilizations)}
       />
     );
+  }
+
+  description = () => {
+    const reutilizationCount = this.props.dataSource.reutilizations.length
+    let result = 'Liste des '
+    if (reutilizationCount > 1) {
+      result += `${reutilizationCount} `;
+    }
+    result += `applications réutilisant cette donnée.`
+    return result
   }
 
   render() {
@@ -43,7 +58,7 @@ class DataSourceReutilizationsSection extends React.Component {
               Réutilisations
             </h2>
             <p className="datasource-reutilizations-description">
-              Liste des applications réutilisant cette donnée.
+              {this.description()}
             </p>
             <div className="datasource-reutilizations-container">
               {this.props.editMode ? this.writeComponent() : this.readComponent()}

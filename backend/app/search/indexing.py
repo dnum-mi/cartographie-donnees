@@ -16,30 +16,27 @@ def add_to_index(index, model):
 
 
 def bulk_add_to_index(index, models):
-    if not current_app.elasticsearch:
-        return
-    body = [
-        [
-            {
-                'index': {
-                    '_index': index,
-                    '_id': model.id,
-                    '_type': '_doc',
-                }
-            },
-            create_record_payload(model),
+    if current_app.elasticsearch:
+        body = [
+            [
+                {
+                    'index': {
+                        '_index': index,
+                        '_id': model.id,
+                        '_type': '_doc',
+                    }
+                },
+                create_record_payload(model),
+            ]
+            for model in models
         ]
-        for model in models
-    ]
-    flattened_body = [x for array in body for x in array]
-    if len(flattened_body):
-        current_app.elasticsearch.bulk(body=flattened_body)
+        flattened_body = [x for array in body for x in array]
+        if len(flattened_body):
+            current_app.elasticsearch.bulk(body=flattened_body)
 
 
 def remove_all_from_index(index):
-    if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
-        return
-    if current_app.elasticsearch.indices.exists(index=index):
+    if current_app.elasticsearch and current_app.elasticsearch.indices.exists(index=index):
         current_app.elasticsearch.delete_by_query(index=index, body={"query": {"match_all": {}}})
 
 

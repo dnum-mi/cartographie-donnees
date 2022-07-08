@@ -56,7 +56,7 @@ association_tag_table = db.Table(
 class DataSource(SearchableMixin, BaseModel):
     __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
                       'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
-                      'application_potential_experimentation', 'organization_name', 'application_goals', 'tag_name']
+                      'organization_name', 'application_goals', 'tag_name']
     __search_count__ = ['family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name',
                         'open_data_name', 'exposition_name', 'origin_name', 'application_name',
                         'organization_name', 'tag_name']
@@ -68,9 +68,6 @@ class DataSource(SearchableMixin, BaseModel):
                                secondary=association_family_table,
                                backref="data_sources", cascade="all, delete")
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
-    ministry_interior = db.Column(db.Boolean, default=False)
-    geo_localizable = db.Column(db.Boolean, default=False)
-    transformation = db.Column(db.Boolean, default=False)
     example = db.Column(db.Text)
     referentiel_id = db.Column(db.Integer, db.ForeignKey('family.id'))
     referentiel = relationship(
@@ -282,10 +279,6 @@ class DataSource(SearchableMixin, BaseModel):
             self.origin_application_id = None
 
     @property
-    def application_potential_experimentation(self):
-        return self.application.potential_experimentation
-
-    @property
     def organization_name(self):
         return self.application.organization_name
 
@@ -318,12 +311,12 @@ class DataSource(SearchableMixin, BaseModel):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'ministry_interior': self.ministry_interior,
-            'geo_localizable': self.geo_localizable,
             'application_name': self.application_name,
             'origin_application_name': self.origin_application_name,
             'family_name': self.family_name,
+            'families': [family.to_dict() for family in self.families],
             'tag_name': self.tag_name,
+            'tags': [tag.to_dict() for tag in self.tags],
             'reutilization_name': self.reutilization_name,
             'type_name': self.type_name,
             'example': self.example,
@@ -339,6 +332,7 @@ class DataSource(SearchableMixin, BaseModel):
             'volumetry_comment': self.volumetry_comment,
             'monthly_volumetry': self.monthly_volumetry,
             'monthly_volumetry_comment': self.monthly_volumetry_comment,
+            'update_frequency': self.update_frequency.to_dict() if self.update_frequency else None,
             'update_frequency_name': self.update_frequency_name,
             'conservation': self.conservation,
             'classification_name': self.classification_name,
@@ -348,7 +342,6 @@ class DataSource(SearchableMixin, BaseModel):
             'application': self.application.to_dict(),
             'organization_name': self.application.organization_name,
             'origin_application': self.origin_application.to_dict() if self.origin_application else None,
-            'transformation': self.transformation,
             'reutilizations': [application.to_dict() for application in self.reutilizations],
             'nb_reutilizations': self.nb_reutilizations
         }
@@ -357,8 +350,6 @@ class DataSource(SearchableMixin, BaseModel):
         return {
             'name': self.name,
             'description': self.description,
-            'ministry_interior': self.ministry_interior,
-            'geo_localizable': self.geo_localizable,
             'application_name': self.application_name,
             'reutilization_name': ",".join(self.reutilization_name),
             'family_name': ",".join(self.family_name),
@@ -383,14 +374,11 @@ class DataSource(SearchableMixin, BaseModel):
             'exposition_name': ",".join(self.exposition_name),
             'origin_name': self.origin_name,
             'origin_application_name': self.origin_application_name,
-            'transformation': self.transformation,
         }
 
     def update_from_dict(self, data):
         self.name = data.get('name')
         self.description = data.get('description')
-        self.ministry_interior = data.get('ministry_interior')
-        self.geo_localizable = data.get('geo_localizable')
         self.application_id = data.get('application_id')
         self.families = data.get('families') if data.get('families') else []
         self.reutilizations = data.get(
@@ -417,7 +405,6 @@ class DataSource(SearchableMixin, BaseModel):
         self.expositions = data.get('expositions')
         self.origin_id = data.get('origin_id')
         self.origin_application_id = data.get('origin_application_id')
-        self.transformation = data.get('transformation')
 
     @staticmethod
     def from_dict(data):
@@ -425,7 +412,6 @@ class DataSource(SearchableMixin, BaseModel):
             id=data.get('id'),
             name=data.get('name'),
             description=data.get('description'),
-            ministry_interior=data.get('ministry_interior'),
             application_id=data.get('application_id'),
             families=data.get('families'),
             reutilizations=data.get('reutilizations'),
@@ -448,7 +434,6 @@ class DataSource(SearchableMixin, BaseModel):
             classifications=data.get('classifications'),
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
-            transformation=data.get('transformation'),
             origin_application_id=data.get('origin_application_id'),
         )
 
@@ -471,29 +456,6 @@ class DataSource(SearchableMixin, BaseModel):
             raise AssertionError("La donnée doit contenir un type")
         else:
             return type_id
-
-    @validates('geo_localizable')
-    def validate_geo_localizable(self, key, geo_localizable):
-        if not geo_localizable:
-            return geo_localizable
-        elif isinstance(geo_localizable, bool):
-            return geo_localizable
-        else:
-            raise ValueError("Géolocalisable ? doit être un booléen")
-
-    @validates('ministry_interior')
-    def validate_ministry_interior(self, key, ministry_interior):
-        if not ministry_interior:
-            return ministry_interior
-        elif isinstance(ministry_interior, bool):
-            return ministry_interior
-
-    @validates('transformation')
-    def validate_transformation(self, key, transformation):
-        if not transformation:
-            return transformation
-        elif isinstance(transformation, bool):
-            return transformation
 
     @validates('database_table_count')
     def validate_database_table_count(self, key, database_table_count):

@@ -98,9 +98,9 @@ class DataSourcePage extends React.Component {
         })
     }
 
-    onReutilisationUpdate = (reutilization) => {
+    onReutilisationsUpdate = (reutilizations) => {
         const newDataSource = {...this.state.dataSource}
-        newDataSource.reutilization = {...reutilization}
+        newDataSource.reutilizations = [...reutilizations]
         this.setState({ dataSource: newDataSource })
     }
 
@@ -150,7 +150,7 @@ class DataSourcePage extends React.Component {
                 <DataSourceReutilisationsSection
                   editMode={this.state.editMode}
                   dataSource={this.state.dataSource}
-                  onChange={this.onReutilisationUpdate}
+                  onChange={this.onReutilisationsUpdate}
                 />
             </Form>
         );

@@ -103,8 +103,7 @@ class ApplicationPage extends React.Component {
         exportDataSourcesOfApplication("Données_de_" + this.state.application.name + ".csv", this.state.application.id);
     }
 
-    handleSubmit = (event, dataSource) => {
-        event.preventDefault();
+    handleSubmit = (dataSource) => {
         this.setState({
             loading: true,
             error: null,
@@ -118,7 +117,7 @@ class ApplicationPage extends React.Component {
                     createDataSource(
                         dataSource,
                     ).then((results) => {
-                        this.props.history.push("datasources/" + results.data.id)
+                        this.props.history.push("/data-source/" + results.data.id)
                     })
                 } else {
                     this.setState({

@@ -2,14 +2,15 @@ from flask import current_app
 
 
 def set_default_analyzer(index):
-    if not current_app.elasticsearch:
-        return
-    current_app.elasticsearch.indices.close(index=index)
-    current_app.elasticsearch.indices.put_settings(
-        get_french_analyzer_payload(),
-        index=index,
-    )
-    current_app.elasticsearch.indices.open(index=index)
+    if current_app.elasticsearch:
+        if not current_app.elasticsearch.indices.exists(index=index):
+            current_app.elasticsearch.indices.create(index=index, body={"number_of_shards": 1})
+        current_app.elasticsearch.indices.close(index=index)
+        current_app.elasticsearch.indices.put_settings(
+            get_french_analyzer_payload(),
+            index=index,
+        )
+        current_app.elasticsearch.indices.open(index=index)
 
 
 def get_french_analyzer_payload():
