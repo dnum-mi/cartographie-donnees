@@ -60,6 +60,7 @@ jobs:
           working-directory: ./frontend
           start: npm start
           browser: chrome
+          wait-on: 'http://localhost:3000'
       - name: Upload screenshots as artifacts
         uses: actions/upload-artifact@v1
         if: failure()
