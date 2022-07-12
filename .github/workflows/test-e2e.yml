@@ -7,7 +7,7 @@ permissions:
 jobs:
   test-e2e:
     name: Run end-to-end tests with Cypress
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://carto:carto@localhost:5432/carto_db
       ELASTICSEARCH_URL: http://localhost:9200
