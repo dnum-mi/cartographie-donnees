@@ -8,8 +8,8 @@ from app.models import SearchableMixin, BaseModel, Type, Application, OpenData, 
 
 association_classification_table = db.Table(
     'association_classification', db.Model.metadata,
-    db.Column('data_source_id', db.Integer, db.ForeignKey('data_source.id')),
-    db.Column('family_id', db.Integer, db.ForeignKey('family.id')),
+    db.Column('data_source_id', db.Integer, db.ForeignKey('data_source.id'), primary_key=True),
+    db.Column('family_id', db.Integer, db.ForeignKey('family.id'), primary_key=True),
     db.UniqueConstraint('data_source_id', 'family_id')
 )
 
