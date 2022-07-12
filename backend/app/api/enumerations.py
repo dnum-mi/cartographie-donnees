@@ -3,14 +3,13 @@ from werkzeug.exceptions import BadRequest
 from flask import jsonify, request, send_file
 from io import TextIOWrapper, BytesIO
 import csv
-from flask_login import login_required
-
 from app import db
 from app.decorators import admin_required, admin_or_any_owner_required
-from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, UpdateFrequency, Origin, Tag
+from flask_login import login_required
+from app.models import DataSource, Application, Type, Family, Organization, Exposition, \
+    Sensibility, OpenData, UpdateFrequency, Origin, Tag, get_enumeration_model_by_name
 from app.constants import field_english_to_french_dic, field_french_to_english_dic, enumeration_english_to_french, enumeration_french_to_english
 from app.search import remove_accent
-
 from . import api
 
 
@@ -18,35 +17,12 @@ all_category = [Family, Organization, Type, Sensibility, OpenData, Exposition, O
 required = [Type, Family, Organization]
 
 
-def get_enumeration_model_by_name(name):
-    if name.lower() == "type":
-        return Type
-    elif name.lower() == "family":
-        return Family
-    elif name.lower() == "organization":
-        return Organization
-    elif name.lower() == "sensibility":
-        return Sensibility
-    elif name.lower() == "classification":
-        return Family
-    elif name.lower() == "exposition":
-        return Exposition
-    elif name.lower() == "referentiel":
-        return Family
-    elif name.lower() == "open_data":
-        return OpenData
-    elif name.lower() == "update_frequency":
-        return UpdateFrequency
-    elif name.lower() == "origin":
-        return Origin
-    elif name.lower() == "tag":
-        return Tag
-
 @api.route('/api/enumerations/categories', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def get_enumeration_categories():
     return jsonify([enumeration_english_to_french[category.__tablename__] for category in all_category])
+
 
 @api.route('/api/enumerations', methods=['GET'])
 @login_required
@@ -106,6 +82,7 @@ def update_enumeration(enumeration_id):
         enumeration.update_from_dict(json)
         db.session.commit()
         db.session.refresh(enumeration)
+        Application.reindex()
         DataSource.reindex()
         return jsonify(enumeration.to_dict())
     except Exception as e:
@@ -169,29 +146,26 @@ def export_enumerations():
 @admin_required
 def import_enumerations():
     try:
+        for category in all_category:
+            db.session.query(category).delete(synchronize_session='fetch')
+
         file = request.files["file"]
         file.stream.seek(0)  # seek to the beginning of file
 
-        enumeration_list = []
         csv_file = TextIOWrapper(file, encoding='cp1252')
         csv_reader = csv.reader(csv_file, delimiter=';')
         headers = next(csv_reader)
         headers = [field_french_to_english_dic[field] for field in headers]
-        n = len(headers)
         for row in csv_reader:
-            dic = {headers[i]: row[i] for i in range(n)}
-            Enumeration = get_enumeration_model_by_name(enumeration_french_to_english[dic["category"]])
-            enumeration = Enumeration.from_dict(dic)
-            enumeration_list.append(enumeration)
-
-        for category in all_category:
-            db.session.query(category).delete(synchronize_session='fetch')
-        db.session.bulk_save_objects(enumeration_list)
+            dic = {headers[i]: row[i] for i in range(len(headers))}
+            enum_cls = get_enumeration_model_by_name(enumeration_french_to_english[dic["category"]])
+            enumeration = enum_cls.from_dict(dic)
+            db.session.add(enumeration)
+        db.session.commit()
     except Exception as e:
         db.session.rollback()
         raise BadRequest(str(e))
     else:
-        db.session.commit()
         return "ok"
 
 
@@ -237,7 +211,7 @@ def delete_enumeration(category, enumeration_id):
         if category == "Exposition":
             db.session.execute(f"DELETE FROM association_exposition WHERE exposition_id={enumeration_id}")
         if category == "Tag":
-            db.session.execute(f"DELETE FROM association_exposition WHERE tag_id={enumeration_id}")
+            db.session.execute(f"DELETE FROM association_tag WHERE tag_id={enumeration_id}")
         category = enumeration_french_to_english[category]
         Enumeration = get_enumeration_model_by_name(category)
         enumeration = get_enumeration(Enumeration, enumeration_id)
@@ -246,12 +220,12 @@ def delete_enumeration(category, enumeration_id):
         return jsonify(dict(description='OK', code=200))
 
 
-def get_enumeration_by_name(category, name, line=None, nullable=True, return_id=True):
+def get_enumeration_by_name(enumeration_class, name, line=None, nullable=True, return_id=True):
     if nullable and not name:
         return None
-    values = category.query.filter_by(value=name).all()
-    if values:
-        value = values[0]
+    matches = [enum for enum in enumeration_class.query.all() if enum.full_path == name]
+    if len(matches) > 0:
+        value = matches[0]
         id = value.id
         if return_id:
             return id
@@ -259,9 +233,9 @@ def get_enumeration_by_name(category, name, line=None, nullable=True, return_id=
             return value
     else:
         if line is not None:
-            raise AssertionError("Ligne %s :Le filtre '%s' du modèle %s n'existe pas." % (line, category.__tablename__, name))
+            raise AssertionError("Ligne %s : la valeur '%s' du filtre %s n'existe pas." % (line, name, enumeration_class.__tablename__))
         else:
-            raise AssertionError("Le filtre '%s' du modèle %s n'existe pas." % (category.__tablename__, name))
+            raise AssertionError("La valeur '%s' filtre %s n'existe pas." % (name, enumeration_class.__tablename__))
 
 
 def get_type_by_name(name, line=None):

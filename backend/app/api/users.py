@@ -113,7 +113,7 @@ def get_user(user_id):
     try:
         usr_id = int(user_id)
     except ValueError:
-        raise BadRequest(f"Utilisateur inconnu : {user_id}")
+        raise BadRequest(f"Administrateur inconnu : {user_id}")
     return User.query.get_or_404(usr_id)
 
 

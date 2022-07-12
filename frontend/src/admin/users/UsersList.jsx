@@ -70,10 +70,10 @@ class UsersList extends React.Component {
 
       uploadfile({ onSuccess, onError, file }) {
         confirm({
-            title: 'Import des utilisateurs',
+            title: 'Import des administrateurs',
             icon: <ExclamationCircleOutlined />,
-            content: "Vous êtes sur le point de remplacer les utilisateurs. Cette action est irréversible ! \
-            Il ne doit pas y avoir d'application car cette table est liée aux utilisateurs\
+            content: "Vous êtes sur le point de remplacer les administrateurs. Cette action est irréversible ! \
+            Il ne doit pas y avoir d'application car cette table est liée aux administrateurs\
             Vous pouvez comparer votre fichier avec la base actuelle en téléchargeant le fichier CSV à l'aide du bouton\
             d'export.",
                 onOk: () => {
@@ -104,19 +104,19 @@ class UsersList extends React.Component {
         };
 
     export = () => {
-        exportModel(exportUsersUrl, "Utilisateurs.csv");
+        exportModel(exportUsersUrl, "Administrateurs.csv");
     }
 
     render() {
         return (
             <div className="UsersList">
                 <h1>
-                    Liste des utilisateurs
+                    Liste des administrateurs
                 </h1>
                 <div className="actions">
                     <Link to={this.props.match.url + '/create'}>
                         <Button type="primary" icon={<PlusOutlined />}>
-                            Créer un utilisateur
+                            Créer un administrateur
                         </Button>
                     </Link>
                     <Button onClick={this.export} icon={<DownloadOutlined />} type="default">Export</Button>

@@ -55,7 +55,7 @@ class EnumSelect extends React.Component {
                 mode={this.props.mode}
                 value={this.props.value}
                 defaultValue={this.props.defaultValue}
-                onChange={this.props.onChange}
+                onChange={(selectedValues) => this.props.onChange(selectedValues)}
             >
                 {!this.props.required && !this.props.mode && (
                     <Option
@@ -68,9 +68,9 @@ class EnumSelect extends React.Component {
                 {this.state.enumerations.map((item) => (
                     <Option
                         key={item.id}
-                        value={item.value}
+                        value={item.full_path}
                     >
-                        {item.value}
+                        {item.full_path}
                     </Option>
                 ))}
             </Select>

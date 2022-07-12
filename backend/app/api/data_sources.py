@@ -1,10 +1,10 @@
-import os
+import copy
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
-
 from app import db
-from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, UpdateFrequency, Origin, Tag
+from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
+    get_enumeration_model_by_name, Origin, Tag
 from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
 from app.api.enumerations import get_type_by_name, get_family_by_name, get_classification_by_name, \
     get_exposition_by_name, get_referentiel_by_name, get_sensibily_by_name, get_open_data_by_name, \
@@ -12,9 +12,9 @@ from app.api.enumerations import get_type_by_name, get_family_by_name, get_class
 from app.api.applications import get_application_by_name
 from app.api.commons import import_resource, export_resource
 from app.exceptions import CSVFormatError
-from app.search import remove_accent
 
 from . import api
+
 
 
 @api.route('/api/data-sources', methods=['GET'])
@@ -28,19 +28,20 @@ def fetch_data_sources():
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     datasources = base_query.all()
     total_count = base_query.count()
-    _list = [(data_source.id, remove_accent(data_source.name)) for data_source in datasources]
-    _list.sort(key=lambda tup: tup[1])
-    datasources = [DataSource.query.filter_by(id=id).one() for id, _ in _list][(page - 1) * count:page * count]
+    datasources = datasources[(page - 1) * count:page * count]
+    datasources = sorted(datasources, key=lambda ds: str.lower(ds.name))
     return jsonify(dict(
         total_count=total_count,
         results=[datasource.to_dict() for datasource in datasources]
     ))
+
 
 def get_reutilizations(reutilizations):
     if reutilizations:
         return [get_application_by_name(json.get("name"), return_id=False) for json in reutilizations]
     else:
         return []
+
 
 @api.route('/api/data-sources', methods=['POST'])
 @login_required
@@ -72,18 +73,18 @@ def create_data_source():
 
 @api.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    data_sources, total, total_count = get_data_sources(query, 1, 10000, fields, values)
+    query, request_args = get_request_args_data_source(request)
+    data_sources, total_count = DataSource.search_with_filter(query, request_args, 1, 10000)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
+
 
 @api.route('/api/data-sources/export/<application_id>', methods=['GET'])
 @login_required
 @admin_or_owner_required
 def export_data_source_of_application(application_id):
     application = Application.query.get(application_id)
-    data_sources, total, total_count = get_data_sources("", 1, 10000, ["application_name"], [application.name])
-    return export_resource(DataSource, "data_sources_of_%s.csv" % (application.name), data_sources)
+    return export_resource(DataSource, f"data_sources_of_{application.name}.csv", application.data_sources)
+
 
 @api.route('/api/data-sources/export', methods=['GET'])
 @login_required
@@ -141,277 +142,133 @@ def convert_dict(dic):
             new_dict[key] = value
     return new_dict
 
-def get_fields_values(family=None, type=None, organization=None, application=None, referentiel=None,
-                     sensibility=None, open_data=None, exposition=None, origin=None, classification=None, tag=None):
-    fields = []
-    values = []
-    if family:
-        fields.append("family_name")
-        _list = []
-        for element in family:
-            _list.append(element)
-        values.append(_list)
-    if type:
-        fields.append("type_name")
-        values.append(type)
-    if organization:
-        fields.append("organization_name")
-        values.append(organization)
-    if application:
-        fields.append("application_name")
-        values.append(application)
-    if referentiel:
-        fields.append("referentiel_name")
-        values.append(referentiel)
-    if sensibility:
-        fields.append("sensibility_name")
-        values.append(sensibility)
-    if open_data:
-        fields.append("open_data_name")
-        values.append(open_data)
-    if exposition:
-        fields.append("exposition_name")
-        _list = []
-        for element in exposition:
-            _list.append(element)
-        values.append(_list)
-    if origin:
-        fields.append("origin_name")
-        values.append(origin)
-    if classification:
-        fields.append("classification_name")
-        _list = []
-        for element in classification:
-            _list.append(element)
-        values.append(_list)
-    if tag:
-        fields.append("tag_name")
-        _list = []
-        for element in tag:
-            _list.append(element)
-        values.append(_list)
-    return fields, values
 
-def get_data_sources(query, page, count, fields, values):
-    return DataSource.search_with_filter(query, fields, values, page, count)
+def get_fields_values(request_args):
+    filtered_dict = {
+        k: v
+        for k, v in request_args.items()
+        if len(v) > 0
+    }
+    dict_with_children = copy.deepcopy(filtered_dict)
+    fields = list(filtered_dict.keys())
+    for key in fields:
+        cls = get_enumeration_model_by_name(key)
+        all_records = cls.query.all()
+        for value in filtered_dict[key]:
+            instance = [record for record in all_records if record.full_path == value][0]
+            children_full_paths = instance.get_children_full_paths_recursively()
+            for full_path in children_full_paths:
+                dict_with_children[key].append(full_path)
+    return [f'{field}_name' for field in fields], list(dict_with_children.values())
+
 
 def get_request_args_data_source(request):
+    filters_list = ['family', 'type', 'organization', 'application', 'referentiel', 'sensibility', 'open_data',
+                    'exposition', 'origin', 'classification','tag']
+
     query = request.args.get('q', '', type=str)
-    family = request.args.get('family', '', type=str)
-    family = [] if not family else family.split(";")
-    type = request.args.get('type', '', type=str)
-    organization = request.args.get('organization', '', type=str)
-    application = request.args.get('application', '', type=str)
-    referentiel = request.args.get('referentiel', '', type=str)
-    sensibility = request.args.get('sensibility', '', type=str)
-    open_data = request.args.get('open_data', '', type=str)
-    exposition = request.args.get('exposition', '', type=str)
-    exposition = [] if not exposition else exposition.split(";")
-    origin = request.args.get('origin', '', type=str)
-    classification = request.args.get('classification', '', type=str)
-    classification = [] if not classification else classification.split(";")
-    tag = request.args.get('tag', '', type=str)
-    tag = [] if not tag else tag.split(";")
-    return query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag
+    to_return = {}
+    for filter in filters_list:
+        temp = request.args.get(filter, '', type=str)
+        temp = [] if not temp else temp.split(";")
+        to_return[filter] = temp
+    return query, to_return
 
 
 @api.route('/api/data-sources/search', methods=['GET'])
 def search_data_sources():
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    data_sources, total, total_count = get_data_sources(query, page, count, fields, values)
+    query, request_args = get_request_args_data_source(request)
+    data_sources, total_count = DataSource.search_with_filter(
+        query, request_args, page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[data_source.to_dict() for data_source in data_sources]
     ))
 
-@login_required
-@admin_or_owner_required
+
+@api.route('/api/data-sources/count_by_enumeration', methods=['GET'])
+def count_data_sources_by_enumeration():
+    query, request_args = get_request_args_data_source(request)
+    count_dict, total_count = DataSource.query_count(query, request_args)
+    return jsonify(dict(
+        total_count=total_count,
+        results=count_dict,
+    ))
+
+
 @api.route('/api/data-sources/count', methods=['GET'])
+@login_required
+@admin_or_any_owner_required
 def count_data_sources():
     base_query = DataSource.query
     if not current_user.is_admin:
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     return str(base_query.count())
 
+
 @api.route('/api/data-sources/families', methods=['GET'])
 def fetch_data_source_families():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'family_name')
-    dic = []
-    for family in Family.query.all():
-        unaccent = remove_accent(family.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": family.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Family.get_tree_dict())
 
 
 @api.route('/api/data-sources/types', methods=['GET'])
 def fetch_data_source_types():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'type_name')
-    dic = []
-    for type in Type.query.all():
-        unaccent = remove_accent(type.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": type.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Type.get_tree_dict())
+
 
 @api.route('/api/data-sources/applications', methods=['GET'])
 def fetch_data_source_applications():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'application_name')
-    dic = []
-    for application in Application.query.all():
-        unaccent = remove_accent(application.name)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": application.name, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify([
+        {
+            'id': application.id,
+            'value': application.name,
+            'full_path': application.name,
+            'children': [],
+        }
+        for application in Application.query.all()
+    ])
+
 
 @api.route('/api/data-sources/organizations', methods=['GET'])
 def fetch_data_source_organizations():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values,  'organization_name')
-    dic = []
-    for organization in Organization.query.all():
-        unaccent = remove_accent(organization.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": organization.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Organization.get_tree_dict())
+
 
 @api.route('/api/data-sources/referentiels', methods=['GET'])
 def fetch_data_source_referentiels():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'referentiel_name')
-    dic = []
-    for referentiel in Family.query.all():
-        unaccent = remove_accent(referentiel.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": referentiel.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Family.get_tree_dict())
+
 
 @api.route('/api/data-sources/sensibilities', methods=['GET'])
 def fetch_data_source_sensibilities():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'sensibility_name')
-    dic = []
-    for sensibility in Sensibility.query.all():
-        unaccent = remove_accent(sensibility.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": sensibility.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Sensibility.get_tree_dict())
+
 
 @api.route('/api/data-sources/open-data', methods=['GET'])
 def fetch_data_source_open_data():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'open_data_name')
-    dic = []
-    for open_data in OpenData.query.all():
-        unaccent = remove_accent(open_data.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": open_data.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(OpenData.get_tree_dict())
+
 
 @api.route('/api/data-sources/expositions', methods=['GET'])
 def fetch_data_source_expositions():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'exposition_name')
-    dic = []
-    for exposition in Exposition.query.all():
-        unaccent = remove_accent(exposition.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": exposition.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Exposition.get_tree_dict())
+
 
 @api.route('/api/data-sources/origins', methods=['GET'])
 def fetch_data_source_origins():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'origin_name')
-    dic = []
-    for origin in Origin.query.all():
-        unaccent = remove_accent(origin.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": origin.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Origin.get_tree_dict())
+
 
 @api.route('/api/data-sources/classifications', methods=['GET'])
 def fetch_data_source_classifications():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'classification_name')
-    dic = []
-    for referentiel in Family.query.all():
-        unaccent = remove_accent(referentiel.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": referentiel.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Family.get_tree_dict())
+
 
 @api.route('/api/data-sources/tags', methods=['GET'])
 def fetch_data_source_tags():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'tag_name')
-    dic = []
-    for tag in Tag.query.all():
-        unaccent = remove_accent(tag.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": tag.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    return jsonify(Tag.get_tree_dict())
 
 
 @api.route('/api/data-sources/<data_source_id>', methods=['GET'])
@@ -447,6 +304,7 @@ def update_data_source(data_source_id):
         return jsonify(data_source.to_dict())
     except Exception as e:
         raise BadRequest(str(e))
+
 
 @api.route('/api/data-sources/<data_source_id>', methods=['DELETE'])
 @login_required

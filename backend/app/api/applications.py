@@ -9,7 +9,7 @@ from app.decorators import admin_required, admin_or_owner_required, admin_or_any
 from app.api.enumerations import get_organization_by_name
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
-from app.search import remove_accent
+
 from . import api
 from .. import db
 
@@ -89,9 +89,8 @@ def fetch_applications():
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     applications = base_query.all()
     total_count = base_query.count()
-    _list = [(application.id, remove_accent(application.name)) for application in applications]
-    _list.sort(key=lambda tup: tup[1])
-    applications = [Application.query.filter_by(id=id).one() for id, _ in _list][(page - 1) * count:page * count]
+    applications = applications[(page - 1) * count:page * count]
+    applications = sorted(applications, key=lambda appli: str.lower(appli.name))
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
@@ -147,7 +146,6 @@ def export_applications():
     return export_resource(Application, "applications.csv")
 
 
-
 @api.route('/api/applications/import', methods=['POST'])
 @login_required
 @admin_required
@@ -167,12 +165,10 @@ def search_applications_limited():
     count = int(request.args.get('count', 1000))
     query = request.args.get('q', '', type=str)
     organization = request.args.get('organization', '', type=str)
-    fields = []
-    values = []
+    request_args = {}
     if organization:
-        fields.append("organization")
-        values.append(organization)
-    applications, total, total_count = Application.search_with_filter(query, fields, values, page, count)
+        request_args["organization"] = [organization]
+    applications, total_count = Application.search_with_filter(query, request_args, page, count)
     if not current_user.is_admin:
         application_of_user = []
         for application in applications:
@@ -193,12 +189,10 @@ def search_applications():
     count = int(request.args.get('count', 1000))
     query = request.args.get('q', '', type=str)
     organization = request.args.get('organization', '', type=str)
-    fields = []
-    values = []
+    request_args = {}
     if organization:
-        fields.append("organization")
-        values.append(organization)
-    applications, total, total_count = Application.search_with_filter(query, fields, values, page, count)
+        request_args["organization"] = [organization]
+    applications, total_count = Application.search_with_filter(query, request_args, page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
@@ -215,7 +209,7 @@ def count_applications():
 def fetch_application_organizations():
     page = request.args.get('page', 1, type=int)
     query = request.args.get('q', '', type=str)
-    applications, total = Application.search(query, page, 500)
+    applications, _ = Application.search_with_filter(query, {}, page, 500)
     organizations = [application.organization_name for application in applications]
     organization_dict = {}
     for organization in organizations:

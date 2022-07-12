@@ -58,11 +58,11 @@ const UserForm = ({ withPassword, onSubmit, user = {} }) => {
             <Form.Item
                 name="first_name"
                 label="Prénom"
-                tooltip="Prénom de l'utilisateur"
+                tooltip="Prénom de l'administrateur"
                 rules={[
                     {
                         required: true,
-                        message: 'Merci de renseigner le prénom de l\'utilisateur',
+                        message: 'Merci de renseigner le prénom de l\'administrateur',
                     },
                 ]}
             >
@@ -71,21 +71,21 @@ const UserForm = ({ withPassword, onSubmit, user = {} }) => {
             <Form.Item
                 name="last_name"
                 label="Nom"
-                tooltip="Nom de l'utilisateur"
+                tooltip="Nom de l'administrateur"
                 rules={[
                     {
                         required: true,
-                        message: 'Merci de renseigner le nom de l\'utilisateur',
+                        message: 'Merci de renseigner le nom de l\'administrateur',
                     },
                 ]}
             >
                 <Input />
             </Form.Item>
-            <EmailField tooltip="L'email de l'utilisateur" required={true} name="email"/>
+            <EmailField tooltip="L'email de l'administrateur" required={true} name="email"/>
             <Form.Item
                 name="is_admin"
-                label="Administrateur ?"
-                tooltip="L'utilisateur est-il administrateur ?"
+                label="Administrateur général"
+                tooltip="L'utilisateur est-il administrateur général ?"
                 valuePropName="checked"
             >
                 <Checkbox />

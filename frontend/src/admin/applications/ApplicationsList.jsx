@@ -119,7 +119,7 @@ class ApplicationsList extends React.Component {
                 </h1>
                 {this.props.user.is_admin && (
                 <div className="actions">
-                    <Link to={this.props.match.url + '/create'}>
+                    <Link to={'/application/create'}>
                         <Button type="primary" icon={<PlusOutlined />}>
                             Créer une application
                         </Button>

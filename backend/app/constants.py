@@ -2,8 +2,6 @@ field_english_to_french_dic = {
     "id": "id",
     "name": "Nom",
     "description": "Description",
-    "ministry_interior": "Ministère de l'intérieur ?",
-    "geo_localizable": "Géolocalisable ?",
     "application_name": "Application",
     "family_name": "Famille",
     "tag_name": "Tag",
@@ -24,7 +22,7 @@ field_english_to_french_dic = {
     "monthly_volumetry_comment": "Commentaire sur la  production par mois",
     "update_frequency_name": "Mise à jour",
     "conservation": "Conservation",
-    "classification_name": "Classification",
+    "classification_name": "Axes d'analyse",
     "exposition_name": "Exposition",
     "origin_name": "Origine",
     "created_at": "Date de création",
@@ -41,7 +39,8 @@ field_english_to_french_dic = {
     "context_email": "Contact",
     "validation_date": "Date de validation",
     "category": "Catégorie",
-    "value": "Valeur",
+    "full_path": "Valeur",
+    "label": "Nom long",
     "organization_name": "Organisation",
     "first_name": "Prénom",
     "last_name": "Nom de famille",
@@ -49,18 +48,15 @@ field_english_to_french_dic = {
     "is_admin": "Administrateur ?",
     "password_hash": "Mot de passe",
     "owners": "Propriétaires",
-    "potential_experimentation": "Expérimentations potentielles",
     "historic": "Historique",
-    'transformation': "Transformation",
-    'origin_application_name': "Application d\'origine"
+    'origin_application_name': "Application d\'origine",
+    'data_source_count': 'Nombre de données',
 }
 
 field_french_to_english_dic = {
     "id": "id",
     "Nom": "name",
     "Description": "description",
-    "Ministère de l'intérieur ?": "ministry_interior",
-    "Géolocalisable ?": "geo_localizable",
     "Application": "application_name",
     "Famille": "family_name",
     "Tag": "tag_name",
@@ -81,7 +77,7 @@ field_french_to_english_dic = {
     "Commentaire sur la  production par mois": "monthly_volumetry_comment",
     "Mise à jour": "update_frequency_name",
     "Conservation": "conservation",
-    "Classification": "classification_name",
+    "Axes d'analyse": "classification_name",
     "Exposition": "exposition_name",
     "Origine": "origin_name",
     "Date de création": "created_at",
@@ -98,7 +94,8 @@ field_french_to_english_dic = {
     "Contact": "context_email",
     "Date de validation": "validation_date",
     "Catégorie": "category",
-    "Valeur": "value",
+    "Valeur": "full_path",
+    "Nom long": "label",
     "Organisation": "organization_name",
     "Prénom": "first_name",
     "Nom de famille": "last_name",
@@ -106,10 +103,9 @@ field_french_to_english_dic = {
     "Administrateur ?": "is_admin",
     "Mot de passe": "password_hash",
     "Propriétaires": "owners",
-    "Expérimentations potentielles": "potential_experimentation",
     "Historique": "historic",
-    'Transformation': "transformation",
-    'Application d\'origine': "origin_application_name"
+    'Application d\'origine': "origin_application_name",
+    'Nombre de données': 'data_source_count',
 }
 
 
@@ -124,7 +120,7 @@ enumeration_french_to_english = {
     "Origine": "origin",
     "Exposition": "exposition",
     "Organisation": "organization",
-    "Classification": "classification"
+    "Axes d'analyse": "classification"
 }
 
 enumeration_english_to_french = {
@@ -137,6 +133,8 @@ enumeration_english_to_french = {
     "origin": "Origine",
     "type": "Type",
     "exposition": "Exposition",
-    "classification": "Classification",
+    "classification": "Axes d'analyse",
     "organization": "Organisation"
 }
+
+FULL_PATH_DELIMITER = '>'

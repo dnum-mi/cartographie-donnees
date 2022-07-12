@@ -1,6 +1,6 @@
 {
-  "short_name": "DNUM Cartographie",
-  "name": "DNUM Cartographie des données",
+  "short_name": "Cartographie des données MI",
+  "name": "Cartographie des données MI",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

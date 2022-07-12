@@ -116,7 +116,7 @@ class DataSourcesList extends React.Component {
                     Liste des données
                 </h1>
                 <div className="actions">
-                    <Link to={this.props.match.url + '/create'}>
+                    <Link to={"/data-source/create"}>
                         <Button type="primary" icon={<PlusOutlined />}>
                             Créer une donnée
                         </Button>

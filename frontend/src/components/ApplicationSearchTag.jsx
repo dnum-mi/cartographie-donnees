@@ -34,7 +34,6 @@ class ApplicationSearchTag extends React.Component {
                     // for fetch callback order
                     return;
                 }
-                console.log(response.data.results)
                 this.setState({
                     data: response.data.results,
                     loading: false,
@@ -60,7 +59,6 @@ class ApplicationSearchTag extends React.Component {
         const { loading, data } = this.state;
         return (
             <Select
-                mode={this.props.mode}
                 labelInValue
                 value={this.valueToOption(this.props.value)}
                 defaultValue={this.valueToOption(this.props.value)}
@@ -89,12 +87,8 @@ ApplicationSearchTag.defaultProps = {
 
 ApplicationSearchTag.propTypes = {
     value: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string),
-    ]),
-    defaultValue: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string),
+        PropTypes.object,
+        PropTypes.arrayOf(PropTypes.object),
     ]),
     mode: PropTypes.string,
     required: PropTypes.bool,

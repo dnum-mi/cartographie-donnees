@@ -8,6 +8,7 @@ import { } from './auth/index';
 import { readMe } from './api';
 import Loading from "./components/Loading";
 import Error from "./components/Error";
+import { UserProvider } from "./hoc/user/UserProvider"
 
 const { Content, Footer } = Layout;
 
@@ -23,7 +24,6 @@ class App extends React.Component {
 
   componentDidMount() {
     this.refreshUser();
-     document.title = "Cartographie Données MI"
   }
 
   setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
@@ -52,18 +52,20 @@ class App extends React.Component {
     }
     return (
       <div className="App">
-        <Layout className="layout">
-          <Navigation user={this.state.user} />
-          <Content className="page-content">
-            <Router
-                user={this.state.user}
-                onLogin={this.refreshUser}
-            />
-          </Content>
-          <Footer className="footer">
-            Designed by Artelys ©2021
-          </Footer>
-        </Layout>
+        <UserProvider user={this.state.user}>
+          <Layout className="layout">
+            <Navigation user={this.state.user}/>
+            <Content className="page-content">
+              <Router
+                  user={this.state.user}
+                  onLogin={this.refreshUser}
+              />
+            </Content>
+            <Footer className="footer">
+              Designed by Artelys ©2021
+            </Footer>
+          </Layout>
+        </UserProvider>
       </div>
     );
   }

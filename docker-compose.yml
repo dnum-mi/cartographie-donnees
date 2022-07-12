@@ -11,6 +11,7 @@ services:
       - POSTGRES_DB=carto_db
     ports:
       - "5432:5432"
+    restart: always
   elasticsearch:
     build: elasticsearch/
     volumes:
@@ -18,6 +19,7 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    restart: always
     environment:
       - "cluster.name=elasticsearch"
       - "XPACK_SECURITY_ENABLED=false"

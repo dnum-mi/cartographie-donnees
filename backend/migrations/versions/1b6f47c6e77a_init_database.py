@@ -1,7 +1,7 @@
 """Init_database
 
 Revision ID: 1b6f47c6e77a
-Revises: 
+Revises:
 Create Date: 2021-06-14 10:58:27.462160
 
 """
@@ -22,64 +22,100 @@ def upgrade():
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'exposition.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('family',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'family.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('open_data',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'open_data.id'], ),
                     sa.UniqueConstraint('value')
                     )
     op.create_table('organization',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'organization.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('origin',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'origin.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('sensibility',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'sensibility.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('tag',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'tag.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('type',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'type.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('update_frequency',
                     sa.Column('id', sa.Integer(),
                               autoincrement=True, nullable=False),
                     sa.Column('value', sa.String(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('label', sa.String(), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
-                    sa.UniqueConstraint('value')
+                    sa.ForeignKeyConstraint(['parent_id'], [
+                        'update_frequency.id'], ),
+                    sa.UniqueConstraint('value', 'parent_id')
                     )
     op.create_table('user',
                     sa.Column('id', sa.Integer(),
@@ -180,8 +216,8 @@ def upgrade():
                     sa.UniqueConstraint('user_id', 'application_id')
                     )
     op.create_table('association_classification',
-                    sa.Column('data_source_id', sa.Integer(), nullable=True),
-                    sa.Column('family_id', sa.Integer(), nullable=True),
+                    sa.Column('data_source_id', sa.Integer(), nullable=False),
+                    sa.Column('family_id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['data_source_id'], [
                                             'data_source.id'], ),
                     sa.ForeignKeyConstraint(['family_id'], ['family.id'], ),

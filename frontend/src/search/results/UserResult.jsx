@@ -14,7 +14,7 @@ class UserResult extends React.Component {
                         {this.props.user.first_name} {this.props.user.last_name}
                     </h3>
                 </Link>
-                <Tooltip title="Ouvrir l'utilisateur dans un nouvel onglet">
+                <Tooltip title="Ouvrir l'administrateur dans un nouvel onglet">
                     <Link className="newTab" to={'/admin/users/' + this.props.user.id} target="_blank" rel="noopener noreferrer"><ExportOutlined/></Link>
                 </Tooltip>
             </div>
