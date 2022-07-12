@@ -55,11 +55,11 @@ jobs:
           flask run & sleep 5
           curl http://localhost:5000 -I
       - name: Run Cypress
-        uses: cypress-io/github-action@v4.1.0
+        uses: cypress-io/github-action@v4
         with:
           working-directory: ./frontend
+          start: npm start
           browser: chrome
-          headless: true
       - name: Upload screenshots as artifacts
         uses: actions/upload-artifact@v1
         if: failure()
