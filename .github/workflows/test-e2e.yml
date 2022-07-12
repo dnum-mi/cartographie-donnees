@@ -55,7 +55,7 @@ jobs:
           flask run & sleep 5
           curl http://localhost:5000 -I
       - name: Run Cypress
-        uses: cypress-io/github-action@v1
+        uses: cypress-io/github-action@v2
         with:
           working-directory: ./frontend
           browser: chrome
