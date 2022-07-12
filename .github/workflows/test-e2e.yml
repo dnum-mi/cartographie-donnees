@@ -11,6 +11,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://carto:carto@localhost:5432/carto_db
       ELASTICSEARCH_URL: http://localhost:9200
+      FLASK_APP: backend.py
     services:
       postgres:
         image: postgres:12-alpine
@@ -49,23 +50,27 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Start server in the background
+        working-directory: ./backend
         run: |
           flask run & sleep 5
           curl http://localhost:5000 -I
       - name: Run Cypress
         uses: cypress-io/github-action@v1
         with:
+          working-directory: ./frontend
           browser: chrome
           headless: true
       - name: Upload screenshots as artifacts
         uses: actions/upload-artifact@v1
         if: failure()
         with:
+          working-directory: ./frontend
           name: cypress-screenshots
           path: cypress/screenshots
       - name: Upload videos as artifacts
         uses: actions/upload-artifact@v1
         if: always()
         with:
+          working-directory: ./frontend
           name: cypress-videos
           path: cypress/videos
