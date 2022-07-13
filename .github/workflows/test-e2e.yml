@@ -53,7 +53,7 @@ jobs:
         working-directory: ./backend
         run: |
           flask db upgrade
-      - name: Start server in the background
+      - name: Start backend in the background
         working-directory: ./backend
         run: |
           flask run & sleep 5
@@ -65,6 +65,12 @@ jobs:
           start: npm start
           browser: chrome
           wait-on: 'http://localhost:3000'
+      - name: Upload backend logs
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: backend-logs
+          path: backend/logs
       - name: Upload screenshots as artifacts
         uses: actions/upload-artifact@v1
         if: always()
