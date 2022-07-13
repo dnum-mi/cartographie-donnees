@@ -56,6 +56,7 @@ class LoginPage extends React.Component {
                     name="basic"
                     onFinish={this.onFinish}
                     onFinishFailed={() => {}}
+                    data-test="login-form"
                 >
                 <EmailField tooltip="L'email de l'administrateur" required={true} name="email"/>
 
@@ -68,11 +69,11 @@ class LoginPage extends React.Component {
                             validationTrigger: 'onBlur'
                         }]}
                     >
-                        <Input.Password/>
+                        <Input.Password data-test="password" />
                     </Form.Item>
 
                     <Form.Item {...tailLayout}>
-                        <Button type="primary" htmlType="submit">
+                        <Button type="primary" htmlType="submit" data-test="login-btn">
                             Se connecter
                         </Button>
                     </Form.Item>

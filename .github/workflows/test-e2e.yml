@@ -49,6 +49,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Run database migrations
+        working-directory: ./backend
+        run: |
+          flask db upgrade
       - name: Start server in the background
         working-directory: ./backend
         run: |
