@@ -73,7 +73,7 @@ jobs:
           path: backend/logs
       - name: Upload screenshots as artifacts
         uses: actions/upload-artifact@v1
-        if: always()
+        if: failure()
         with:
           name: cypress-screenshots
           path: frontend/cypress/screenshots
