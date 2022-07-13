@@ -67,15 +67,13 @@ jobs:
           wait-on: 'http://localhost:3000'
       - name: Upload screenshots as artifacts
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
-          working-directory: ./frontend
           name: cypress-screenshots
-          path: cypress/screenshots
+          path: frontend/cypress/screenshots
       - name: Upload videos as artifacts
         uses: actions/upload-artifact@v1
         if: always()
         with:
-          working-directory: ./frontend
           name: cypress-videos
-          path: cypress/videos
+          path: frontend/cypress/videos
