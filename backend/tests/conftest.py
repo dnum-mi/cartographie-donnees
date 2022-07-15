@@ -9,7 +9,7 @@ from tests.constants import ADMIN_INFO, ADMIN_CREDENTIALS
 
 @pytest.fixture()
 def testing_app():
-    app = create_app()
+    app = create_app(testing=True)
     app.config.update({
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite://",  # in-memory db

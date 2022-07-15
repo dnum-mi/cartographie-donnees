@@ -20,9 +20,11 @@ login = LoginManager()
 mail = Mail()
 
 
-def create_app():
+def create_app(testing=False):
     app = Flask(__name__, static_folder='../build', static_url_path='/')
     app.config.from_object(Config)
+    if testing:
+        app.config['TESTING'] = True
 
     CORS(app)
     db.init_app(app)
@@ -32,7 +34,7 @@ def create_app():
     login.init_app(app)
     mail.init_app(app)
 
-    if not app.debug:
+    if not app.debug and not app.testing:
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler('logs/backend.log', maxBytes=10240, backupCount=10)
