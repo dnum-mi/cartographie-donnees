@@ -70,7 +70,7 @@ class SearchPage extends React.Component {
             selectedOrigin: this.stringToList(values.origin),
             selectedClassification: this.stringToList(values.classification),
             selectedTag: this.stringToList(values.tag),
-            strictness: this.readString(values.strictness)
+            strictness: this.readString(values.strictness, ANY_WORDS)
         }
     }
 
@@ -90,11 +90,15 @@ class SearchPage extends React.Component {
     }
 
     readString(value) {
+        return this.readString(value, null);
+    }
+
+    readString(value, defaultValue) {
         if (value) {
             return value;
         }
         else {
-            return '';
+            return defaultValue ? defaultValue : '';
         }
     }
 
@@ -142,7 +146,7 @@ class SearchPage extends React.Component {
     setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve()));
 
     refreshDataSources = (query) => searchDataSources(query || '')
-        .then((response) => this.setStatePromise({ dataSources: response.data.results, total_count_data_source: response.data.total_count.value }));
+        .then((response) => this.setStatePromise({ dataSources: response.data.results, total_count_data_source: response.data.total_count }));
 
     refreshFilterCount = (query) => countDataSourcesByEnumeration(query || '')
         .then((response) => this.setStatePromise({ filtersCount: response.data.results }));
@@ -500,7 +504,7 @@ class SearchPage extends React.Component {
                     <Collapse defaultActiveKey={this.getDefaultActiveKey()} ghost>
                         <Collapse.Panel header="Recherche avancée" key="1">
                             <div>
-                                <Radio.Group onChange={this.onAdvancedChange} defaultValue={this.state.strictness}>
+                                <Radio.Group onChange={this.onAdvancedChange} value={this.state.strictness} defaultValue={ANY_WORDS}>
                                     <Radio value={ANY_WORDS}>N'importe quel mot</Radio>
                                     <Radio value={ALL_WORDS}>Tous les mots</Radio>
                                 </Radio.Group>
