@@ -119,7 +119,7 @@ class EnumerationsList extends React.Component {
 
       uploadfile({ onSuccess, onError, file }) {
             confirm({
-            title: 'Import des filtes',
+            title: 'Import des filtres',
             icon: <ExclamationCircleOutlined />,
             content: "Vous êtes sur le point de remplacer les filtres. Cette action est irréversible ! \
             Il ne doit pas y avoir d'application ou de données car ces deux tables sont liées aux filtres\
