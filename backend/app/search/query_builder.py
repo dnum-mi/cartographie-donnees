@@ -79,23 +79,33 @@ def create_filters_query(filters_dict):
     return result
 
 
-def create_text_query(query, searchable_fields):
-    return {
-        'multi_match': {
-            'query': query,
-            'fields': searchable_fields,
-        },
-    }
+def create_text_query(query, searchable_fields, strictness):
+    if strictness == 'ALL_WORDS':
+        return {
+            'multi_match': {
+                'query': query,
+                "type": "cross_fields",
+                'operator': 'and',
+                'fields': searchable_fields,
+            },
+        }
+    else:
+        return {
+            'multi_match': {
+                'query': query,
+                'fields': searchable_fields,
+            },
+        }
 
 
-def create_query_filter(query, filters_dict, searchable_fields):
+def create_query_filter(query, filters_dict, strictness, searchable_fields):
     slim_filters_dict = {
         k: v for k, v in filters_dict.items() if len(v) > 0
     }
     text_query = None
     filters_query = None
     if query:
-        text_query = create_text_query(query, searchable_fields)
+        text_query = create_text_query(query, searchable_fields, strictness)
     if len(slim_filters_dict.keys()):
         filters_query = create_filters_query(slim_filters_dict)
     if text_query:
@@ -128,6 +138,7 @@ def query_index_with_filter(
         index,
         query,
         filters_dict,
+        strictness,
         searchable_fields,
         page,
         per_page,
@@ -135,7 +146,7 @@ def query_index_with_filter(
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return [], 0
 
-    body = create_query_filter(query, filters_dict, searchable_fields)
+    body = create_query_filter(query, filters_dict, strictness, searchable_fields)
 
     body['from'] = (page - 1) * per_page
     body['size'] = per_page
@@ -154,13 +165,14 @@ def query_count(
         index,
         query,
         filters_dict,
+        strictness,
         searchable_fields,
         filters,
 ):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return {}, 0
 
-    body = create_query_filter(query, filters_dict, searchable_fields)
+    body = create_query_filter(query, filters_dict, strictness, searchable_fields)
     body["aggs"] = {
         filter_name: {
             'terms': {

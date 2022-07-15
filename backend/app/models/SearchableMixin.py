@@ -7,11 +7,12 @@ from app.search import add_to_index, remove_from_index, \
 
 class SearchableMixin(object):
     @classmethod
-    def search_with_filter(cls, query, filters_dict, page, per_page):
+    def search_with_filter(cls, query, filters_dict, strictness, page, per_page):
         ids, total_count = query_index_with_filter(
             cls.__tablename__,
             query,
             filters_dict,
+            strictness,
             cls.__searchable__,
             page,
             per_page,
@@ -25,11 +26,12 @@ class SearchableMixin(object):
             db.case(when, value=cls.id)), total_count
 
     @classmethod
-    def query_count(cls, query, filters_dict):
+    def query_count(cls, query, filters_dict, strictness):
         return query_count(
             cls.__tablename__,
             query,
             filters_dict,
+            strictness,
             cls.__searchable__,
             cls.__search_count__,
         )

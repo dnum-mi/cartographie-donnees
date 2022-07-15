@@ -1,7 +1,7 @@
 import React from 'react';
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
-import { Input, Tag, Pagination, Button } from 'antd';
+import {Input, Tag, Pagination, Button, Collapse, Radio, Divider} from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
@@ -18,7 +18,8 @@ import filters from "../filters";
 
 const { Search } = Input;
 
-
+const ANY_WORDS = "ANY_WORDS"
+const ALL_WORDS = "ALL_WORDS"
 
 class SearchPage extends React.Component {
 
@@ -43,12 +44,13 @@ class SearchPage extends React.Component {
             types: [],
             referentiels: [],
             sensibilities: [],
-            openData: [],
+            open_data: [],
             expositions: [],
             origins: [],
             classifications: [],
             tags: [],
             filtersCount: null,
+            strictness: ANY_WORDS
         };
         return { ...state, ...this.parseQuery() }
     }
@@ -67,7 +69,8 @@ class SearchPage extends React.Component {
             selectedExposition: this.stringToList(values.exposition),
             selectedOrigin: this.stringToList(values.origin),
             selectedClassification: this.stringToList(values.classification),
-            selectedTag: this.stringToList(values.tag)
+            selectedTag: this.stringToList(values.tag),
+            strictness: this.readString(values.strictness)
         }
     }
 
@@ -115,7 +118,8 @@ class SearchPage extends React.Component {
             + "&application=" + this.listToString(this.state.selectedApplication) + "&referentiel=" + this.listToString(this.state.selectedReferentiel)
             + "&sensibility=" + this.listToString(this.state.selectedSensibility) + "&open_data=" + this.listToString(this.state.selectedOpenData)
             + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.listToString(this.state.selectedOrigin)
-            + "&classification=" + this.listToString(this.state.selectedClassification) + "&tag=" + this.listToString(this.state.selectedTag);
+            + "&classification=" + this.listToString(this.state.selectedClassification) + "&tag=" + this.listToString(this.state.selectedTag)
+            + "&strictness=" + this.state.strictness;
     }
 
     componentDidMount() {
@@ -138,7 +142,7 @@ class SearchPage extends React.Component {
     setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve()));
 
     refreshDataSources = (query) => searchDataSources(query || '')
-        .then((response) => this.setStatePromise({ dataSources: response.data.results, total_count_data_source: response.data.total_count }));
+        .then((response) => this.setStatePromise({ dataSources: response.data.results, total_count_data_source: response.data.total_count.value }));
 
     refreshFilterCount = (query) => countDataSourcesByEnumeration(query || '')
         .then((response) => this.setStatePromise({ filtersCount: response.data.results }));
@@ -460,9 +464,21 @@ class SearchPage extends React.Component {
         }
     }
 
+    onAdvancedChange = (e) => {
+        this.setStatePromise({ strictness:e.target.value, page_data_source: 1, }).then(() => this.onSearch());
+    }
+
     export = () => {
         const search = this.getQuery(this.state.query);
         exportSearchDataSources("Recherche_donnees.csv", search);
+    }
+
+    getDefaultActiveKey = () => {
+        if (this.state.strictness === ANY_WORDS) {
+            return []
+        } else {
+            return ["1"]
+        }
     }
 
     render() {
@@ -481,7 +497,18 @@ class SearchPage extends React.Component {
                             }}
                         onChange={this.onChange}
                     />
+                    <Collapse defaultActiveKey={this.getDefaultActiveKey()} ghost>
+                        <Collapse.Panel header="Recherche avancée" key="1">
+                            <div>
+                                <Radio.Group onChange={this.onAdvancedChange} defaultValue={this.state.strictness}>
+                                    <Radio value={ANY_WORDS}>N'importe quel mot</Radio>
+                                    <Radio value={ALL_WORDS}>Tous les mots</Radio>
+                                </Radio.Group>
+                            </div>
+                        </Collapse.Panel>
+                    </Collapse>
                 </div>
+                <Divider/>
                 {this.renderDataSourcesResults()}
             </div>
         );
