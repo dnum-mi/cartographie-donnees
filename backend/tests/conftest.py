@@ -21,10 +21,6 @@ def testing_app():
     db.session.remove()
     db.drop_all()
     app_context.pop()
-    app.config.update({
-        "TESTING": True,
-    })
-    yield app
 
 
 @pytest.fixture()
