@@ -22,7 +22,7 @@ export default class EmailField extends React.Component {
                     },
                 ]}
             >
-                <Input type="email" aria-describedby="emailHelp"/>
+                <Input type="email" aria-describedby="emailHelp" data-test="email" />
             </Form.Item>
         )
     }

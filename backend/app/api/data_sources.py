@@ -2,7 +2,7 @@ import copy
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
-from app import app, db
+from app import db
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
     get_enumeration_model_by_name, Origin, Tag
 from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
@@ -13,8 +13,11 @@ from app.api.applications import get_application_by_name
 from app.api.commons import import_resource, export_resource
 from app.exceptions import CSVFormatError
 
+from . import api
 
-@app.route('/api/data-sources', methods=['GET'])
+
+
+@api.route('/api/data-sources', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def fetch_data_sources():
@@ -40,7 +43,7 @@ def get_reutilizations(reutilizations):
         return []
 
 
-@app.route('/api/data-sources', methods=['POST'])
+@api.route('/api/data-sources', methods=['POST'])
 @login_required
 @admin_or_any_owner_required
 def create_data_source():
@@ -68,14 +71,14 @@ def create_data_source():
         raise BadRequest(str(e))
 
 
-@app.route('/api/data-sources/export_search', methods=['GET'])
+@api.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
     query, request_args, strictness = get_request_args_data_source(request)
     data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness, 1, 10000)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
 
-@app.route('/api/data-sources/export/<application_id>', methods=['GET'])
+@api.route('/api/data-sources/export/<application_id>', methods=['GET'])
 @login_required
 @admin_or_owner_required
 def export_data_source_of_application(application_id):
@@ -83,14 +86,14 @@ def export_data_source_of_application(application_id):
     return export_resource(DataSource, f"data_sources_of_{application.name}.csv", application.data_sources)
 
 
-@app.route('/api/data-sources/export', methods=['GET'])
+@api.route('/api/data-sources/export', methods=['GET'])
 @login_required
 @admin_required
 def export_data_sources():
     return export_resource(DataSource, "data_sources.csv")
 
 
-@app.route('/api/data-sources/import_by_application/<application_id>', methods=['POST', 'PUT'])
+@api.route('/api/data-sources/import_by_application/<application_id>', methods=['POST', 'PUT'])
 @login_required
 @admin_or_owner_required
 def import_data_sources_by_application(application_id):
@@ -105,7 +108,7 @@ def import_data_sources_by_application(application_id):
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/data-sources/import', methods=['POST'])
+@api.route('/api/data-sources/import', methods=['POST'])
 @login_required
 @admin_required
 def import_data_sources():
@@ -116,7 +119,7 @@ def import_data_sources():
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/data-sources/reindex')
+@api.route('/api/data-sources/reindex')
 def reindex_data_sources():
     DataSource.reindex()
     return jsonify(dict(description='OK', code=200))
@@ -173,7 +176,7 @@ def get_request_args_data_source(request):
     return query, to_return, strictness
 
 
-@app.route('/api/data-sources/search', methods=['GET'])
+@api.route('/api/data-sources/search', methods=['GET'])
 def search_data_sources():
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
@@ -186,7 +189,7 @@ def search_data_sources():
     ))
 
 
-@app.route('/api/data-sources/count_by_enumeration', methods=['GET'])
+@api.route('/api/data-sources/count_by_enumeration', methods=['GET'])
 def count_data_sources_by_enumeration():
     query, request_args, strictness = get_request_args_data_source(request)
     count_dict, total_count = DataSource.query_count(query, request_args, strictness)
@@ -196,7 +199,7 @@ def count_data_sources_by_enumeration():
     ))
 
 
-@app.route('/api/data-sources/count', methods=['GET'])
+@api.route('/api/data-sources/count', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def count_data_sources():
@@ -206,17 +209,17 @@ def count_data_sources():
     return str(base_query.count())
 
 
-@app.route('/api/data-sources/families', methods=['GET'])
+@api.route('/api/data-sources/families', methods=['GET'])
 def fetch_data_source_families():
     return jsonify(Family.get_tree_dict())
 
 
-@app.route('/api/data-sources/types', methods=['GET'])
+@api.route('/api/data-sources/types', methods=['GET'])
 def fetch_data_source_types():
     return jsonify(Type.get_tree_dict())
 
 
-@app.route('/api/data-sources/applications', methods=['GET'])
+@api.route('/api/data-sources/applications', methods=['GET'])
 def fetch_data_source_applications():
     return jsonify([
         {
@@ -229,53 +232,53 @@ def fetch_data_source_applications():
     ])
 
 
-@app.route('/api/data-sources/organizations', methods=['GET'])
+@api.route('/api/data-sources/organizations', methods=['GET'])
 def fetch_data_source_organizations():
     return jsonify(Organization.get_tree_dict())
 
 
-@app.route('/api/data-sources/referentiels', methods=['GET'])
+@api.route('/api/data-sources/referentiels', methods=['GET'])
 def fetch_data_source_referentiels():
     return jsonify(Family.get_tree_dict())
 
 
-@app.route('/api/data-sources/sensibilities', methods=['GET'])
+@api.route('/api/data-sources/sensibilities', methods=['GET'])
 def fetch_data_source_sensibilities():
     return jsonify(Sensibility.get_tree_dict())
 
 
-@app.route('/api/data-sources/open-data', methods=['GET'])
+@api.route('/api/data-sources/open-data', methods=['GET'])
 def fetch_data_source_open_data():
     return jsonify(OpenData.get_tree_dict())
 
 
-@app.route('/api/data-sources/expositions', methods=['GET'])
+@api.route('/api/data-sources/expositions', methods=['GET'])
 def fetch_data_source_expositions():
     return jsonify(Exposition.get_tree_dict())
 
 
-@app.route('/api/data-sources/origins', methods=['GET'])
+@api.route('/api/data-sources/origins', methods=['GET'])
 def fetch_data_source_origins():
     return jsonify(Origin.get_tree_dict())
 
 
-@app.route('/api/data-sources/classifications', methods=['GET'])
+@api.route('/api/data-sources/classifications', methods=['GET'])
 def fetch_data_source_classifications():
     return jsonify(Family.get_tree_dict())
 
 
-@app.route('/api/data-sources/tags', methods=['GET'])
+@api.route('/api/data-sources/tags', methods=['GET'])
 def fetch_data_source_tags():
     return jsonify(Tag.get_tree_dict())
 
 
-@app.route('/api/data-sources/<data_source_id>', methods=['GET'])
+@api.route('/api/data-sources/<data_source_id>', methods=['GET'])
 def read_data_source(data_source_id):
     data_source = get_data_source(data_source_id)
     return jsonify(data_source.to_dict())
 
 
-@app.route('/api/data-sources/<data_source_id>', methods=['PUT'])
+@api.route('/api/data-sources/<data_source_id>', methods=['PUT'])
 @login_required
 @admin_or_owner_required
 def update_data_source(data_source_id):
@@ -304,7 +307,7 @@ def update_data_source(data_source_id):
         raise BadRequest(str(e))
 
 
-@app.route('/api/data-sources/<data_source_id>', methods=['DELETE'])
+@api.route('/api/data-sources/<data_source_id>', methods=['DELETE'])
 @login_required
 @admin_or_owner_required
 def delete_data_source(data_source_id):

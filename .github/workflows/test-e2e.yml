@@ -1,0 +1,85 @@
+name: Test e2e
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  test-e2e:
+    name: Run end-to-end tests with Cypress
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://carto:carto@localhost:5432/carto_db
+      ELASTICSEARCH_URL: http://localhost:9200
+      FLASK_APP: backend.py
+    services:
+      postgres:
+        image: postgres:12-alpine
+        env:
+          POSTGRES_DB: carto_db
+          POSTGRES_PASSWORD: carto
+          POSTGRES_USER: carto
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      elasticsearch:
+        image: elasticsearch:6.8.21
+        ports:
+          - 9200:9200
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd "curl -f http://localhost:9200 || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run database migrations
+        working-directory: ./backend
+        run: |
+          flask db upgrade
+      - name: Start backend in the background
+        working-directory: ./backend
+        run: |
+          flask run & sleep 5
+          curl http://localhost:5000 -I
+      - name: Run Cypress
+        uses: cypress-io/github-action@v4
+        with:
+          working-directory: ./frontend
+          start: npm start
+          browser: chrome
+          wait-on: 'http://localhost:3000'
+      - name: Upload backend logs
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: backend-logs
+          path: backend/logs
+      - name: Upload screenshots as artifacts
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
+      - name: Upload videos as artifacts
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: cypress-videos
+          path: frontend/cypress/videos

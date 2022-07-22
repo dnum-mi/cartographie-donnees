@@ -150,7 +150,7 @@ def query_index_with_filter(
 
     body['from'] = (page - 1) * per_page
     body['size'] = per_page
-    body['sort'] = ["_score", {"name.keyword": {"order": "asc"}}]
+    body['sort'] = ["_score"]
     current_app.logger.info(f"Query: \n{json.dumps(body)}")
     search = current_app.elasticsearch.search(
         index=index,

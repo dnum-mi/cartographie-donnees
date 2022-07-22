@@ -3,12 +3,15 @@ from datetime import datetime
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
-from app import app, db
+
 from app.models import Application, DataSource
 from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
 from app.api.enumerations import get_organization_by_name
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
+
+from . import api
+from .. import db
 
 
 def get_application_by_name(name, line=None, return_id=True):
@@ -26,10 +29,59 @@ def get_application_by_name(name, line=None, return_id=True):
             raise AssertionError("L'application '%s' n'existe pas." % (name))
 
 
-@app.route('/api/applications', methods=['GET'])
+@api.route('/api/applications', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def fetch_applications():
+    """Endpoint retournant une liste paginée d'applications.
+    L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
+    ---
+    components:
+        securitySchemes:
+            bearerAuth:
+                type: http
+                scheme: bearer
+                bearerFormat: JWT
+        schemas:
+            Application:
+                type: object
+                properties:
+                    name:
+                        type: string
+                    organization_name:
+                        type: string
+    summary: Endpoint retournant une liste paginée d'applications
+    security:
+        - bearerAuth: []
+    parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: Numéro de la page (1 par défaut)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: Nombre d'objets par page (10 par défaut)
+    responses:
+        '200':
+          description: Un liste paginée d'applications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Nombre total de résultats (avant pagination)
+                  results:
+                    type: array
+                    items:
+                      type: string
+    """
     page = int(request.args.get('page', 1, type=int))
     count = int(request.args.get('count', 10, type=int))
     base_query = Application.query
@@ -45,7 +97,7 @@ def fetch_applications():
     ))
 
 
-@app.route('/api/applications', methods=['POST'])
+@api.route('/api/applications', methods=['POST'])
 @login_required
 @admin_required
 def create_application():
@@ -63,7 +115,7 @@ def create_application():
         raise BadRequest(str(e))
 
 
-@app.route('/api/applications/reindex')
+@api.route('/api/applications/reindex')
 def reindex_applications():
     Application.reindex()
     return jsonify(dict(description='OK', code=200))
@@ -87,14 +139,14 @@ def convert_dict(dic):
     return new_dict
 
 
-@app.route('/api/applications/export', methods=['GET'])
+@api.route('/api/applications/export', methods=['GET'])
 @login_required
 @admin_required
 def export_applications():
     return export_resource(Application, "applications.csv")
 
 
-@app.route('/api/applications/import', methods=['POST'])
+@api.route('/api/applications/import', methods=['POST'])
 @login_required
 @admin_required
 def import_applications():
@@ -105,7 +157,7 @@ def import_applications():
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/applications/search_limited', methods=['GET'])
+@api.route('/api/applications/search_limited', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def search_applications_limited():
@@ -129,8 +181,7 @@ def search_applications_limited():
         results=[application.to_dict() for application in application_of_user]
     ))
 
-
-@app.route('/api/applications/search', methods=['GET'])
+@api.route('/api/applications/search', methods=['GET'])
 @login_required
 @admin_or_any_owner_required
 def search_applications():
@@ -147,16 +198,14 @@ def search_applications():
         results=[application.to_dict() for application in applications]
     ))
 
-
-@app.route('/api/applications/count', methods=['GET'])
+@api.route('/api/applications/count', methods=['GET'])
 def count_applications():
     base_query = Application.query
     if not current_user.is_admin:
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     return str(base_query.count())
 
-
-@app.route('/api/applications/organizations', methods=['GET'])
+@api.route('/api/applications/organizations', methods=['GET'])
 def fetch_application_organizations():
     page = request.args.get('page', 1, type=int)
     query = request.args.get('q', '', type=str)
@@ -172,13 +221,13 @@ def fetch_application_organizations():
     return jsonify(organizations)
 
 
-@app.route('/api/applications/<application_id>', methods=['GET'])
+@api.route('/api/applications/<application_id>', methods=['GET'])
 def read_application(application_id):
     application = get_application(application_id)
     return jsonify(application.to_dict(populate_data_sources=True))
 
 
-@app.route('/api/applications/<application_id>', methods=['PUT'])
+@api.route('/api/applications/<application_id>', methods=['PUT'])
 @login_required
 @admin_or_owner_required
 def update_application(application_id):
@@ -202,7 +251,7 @@ def update_application(application_id):
         raise BadRequest(str(e))
 
 
-@app.route('/api/applications/<application_id>', methods=['DELETE'])
+@api.route('/api/applications/<application_id>', methods=['DELETE'])
 @login_required
 @admin_required
 def delete_application(application_id):

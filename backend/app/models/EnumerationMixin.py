@@ -81,7 +81,7 @@ class EnumerationMixin(BaseModel):
         for child in self.children:
             rv.append(child)
             if len(child.children):
-                rv = rv.concat(child.get_children_recursively())
+                rv = rv + child.get_children_recursively()
         return rv
 
     def get_children_full_paths_recursively(self):

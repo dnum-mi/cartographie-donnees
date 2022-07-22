@@ -1,16 +1,18 @@
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request, abort
 from flask_login import login_required, current_user
-from app import app, db
+
+from app import db
 from app.models import User
 from app.decorators import admin_required
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
-
 from app.search import remove_accent
 
+from . import api
 
-@app.route('/api/users', methods=['POST'])
+
+@api.route('/api/users', methods=['POST'])
 @login_required
 @admin_required
 def create_user():
@@ -29,7 +31,7 @@ def create_user():
         raise BadRequest(str(e))
 
 
-@app.route('/api/users', methods=['GET'])
+@api.route('/api/users', methods=['GET'])
 @login_required
 @admin_required
 def fetch_users():
@@ -40,7 +42,7 @@ def fetch_users():
     return jsonify([user.to_dict() for user in users])
 
 
-@app.route('/api/users/search', methods=['GET'])
+@api.route('/api/users/search', methods=['GET'])
 @login_required
 @admin_required
 def search_users():
@@ -57,14 +59,14 @@ def search_users():
 
 @login_required
 @admin_required
-@app.route('/api/users/count', methods=['GET'])
+@api.route('/api/users/count', methods=['GET'])
 def count_users():
     if current_user.is_admin:
         return str(User.query.count())
     else:
         return '0'
 
-@app.route('/api/users/me', methods=['GET'])
+@api.route('/api/users/me', methods=['GET'])
 def read_me():
     if not current_user.is_authenticated:
         # We prefer to use a 404 here instead of a 401 because on the frontend
@@ -75,7 +77,7 @@ def read_me():
     return jsonify(current_user.to_dict(populate_applications=True))
 
 
-@app.route('/api/users/<user_id>', methods=['GET'])
+@api.route('/api/users/<user_id>', methods=['GET'])
 @login_required
 @admin_required
 def read_user(user_id):
@@ -83,7 +85,7 @@ def read_user(user_id):
     return jsonify(user.to_dict(populate_applications=True))
 
 
-@app.route('/api/users/<user_id>', methods=['PUT'])
+@api.route('/api/users/<user_id>', methods=['PUT'])
 @login_required
 def update_user(user_id):
     try:
@@ -97,7 +99,7 @@ def update_user(user_id):
         raise BadRequest(str(e))
 
 
-@app.route('/api/users/<user_id>', methods=['DELETE'])
+@api.route('/api/users/<user_id>', methods=['DELETE'])
 @login_required
 @admin_required
 def delete_user(user_id):
@@ -115,7 +117,7 @@ def get_user(user_id):
     return User.query.get_or_404(usr_id)
 
 
-@app.route('/api/users/import', methods=['POST'])
+@api.route('/api/users/import', methods=['POST'])
 @login_required
 @admin_required
 def import_users():
@@ -126,7 +128,7 @@ def import_users():
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/users/export', methods=['GET'])
+@api.route('/api/users/export', methods=['GET'])
 @login_required
 @admin_required
 def export_users():

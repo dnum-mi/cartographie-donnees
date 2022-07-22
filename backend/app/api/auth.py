@@ -1,9 +1,10 @@
 from flask import abort, request, current_app, render_template
-from flask_login import logout_user, login_user, login_required, current_user
+from flask_login import logout_user, login_user
 import jwt
 from datetime import datetime, timedelta
-from app import app, login, db
+from app import login, db
 from app.models import User
+from . import api
 from ..emails import send_email
 
 
@@ -29,7 +30,7 @@ def load_user_from_request(request):
     return None
 
 
-@app.route('/api/login', methods=['POST'])
+@api.route('/api/login', methods=['POST'])
 def login():
     req = request.get_json(force=True)
     email = req.get('email', None)
@@ -47,13 +48,13 @@ def login():
     return ret, 200
 
 
-@app.route('/api/logout', methods=['POST'])
+@api.route('/api/logout', methods=['POST'])
 def logout():
     logout_user()
     return 'ok'
 
 
-@app.route('/api/auth/forgot-password', methods=['POST'])
+@api.route('/api/auth/forgot-password', methods=['POST'])
 def forgot_password():
     host = current_app.config['FRONTEND_HOST'] or request.host_url
     url = host + 'reset-password/'
@@ -74,7 +75,7 @@ def forgot_password():
     return 'ok'
 
 
-@app.route('/api/auth/reset-password', methods=['POST'])
+@api.route('/api/auth/reset-password', methods=['POST'])
 def reset_password():
     body = request.get_json()
     password = body.get('password')

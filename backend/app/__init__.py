@@ -9,28 +9,51 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_mail import Mail
-from app.api.staging_auth import BasicAuth
+
+from .staging_auth import BasicAuth
 
 
-app = Flask(__name__, static_folder='../build', static_url_path='/')
-app.config.from_object(Config)
-CORS(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-basic_auth = BasicAuth(app)
-app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) if app.config['ELASTICSEARCH_URL'] else None
-login = LoginManager(app)
-mail = Mail(app)
+db = SQLAlchemy()
+migrate = Migrate()
+basic_auth = BasicAuth()
+login = LoginManager()
+mail = Mail()
 
-if not app.debug:
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/backend.log', maxBytes=10240, backupCount=10)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
 
-    app.logger.setLevel(logging.INFO)
-    app.logger.info('Backend startup')
+def create_app(testing=False):
+    app = Flask(__name__, static_folder='../build', static_url_path='/')
+    app.config.from_object(Config)
+    if testing:
+        app.config['TESTING'] = True
 
-from app import routes, models, errors, cli
+    CORS(app)
+    db.init_app(app)
+    migrate.init_app(app, db)
+    basic_auth.init_app(app)
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) if app.config['ELASTICSEARCH_URL'] else None
+    login.init_app(app)
+    mail.init_app(app)
+
+    if not app.debug and not app.testing:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        file_handler = RotatingFileHandler('logs/backend.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('Backend startup')
+
+    from app import models
+
+    from .routes import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    from .api import api as api_blueprint
+    app.register_blueprint(api_blueprint)
+
+    from .cli import cli as cli_blueprint
+    app.register_blueprint(cli_blueprint)
+
+    return app

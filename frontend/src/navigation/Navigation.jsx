@@ -41,7 +41,7 @@ function Navigation({ user }) {
         <div>
           {user && (user.is_admin || user.applications.length) &&
           <a href="/admin">
-            <Button type="primary">
+            <Button type="primary" data-test="nav-admin-btn">
               Administration
             </Button>
           </a>}

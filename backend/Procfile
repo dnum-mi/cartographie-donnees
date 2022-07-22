@@ -1,1 +1,1 @@
-web: ([[ -z "${RESET_DB}" ]] || flask reset-db) && flask db upgrade && pip install gunicorn && gunicorn -w 1 -b 0.0.0.0:$PORT backend:app
+web: ([[ -z "${RESET_DB}" ]] || flask cli reset-db) && flask db upgrade && pip install gunicorn && gunicorn -w 1 -b 0.0.0.0:$PORT backend:app

@@ -4,3 +4,4 @@ ELASTICSEARCH_URL=http://localhost:9200
 MAIL_DEFAULT_SENDER=no-reply@interieur.gouv.fr
 MAIL_SERVER=localhost
 FRONTEND_HOST=http://localhost:3000/
+DATABASE_URL=postgresql://carto:carto@localhost:5432/carto_db

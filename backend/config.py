@@ -15,3 +15,14 @@ class Config(object):
     BASIC_AUTH_FORCE = os.environ.get('BASIC_AUTH_FORCE') == 'True' or False
     BASIC_AUTH_USERNAME = os.environ.get('BASIC_AUTH_USERNAME', 'admin')
     BASIC_AUTH_PASSWORD = os.environ.get('BASIC_AUTH_PASSWORD', 'admin')
+    SWAGGER = {
+        'title': 'Cartographie des données MI',
+        'uiversion': 3,
+        'openapi': '3.0.3',
+        'specs': [
+            {
+                'endpoint': 'apispec',
+                'route': '/cartographie_donnees_mi.json'
+            }
+        ],
+    }
