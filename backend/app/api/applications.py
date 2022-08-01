@@ -168,7 +168,7 @@ def search_applications_limited():
     request_args = {}
     if organization:
         request_args["organization"] = [organization]
-    applications, total_count = Application.search_with_filter(query, request_args, page, count)
+    applications, total_count = Application.search_with_filter(query, request_args, "ANY_WORDS", page, count)
     if not current_user.is_admin:
         application_of_user = []
         for application in applications:

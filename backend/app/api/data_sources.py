@@ -62,6 +62,7 @@ def create_data_source():
         json["origin_id"] = get_origin_by_name(json.get("origin_name"))
         json["reutilizations"] = get_reutilizations(json.get("reutilizations"))
         json["tags"] = get_tag_by_name(json.get("tag_name"))
+        json["is_reference"] = get_tag_by_name(json.get("is_reference"))
         data_source = DataSource.from_dict(json)
         db.session.add(data_source)
         db.session.commit()

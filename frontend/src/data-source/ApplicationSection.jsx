@@ -63,6 +63,7 @@ class ApplicationSection extends React.Component {
         {this.getAttributeElement('monthly_connection_count')}
         {this.getAttributeElement('historic')}
         {this.getAttributeElement('validation_date')}
+        {this.getAttributeElement('references')}
       </div>
     );
   }

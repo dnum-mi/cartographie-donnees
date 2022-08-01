@@ -72,6 +72,7 @@ class DataSource(SearchableMixin, BaseModel):
     referentiel_id = db.Column(db.Integer, db.ForeignKey('family.id'))
     referentiel = relationship(
         "Family", foreign_keys='DataSource.referentiel_id')
+    is_reference = db.Column(db.Boolean)
     sensibility_id = db.Column(db.Integer, db.ForeignKey('sensibility.id'))
     open_data_id = db.Column(db.Integer, db.ForeignKey('open_data.id'))
     database_name = db.Column(db.String)
@@ -343,7 +344,8 @@ class DataSource(SearchableMixin, BaseModel):
             'organization_name': self.application.organization_name,
             'origin_application': self.origin_application.to_dict() if self.origin_application else None,
             'reutilizations': [application.to_dict() for application in self.reutilizations],
-            'nb_reutilizations': self.nb_reutilizations
+            'nb_reutilizations': self.nb_reutilizations,
+            'is_reference': self.is_reference
         }
 
     def to_export(self):
@@ -374,6 +376,7 @@ class DataSource(SearchableMixin, BaseModel):
             'exposition_name': ",".join(self.exposition_name),
             'origin_name': self.origin_name,
             'origin_application_name': self.origin_application_name,
+            'is_reference': self.is_reference
         }
 
     def update_from_dict(self, data):
@@ -405,6 +408,7 @@ class DataSource(SearchableMixin, BaseModel):
         self.expositions = data.get('expositions')
         self.origin_id = data.get('origin_id')
         self.origin_application_id = data.get('origin_application_id')
+        self.is_reference = data.get('is_reference')
 
     @staticmethod
     def from_dict(data):
@@ -435,6 +439,7 @@ class DataSource(SearchableMixin, BaseModel):
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
             origin_application_id=data.get('origin_application_id'),
+            is_reference=data.get('is_reference')
         )
 
     @classmethod

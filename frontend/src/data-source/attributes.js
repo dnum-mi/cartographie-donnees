@@ -266,5 +266,14 @@ export default {
       type: 'text',
       tooltip: 'Validité de la présente cartographie pour publication',
     },
+    references: {
+      attributeId: 'references',
+      label: 'Références',
+      tooltip: 'xxxx',
+      readOnly: true,
+      tagMode: 'multiple',
+      tagColor: 'blue',
+      type: 'tag'
+    }
   },
 };

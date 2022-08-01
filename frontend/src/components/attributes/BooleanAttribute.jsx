@@ -7,7 +7,10 @@ import { commonDefaultProps, booleanDefaultProps } from "./attributeDefaultProps
 class BooleanAttribute extends React.Component {
 
   readElement() {
-      return this.props.value ? 'Oui' : 'Non';
+    if(this.props.value === undefined || this.props.value === null) {
+      return "-"
+    }
+    return this.props.value ? 'Oui' : 'Non';
   }
 
   rules = () => {
@@ -20,16 +23,17 @@ class BooleanAttribute extends React.Component {
     }
   }
 
+  onChange = (e) => {
+    return this.props.onChange(e.target.checked)
+  }
+
   writeElement() {
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
+        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()} valuePropName="checked">
           <Checkbox
             id={this.props.attributeId}
-            defaultChecked={this.props.value}
-            checked={this.props.value}
             className="attribute-input"
-            onChange={(e) => this.props.onChange(e.target.checked)}
           />
         </Form.Item>
       </div>
