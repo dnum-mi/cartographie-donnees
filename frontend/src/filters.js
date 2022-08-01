@@ -16,6 +16,8 @@ const filters = {
     color: 'volcano',
     tooltip: "MOA propriétaire de la donnée",
     multiple: false,
+    expandedKeys: ["MI"],
+    focus: true
   },
   application: {
     categoryName: "Applications",

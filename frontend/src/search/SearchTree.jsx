@@ -172,11 +172,16 @@ class SearchTree extends React.Component {
         </div>
     )
 
+    isActiveKey = () => {
+        return this.props.focus ? this.props.filterCategoryName : undefined
+    }
+
     render() {
         return(
             <Collapse
                 className="SearchTree"
                 onChange={this.onClickHeader}
+                defaultActiveKey={this.isActiveKey()}
             >
                 <Panel
                     header={<span>{this.props.filterCategoryName+" "}<QuestionCircleOutlined title={this.props.tooltip}/></span>}
@@ -204,6 +209,8 @@ class SearchTree extends React.Component {
 
 SearchTree.defaultProps = {
     countToShow: 5,
+    focus: false,
+    expandedKeys: []
 }
 
 SearchTree.propTypes = {
@@ -211,7 +218,9 @@ SearchTree.propTypes = {
     treeData: PropTypes.array,
     tooltip: PropTypes.string,
     countToShow: PropTypes.number,
+    expandedKeys: PropTypes.array,
     multiple: PropTypes.bool,
+    focus: PropTypes.bool,
     onSelectedFiltersChange: PropTypes.func,
     resultsCount: PropTypes.number,
     checkedKeys: PropTypes.arrayOf(PropTypes.string),

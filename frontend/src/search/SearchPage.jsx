@@ -317,6 +317,8 @@ class SearchPage extends React.Component {
                             tooltip={filters[key].tooltip}
                             color={filters[key].color}
                             multiple={filters[key].multiple}
+                            expandedKeys={filters[key].expandedKeys}
+                            focus={filters[key].focus}
                             onSelectedFiltersChange={(value) => this.onSelectedFiltersChange(filters[key].selectedKey, value)}
                             checkedKeys={this.state[filters[key].selectedKey]}
                             resultsCount={this.state.total_count_data_source}
