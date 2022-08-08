@@ -20,7 +20,7 @@ class ApplicationCard extends React.Component {
       >
         {this.props.application.organization_name && (
           <p>
-              <Tag>
+              <Tag title={this.props.application.organization_long_name}>
                   {this.props.application.organization_name}
               </Tag>
           </p>

@@ -12,6 +12,8 @@ const filters = {
     categoryName: "Organisations",
     selectedKey: "selectedOrganization",
     listKey: 'organizations',
+    titleKey: 'organization_long_name',
+    selectedTitleKey: 'selectedOrganizationLong',
     attributeKey: 'organization_name',
     color: 'volcano',
     tooltip: "MOA propriétaire de la donnée",

@@ -208,6 +208,11 @@ export default {
       // hasSuffixValue: true,
       // suffixAttributeId: 'organization_long_name',
     },
+    organization_long_name: {
+      attributeId: 'organization_long_name',
+      readOnly: true,
+      // Only used for tooltips
+    },
     context_email: {
       attributeId: 'application_context_email',
       label: 'Contact',

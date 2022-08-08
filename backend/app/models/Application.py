@@ -41,6 +41,13 @@ class Application(SearchableMixin, BaseModel):
         return [ds for ds in self.data_sources if (ds.is_reference and (ds.application_id == self.id))]
 
     @property
+    def organization_long_name(self):
+        if self.organization.label is not None:
+            return self.organization.label
+        else:
+            return self.organization.value
+
+    @property
     def organization_name(self):
         return self.organization.full_path
 
@@ -98,6 +105,7 @@ class Application(SearchableMixin, BaseModel):
             'id': self.id,
             'name': self.name,
             'organization_name': self.organization_name,
+            'organization_long_name': self.organization_long_name,
             'goals': self.goals,
             'access_url': self.access_url,
             'operator_count': self.operator_count,

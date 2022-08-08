@@ -1,6 +1,5 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Form, Tag } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 
 import '../../components/forms.css';

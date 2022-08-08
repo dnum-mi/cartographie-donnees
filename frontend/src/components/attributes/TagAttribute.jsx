@@ -14,11 +14,21 @@ class TagAttribute extends React.Component {
     if (this.props.tagMode === 'multiple') {
       return (
         <>
-          {this.props.value.map((value) => (<Tag key={value} color={this.props.tagColor} style={{ marginBottom: 8 }}>{value}</Tag>))}
+          {this.props.value.map((value) => (
+              <Tag key={value} color={this.props.tagColor} style={{ marginBottom: 8 }}
+                   title={this.props.title}>
+                {value}
+              </Tag>
+          ))}
         </>
       );
     }
-    return <Tag color={this.props.tagColor}>{this.props.value}</Tag>
+    return (
+        <Tag color={this.props.tagColor}
+                title={this.props.title}>
+          {this.props.value}
+        </Tag>
+    )
   }
 
   rules = () => {

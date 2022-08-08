@@ -30,7 +30,14 @@ class DataSourceResult extends React.Component {
                         this.props.dataSource.application ?  (<Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedApplication", this.props.dataSource.application.name)} color="magenta">{this.props.dataSource.application.name}</Tag>): null
                         }
                         {
-                        this.props.dataSource.application ?  (<Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedOrganization", this.props.dataSource.application.organization_name)} color="volcano">{this.props.dataSource.application.organization_name}</Tag>): null
+                            this.props.dataSource.application ?  (
+                                <Tag className="onHover"
+                                     onClick={ () => this.props.onFilterSelect("selectedOrganization", this.props.dataSource.application.organization_name)}
+                                     color="volcano"
+                                     title={this.props.dataSource.application.organization_long_name}
+                                >
+                                    {this.props.dataSource.application.organization_name}
+                                </Tag>): null
                         }
                     {this.props.dataSource.family_name.map((tag) => <Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedFamily", tag)} color="blue">{tag}</Tag>)}
                     <Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedType", this.props.dataSource.type_name)} color="red">{this.props.dataSource.type_name}</Tag>

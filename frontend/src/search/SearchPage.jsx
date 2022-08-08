@@ -440,12 +440,32 @@ class SearchPage extends React.Component {
                         closable
                         onClose={(e) => this.onFilterSelect(key, value)}
                         key={value}
+                        title={this.getTitleFromValue(value)}
                     >
                         {value}
                     </Tag>
                 ) : null;
             });
         }
+    }
+
+    getTitleFromValue(value) {
+        return this.findOrganization(this.state.organizations, value)
+    }
+
+    findOrganization(organizations, fullPath) {
+        let label = null;
+        for(let organization of organizations) {
+            if (organization.full_path === fullPath) {
+                label = organization.label
+            } else if (organization.children && organization.children.length > 0) {
+                label = this.findOrganization(organization.children, fullPath)
+            }
+            if(label != null) {
+                return label
+            }
+        }
+        return label
     }
 
     renderDataSourceSelectedTags = () => {
