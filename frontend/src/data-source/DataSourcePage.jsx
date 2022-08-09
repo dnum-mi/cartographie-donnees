@@ -29,7 +29,7 @@ class DataSourcePage extends React.Component {
         this.state = {
             dataSource: Object.assign({}, this.props.dataSource),
             editMode: props.forceEdit,
-            noRules: this.props.fromAppCreation
+            noRules: this.props.fromAppCreation || this.props.fromAppModification
         }
     }
 
