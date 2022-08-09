@@ -242,11 +242,21 @@ class SearchPage extends React.Component {
     }
 
     //cliked on tag X below searchbar
-    onFilterSelect = (key, value) => {
+    removeFilter = (key, value) => {
         let filter = this.state[key];
         const valuesToUncheck = [value];
         for (const valueToUncheck of valuesToUncheck){
             filter = filter.filter(item => item !== valueToUncheck);
+        }
+        this.setStatePromise({ [key]: filter, page_data_source: 1, })
+            .then(() => this.onSearch());
+    }
+
+    addFilter = (key, value) => {
+        let filter = this.state[key];
+
+        if(!filter.includes(value)){
+            filter = [...filter, value];
         }
         this.setStatePromise({ [key]: filter, page_data_source: 1, })
             .then(() => this.onSearch());
@@ -402,7 +412,7 @@ class SearchPage extends React.Component {
                 <div className="results">
                     {this.state.dataSources.map((dataSource) => (
                         <DataSourceResult key={dataSource.id} dataSource={dataSource}
-                            onFilterSelect={(key, value) => this.onFilterSelect(key, value)}
+                            onFilterSelect={(key, value) => this.addFilter(key, value)}
                         />
                     ))}
                 </div>
@@ -421,7 +431,7 @@ class SearchPage extends React.Component {
         if (this.state[key]) {
             return (<Tag color={color} closable onClose={
                 (e) => {
-                    this.onFilterSelect(key, this.state[key])
+                    this.removeFilter(key, this.state[key])
                 }
             }
                 key={this.state[key]}
@@ -438,7 +448,7 @@ class SearchPage extends React.Component {
                     <Tag
                         color={color}
                         closable
-                        onClose={(e) => this.onFilterSelect(key, value)}
+                        onClose={(e) => this.removeFilter(key, value)}
                         key={value}
                         title={this.getTitleFromValue(value)}
                     >
