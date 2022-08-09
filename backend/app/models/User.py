@@ -2,8 +2,11 @@ from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db
-from app.models import BaseModel
+from app.models import BaseModel, Application
 
+
+# from . import Application
+# from Application import ownerships
 
 class User(UserMixin, BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -54,11 +57,19 @@ class User(UserMixin, BaseModel):
         initial_dict['password_hash'] = self.password_hash
         return initial_dict
 
-    def update_from_dict(self, data):
+    # TODO cannot seem to be able to call Application.query directly here
+    def update_from_dict(self, data, app_query=None):
         self.first_name = data.get('first_name')
         self.last_name = data.get('last_name')
         self.email = data.get('email')
         self.is_admin = data.get('is_admin', False)
+        if "ownedApplications" in data:
+            new_applications = []
+            for application in data["ownedApplications"]:
+                app_id = application['id']
+                new_applications.append(app_query.get(app_id))
+
+            self.applications = new_applications
 
     @staticmethod
     def from_dict(data):
