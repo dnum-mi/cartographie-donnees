@@ -85,6 +85,7 @@ class UserUpdate extends React.Component {
                         <UserForm
                             user={this.state.user}
                             onSubmit={this.submitForm}
+                            withOwnedApplications
                         />
                     </div>
                 </div>

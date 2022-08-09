@@ -3,7 +3,7 @@ from flask import jsonify, request, abort
 from flask_login import login_required, current_user
 
 from app import db
-from app.models import User
+from app.models import User, Application
 from app.decorators import admin_required
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
@@ -91,7 +91,7 @@ def update_user(user_id):
     try:
         user = get_user(user_id)
         json = request.get_json()
-        user.update_from_dict(json)
+        user.update_from_dict(json, Application.query)
         db.session.commit()
         db.session.refresh(user)
         return jsonify(user.to_dict())

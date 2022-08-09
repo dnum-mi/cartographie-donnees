@@ -9,6 +9,7 @@ import {
 import '../../components/forms.css';
 import PasswordFields from "../../components/PasswordFields";
 import EmailField from "../../components/EmailField";
+import UserOwnership from "./UserOwnership";
 
 const formItemLayout = {
     labelCol: {
@@ -42,7 +43,7 @@ const tailFormItemLayout = {
     },
 };
 
-const UserForm = ({ withPassword, onSubmit, user = {} }) => {
+const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications }) => {
     const [form] = Form.useForm();
 
     return (
@@ -92,6 +93,9 @@ const UserForm = ({ withPassword, onSubmit, user = {} }) => {
             </Form.Item>
 
             {withPassword && <PasswordFields />}
+
+            {withOwnedApplications && <UserOwnership user={user} />}
+
 
             <Form.Item {...tailFormItemLayout}>
                 <Button type="primary" htmlType="submit">
