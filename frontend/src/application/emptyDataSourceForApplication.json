@@ -17,6 +17,7 @@
     "validation_date": null
   },
   "application_name": null,
+  "application_long_name": null,
   "classification_name": [],
   "conservation": null,
   "database_name": null,

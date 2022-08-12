@@ -56,10 +56,10 @@ association_tag_table = db.Table(
 class DataSource(SearchableMixin, BaseModel):
     __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
                       'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
-                      'organization_name', 'application_goals', 'tag_name']
+                      'application_long_name', 'organization_name', 'application_goals', 'tag_name']
     __search_count__ = ['family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name',
                         'open_data_name', 'exposition_name', 'origin_name', 'application_name',
-                        'organization_name', 'tag_name']
+                        'application_long_name', 'organization_name', 'tag_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, server_default="", nullable=False)
@@ -252,6 +252,10 @@ class DataSource(SearchableMixin, BaseModel):
     def application_name(self):
         return self.application.name
 
+    @property
+    def application_long_name(self):
+        return self.application.long_name
+
     @application_name.setter
     def application_name(self, application_name):
         if not application_name:
@@ -313,6 +317,7 @@ class DataSource(SearchableMixin, BaseModel):
             'name': self.name,
             'description': self.description,
             'application_name': self.application_name,
+            'application_long_name': self.application_long_name,
             'origin_application_name': self.origin_application_name,
             'family_name': self.family_name,
             'families': [family.to_dict() for family in self.families],
@@ -353,6 +358,7 @@ class DataSource(SearchableMixin, BaseModel):
             'name': self.name,
             'description': self.description,
             'application_name': self.application_name,
+            'application_long_name': self.application_long_name,
             'reutilization_name': ",".join(self.reutilization_name),
             'family_name': ",".join(self.family_name),
             'tag_name': ",".join(self.tag_name),
