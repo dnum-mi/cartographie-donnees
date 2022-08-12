@@ -57,7 +57,7 @@ class TagAttribute extends React.Component {
   }
 
   render() {
-    if (this.props.editMode) {
+    if (this.props.editMode && !this.props.readOnly) {
       return this.writeElement();
     } else {
       return (

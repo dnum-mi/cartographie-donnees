@@ -14,11 +14,12 @@ ownerships = db.Table(
 
 
 class Application(SearchableMixin, BaseModel):
-    __searchable__ = ['name', "goals", 'organization_name']
+    __searchable__ = ['name', "goals", 'organization_name', 'long_name']
     __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
+    long_name = db.Column(db.String, nullable=False)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
     goals = db.Column(db.Text, nullable=False)
     access_url = db.Column(db.Text)
@@ -104,6 +105,7 @@ class Application(SearchableMixin, BaseModel):
         result = {
             'id': self.id,
             'name': self.name,
+            'long_name': self.long_name,
             'organization_name': self.organization_name,
             'organization_long_name': self.organization_long_name,
             'goals': self.goals,
@@ -151,6 +153,7 @@ class Application(SearchableMixin, BaseModel):
 
     def update_from_dict(self, data):
         self.name = data.get('name')
+        self.long_name = data.get('long_name')
         self.organization_id = data.get('organization_id')
         self.goals = data.get('goals')
         self.access_url = data.get('access_url')
@@ -171,6 +174,7 @@ class Application(SearchableMixin, BaseModel):
         application = Application(
             id=data.get('id'),
             name=data.get('name'),
+            long_name=data.get('long_name'),
             organization_id=data.get('organization_id'),
             goals=data.get('goals'),
             access_url=data.get('access_url'),

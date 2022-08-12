@@ -189,6 +189,13 @@ export default {
       // hasSuffixValue: true,
       // suffixAttributeId: 'application_long_name',
     },
+    long_name: {
+      attributeId: 'application_long_name',
+      label: "Nom détaillé de l'application",
+      type: 'text',
+      tooltip: "Libellé détaillé de l'application",
+      headingLevel: 5,
+    },
     access_url: {
       attributeId: 'access_url',
       label: 'Site',

@@ -55,6 +55,7 @@ class ApplicationSection extends React.Component {
       <div className="application-section">
         {this.props.editMode && this.props.allowAppSelection ? <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> : undefined}
         {this.getAttributeElement('name')}
+        {this.getAttributeElement('long_name')}
         {this.getAttributeElement('access_url')}
         {this.getAttributeElement('organization_name', 'organization_long_name')}
         {this.getAttributeElement('context_email')}
