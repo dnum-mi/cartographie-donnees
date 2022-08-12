@@ -192,7 +192,7 @@ def search_applications():
     request_args = {}
     if organization:
         request_args["organization"] = [organization]
-    applications, total_count = Application.search_with_filter(query, request_args, page, count)
+    applications, total_count = Application.search_with_filter(query, request_args, "ANY_WORDS", page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
