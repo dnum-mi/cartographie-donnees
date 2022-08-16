@@ -50,7 +50,7 @@ field_english_to_french_dic = {
     "password_hash": "Mot de passe",
     "owners": "Propriétaires",
     "historic": "Historique",
-    'origin_application_name': "Application d\'origine",
+    'origin_application_name': "Application source",
     'data_source_count': 'Nombre de données',
 }
 
@@ -106,7 +106,7 @@ field_french_to_english_dic = {
     "Mot de passe": "password_hash",
     "Propriétaires": "owners",
     "Historique": "historic",
-    'Application d\'origine': "origin_application_name",
+    'Application source': "origin_application_name",
     'Nombre de données': 'data_source_count',
 }
 

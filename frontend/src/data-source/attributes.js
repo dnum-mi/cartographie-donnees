@@ -67,9 +67,9 @@ export default {
   },
   origin_application: {
     attributeId: 'origin_application',
-    label: "Application d'origine",
+    label: "Application source",
     type: 'application',
-    tooltip: "Application d'origine",
+    tooltip: "Application source",
   },
   open_data_name: {
     attributeId: 'open_data_name',
