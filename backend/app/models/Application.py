@@ -120,7 +120,6 @@ class Application(SearchableMixin, BaseModel):
             'validation_date': self.validation_date.strftime("%d/%m/%Y") if self.validation_date else None,
             'historic': self.historic,
             'data_source_count': self.data_source_count,
-            'references': self.union_families()
         }
 
         if populate_data_sources:
@@ -134,16 +133,6 @@ class Application(SearchableMixin, BaseModel):
                 for owner in sorted(self.owners, key=lambda user: str.lower(user.last_name))
             ]
         return result
-
-    def union_families(self):
-        ret = []
-        ids = []
-        for ds in self.references:
-            for family in ds.families:
-                if family.id not in ids:
-                    ids.append(family.id)
-                    ret.append(family.value)
-        return ret
 
     def to_export(self):
         application_dict = self.to_dict(populate_owners=True)
