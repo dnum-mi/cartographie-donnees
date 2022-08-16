@@ -106,6 +106,10 @@ class DataSource(SearchableMixin, BaseModel):
     owners = association_proxy('application', 'owners')
 
     @property
+    def referentiel_name(self):
+        return self.family_name if self.is_reference else None
+
+    @property
     def nb_reutilizations(self):
         return len(self.reutilizations)
 
@@ -179,14 +183,6 @@ class DataSource(SearchableMixin, BaseModel):
     @tag_name.setter
     def tag_name(self, tag_name):
         self.set_enumeration_multiple(tag_name, 'tags', Tag, 'Le tag')
-
-    @property
-    def referentiel_name(self):
-        return self.get_enumeration_single('referentiel')
-
-    @referentiel_name.setter
-    def referentiel_name(self, referentiel_name):
-        self.set_enumeration_single(referentiel_name, 'referentiel', Family, 'Le référentiel')
 
     @property
     def sensibility_name(self):
@@ -358,7 +354,6 @@ class DataSource(SearchableMixin, BaseModel):
             'name': self.name,
             'description': self.description,
             'application_name': self.application_name,
-            'application_long_name': self.application_long_name,
             'reutilization_name': ",".join(self.reutilization_name),
             'family_name': ",".join(self.family_name),
             'tag_name': ",".join(self.tag_name),
@@ -451,6 +446,9 @@ class DataSource(SearchableMixin, BaseModel):
     @classmethod
     def filter_import_dict(cls, import_dict):
         new_import_dict = super().filter_import_dict(import_dict)
+        # we need to remove these keys because they do not have setters (but can still be exported)
+        if "referentiel_name" in new_import_dict:
+            del new_import_dict["referentiel_name"]
         return new_import_dict
 
     @validates('families')

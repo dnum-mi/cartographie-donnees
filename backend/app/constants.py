@@ -52,6 +52,7 @@ field_english_to_french_dic = {
     "historic": "Historique",
     'origin_application_name': "Application source",
     'data_source_count': 'Nombre de données',
+    "is_reference": "Donnée référentielle"
 }
 
 field_french_to_english_dic = {
@@ -108,6 +109,7 @@ field_french_to_english_dic = {
     "Historique": "historic",
     'Application source': "origin_application_name",
     'Nombre de données': 'data_source_count',
+    "Donnée référentielle": "is_reference"
 }
 
 

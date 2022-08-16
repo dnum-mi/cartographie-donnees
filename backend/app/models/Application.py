@@ -39,7 +39,7 @@ class Application(SearchableMixin, BaseModel):
 
     @property
     def references(self):
-        return [ds for ds in self.data_sources if (ds.is_reference and (ds.application_id == self.id))]
+        return [ds for ds in self.data_sources if ds.is_reference]
 
     @property
     def organization_long_name(self):
