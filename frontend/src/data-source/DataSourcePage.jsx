@@ -124,7 +124,7 @@ class DataSourcePage extends React.Component {
         createDataSource(
             dataSource,
         ).then((results) => {
-            this.props.history.push("/data-source/" + results.data.id, {editMode: true, forceEdit: true})
+            this.props.history.push("/data-source/" + results.data.id, {forceEdit: true})
         }).catch((error) => {
             notification.error({
                 message: `Une erreur est survenue`,
