@@ -16,10 +16,12 @@ import ResetPasswordPage from "../auth/ResetPasswordPage";
 import ForgotPasswordPage from "../auth/ForgotPasswordPage";
 import DataSourceFetcher from "../data-source/DataSourceFetcher";
 import DataSourceCreation from "../admin/data-sources/DataSourceCreation";
+import Navigation from "./Navigation";
 
 function Router({ user, onLogin }) {
   return (
     <BrowserRouter>
+      <Navigation user={user}/>
       <Switch>
         <Route path="/" exact>
           <Redirect to="/search" />
