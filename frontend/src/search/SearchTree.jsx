@@ -173,7 +173,8 @@ class SearchTree extends React.Component {
     )
 
     isActiveKey = () => {
-        return this.props.focus ? this.props.filterCategoryName : undefined
+        return (this.props.focus || this.props.checkedKeys.length > 0)
+            ? this.props.filterCategoryName : undefined
     }
 
     render() {
