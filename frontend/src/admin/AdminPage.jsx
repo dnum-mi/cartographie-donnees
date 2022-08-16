@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter, Switch, Route } from 'react-router-dom';
-import { Menu } from 'antd';
+import {Divider, Menu} from 'antd';
 import './AdminPage.css';
 import ApplicationsRouter from "./applications/ApplicationsRouter";
 import DataSourcesRouter from "./data-sources/DataSourcesRouter";
@@ -65,6 +65,17 @@ class AdminPage extends React.Component {
                     Administrateurs ({this.state.user_count})
                 </Menu.Item>
                 )}
+                <Divider/>
+                {this.props.user.is_admin && (
+                <Menu.Item key="accueil">
+                    Gestion de l'accueil
+                </Menu.Item>
+                )}
+                {this.props.user.is_admin && (
+                <Menu.Item key="tooltip">
+                    Gestion des info-bulles
+                </Menu.Item>
+                )}
             </Menu>
         );
     }
@@ -99,6 +110,22 @@ class AdminPage extends React.Component {
                 >
                     <UsersRouter count={this.get_count} />
                 </Route>
+                )}
+                {this.props.user.is_admin && (
+                    <Route
+                        key="accueil"
+                        path={this.props.match.url + '/accueil'}
+                    >
+                        <div>temp</div>
+                    </Route>
+                )}
+                {this.props.user.is_admin && (
+                    <Route
+                        key="tooltip"
+                        path={this.props.match.url + '/tooltip'}
+                    >
+                        <div>temp2</div>
+                    </Route>
                 )}
                 <Route
                     key="root"
