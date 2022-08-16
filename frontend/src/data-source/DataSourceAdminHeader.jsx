@@ -15,6 +15,11 @@ class DataSourceAdminHeader extends React.Component {
           </Button>
         </Col>
         <Col className="datasource-admin-header-link">
+          <Button type="link" onClick={(e) => this.props.onDuplicate(e)}>
+              Dupliquer la fiche
+          </Button>
+        </Col>
+        <Col className="datasource-admin-header-link">
           <Button type="link" danger onClick={(e) => this.props.onDelete(e)}>
             Supprimer la fiche
           </Button>
