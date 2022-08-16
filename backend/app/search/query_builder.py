@@ -117,11 +117,10 @@ def create_query_filter(query, filters_dict, strictness, exclusions, searchable_
     }
     text_query = None
     filters_query = None
-    exclusion = None
+    exclusion = create_exclusion(exclusions, searchable_fields)
+    print(exclusion)
     if query:
         text_query = create_text_query(query, searchable_fields, strictness, exclusions)
-        exclusion = create_exclusion(exclusions, searchable_fields)
-        print(exclusion)
     if len(slim_filters_dict.keys()):
         filters_query = create_filters_query(slim_filters_dict)
     if text_query:
@@ -149,7 +148,14 @@ def create_query_filter(query, filters_dict, strictness, exclusions, searchable_
         }
     if filters_query:
         return {
-            'query': filters_query,
+            'query': {
+                'bool': {
+                    "must": [
+                        filters_query
+                    ],
+                    "must_not": exclusion
+                }
+            }
         }
     return {
         'query': {
