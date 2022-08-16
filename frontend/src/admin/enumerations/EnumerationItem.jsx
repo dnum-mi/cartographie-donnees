@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Button, Modal } from 'antd';
+import {Button, Divider, Modal} from 'antd';
 import {DeleteOutlined, ExclamationCircleOutlined} from '@ant-design/icons';
 
 import { updateEnumeration } from "../../api";
@@ -16,6 +16,8 @@ class EnumerationItem extends React.Component {
             loading: false,
             value: this.props.item.value,
             edit: false,
+            valueLong: this.props.item.label,
+            editLong: false,
         };
     }
 
@@ -30,6 +32,7 @@ class EnumerationItem extends React.Component {
         updateEnumeration(this.props.item.id, {
             category: this.props.item.category,
             full_path: this.state.value,
+            label: this.state.valueLong
         })
             .then(() => {
                 this.setState({
@@ -66,6 +69,28 @@ class EnumerationItem extends React.Component {
             this.updateEnumerationFromApi()
             this.setState({
                 edit: false
+            });
+        }
+    }
+
+    handleDoubleClickLong = (e) => {
+        this.setState({
+            editLong: true,
+            valueLong: e.target.textContent
+        });
+    }
+    handleBlurLong = (e) => {
+        this.setState({
+            editLong: false,
+            valueLong: this.props.item.value
+        });
+    }
+
+    handleEnterLong = (e) =>{
+        if (e.code === "Enter" || e.charCode === 13 || e.which === 13) {
+            this.updateEnumerationFromApi()
+            this.setState({
+                editLong: false
             });
         }
     }
@@ -109,6 +134,27 @@ class EnumerationItem extends React.Component {
               </span>
             );
         }
+        let baliseLong;
+        if (this.state.editLong && this.props.item.label) {
+            baliseLong = (
+                <input
+                    value={this.state.valueLong}
+                    onBlur={this.handleBlurLong}
+                    onKeyPress={this.handleEnterLong}
+                    onChange={(e) => this.setState({
+                        valueLong: e.target.value,
+                    })}
+                    type="text"
+                    style={{"width": "500px"}}
+                />
+            )
+        } else {
+            baliseLong = (
+                <span onClick={this.handleDoubleClickLong}>
+                  {this.props.item.label}
+              </span>
+            );
+        }
 
         return (
             <div className="EnumerationItem">
@@ -121,6 +167,8 @@ class EnumerationItem extends React.Component {
                         onClick={this.showConfirmationDelete}
                     />
                     {balise}
+                    <Divider type="vertical"/>
+                    {baliseLong}
                 </div>
             </div>
         );

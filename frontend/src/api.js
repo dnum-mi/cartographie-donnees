@@ -49,7 +49,7 @@ export const fetchEnumerations = (category) => axios.get(category ? enumEndpoint
 export const getEnumerationCategories = () => axios.get(enumEndpoint + "/categories");
 export const createEnumeration = (enumeration) => axios.post(API_HOST + '/enumerations', enumeration);
 export const deleteEnumeration = (category, enumerationId) => axios.delete(API_HOST + '/enumerations/' + category + '/' + enumerationId);
-export const updateEnumeration = (enumerationId, enumerationValue) => axios.put(API_HOST + '/enumerations/' + enumerationId, enumerationValue);
+export const updateEnumeration = (enumerationId, enumerationValue, enumerationLabel=undefined) => axios.put(API_HOST + '/enumerations/' + enumerationId, enumerationValue);
 export const deleteEnumerationCategory = (enumerationCategory) => axios.delete(API_HOST + '/enumerations/batch/' + enumerationCategory);
 export const importEnumeration = (file) => axios.post(API_HOST + '/enumerations/import', file, { "headers": { 'Content-Type': 'multipart/form-data' } });
 export const exportEnumerationUrl = API_HOST + '/enumerations/export';
