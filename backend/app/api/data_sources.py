@@ -73,8 +73,8 @@ def create_data_source():
 
 @api.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
-    query, request_args, strictness = get_request_args_data_source(request)
-    data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness, 1, 10000)
+    query, request_args, strictness, exclusions = get_request_args_data_source(request)
+    data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness, exclusions,1, 10000)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
 
@@ -168,21 +168,22 @@ def get_request_args_data_source(request):
 
     query = request.args.get('q', '', type=str)
     strictness = request.args.get('strictness', '', type=str)
+    exclusions = request.args.get('toExclude', '', type=str)
     to_return = {}
     for filter in filters_list:
         temp = request.args.get(filter, '', type=str)
         temp = [] if not temp else temp.split(";")
         to_return[filter] = temp
-    return query, to_return, strictness
+    return query, to_return, strictness, exclusions
 
 
 @api.route('/api/data-sources/search', methods=['GET'])
 def search_data_sources():
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
-    query, request_args, strictness = get_request_args_data_source(request)
+    query, request_args, strictness, exclusions = get_request_args_data_source(request)
     data_sources, total_count = DataSource.search_with_filter(
-        query, request_args, strictness, page, count)
+        query, request_args, strictness, exclusions, page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[data_source.to_dict() for data_source in data_sources]
@@ -191,8 +192,8 @@ def search_data_sources():
 
 @api.route('/api/data-sources/count_by_enumeration', methods=['GET'])
 def count_data_sources_by_enumeration():
-    query, request_args, strictness = get_request_args_data_source(request)
-    count_dict, total_count = DataSource.query_count(query, request_args, strictness)
+    query, request_args, strictness, exclusions = get_request_args_data_source(request)
+    count_dict, total_count = DataSource.query_count(query, request_args, strictness, exclusions)
     return jsonify(dict(
         total_count=total_count,
         results=count_dict,

@@ -55,6 +55,19 @@ def create_filter_query(filter_key, values, filter_type):
     return result
 
 
+def create_exclusion(exclusions, searchable_fields):
+    if len(exclusions) > 0:
+        return {
+            'multi_match': {
+                'query': exclusions,
+                "type": "cross_fields",
+                'operator': 'and',
+                'fields': searchable_fields,
+            }
+        }
+    else:
+        return None
+
 def create_filters_query(filters_dict):
     from ..models import get_enumeration_type_by_name
     result = {
@@ -79,7 +92,7 @@ def create_filters_query(filters_dict):
     return result
 
 
-def create_text_query(query, searchable_fields, strictness):
+def create_text_query(query, searchable_fields, strictness, exclusions):
     if strictness == 'ALL_WORDS':
         return {
             'multi_match': {
@@ -98,14 +111,17 @@ def create_text_query(query, searchable_fields, strictness):
         }
 
 
-def create_query_filter(query, filters_dict, strictness, searchable_fields):
+def create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields):
     slim_filters_dict = {
         k: v for k, v in filters_dict.items() if len(v) > 0
     }
     text_query = None
     filters_query = None
+    exclusion = None
     if query:
-        text_query = create_text_query(query, searchable_fields, strictness)
+        text_query = create_text_query(query, searchable_fields, strictness, exclusions)
+        exclusion = create_exclusion(exclusions, searchable_fields)
+        print(exclusion)
     if len(slim_filters_dict.keys()):
         filters_query = create_filters_query(slim_filters_dict)
     if text_query:
@@ -117,11 +133,19 @@ def create_query_filter(query, filters_dict, strictness, searchable_fields):
                             text_query,
                             filters_query,
                         ],
-                    },
+                        "must_not": exclusion
+                    }
                 },
             }
         return {
-            'query': text_query,
+            'query': {
+                'bool': {
+                    "must": [
+                        text_query
+                    ],
+                    "must_not": exclusion
+                }
+            }
         }
     if filters_query:
         return {
@@ -139,6 +163,7 @@ def query_index_with_filter(
         query,
         filters_dict,
         strictness,
+        exclusions,
         searchable_fields,
         page,
         per_page,
@@ -146,7 +171,7 @@ def query_index_with_filter(
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return [], 0
 
-    body = create_query_filter(query, filters_dict, strictness, searchable_fields)
+    body = create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields)
 
     body['from'] = (page - 1) * per_page
     body['size'] = per_page
@@ -166,13 +191,14 @@ def query_count(
         query,
         filters_dict,
         strictness,
+        exclusions,
         searchable_fields,
         filters,
 ):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return {}, 0
 
-    body = create_query_filter(query, filters_dict, strictness, searchable_fields)
+    body = create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields)
     body["aggs"] = {
         filter_name: {
             'terms': {

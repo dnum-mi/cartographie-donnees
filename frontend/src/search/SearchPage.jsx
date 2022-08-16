@@ -1,7 +1,7 @@
 import React from 'react';
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
-import {Input, Tag, Pagination, Button, Collapse, Radio, Divider} from 'antd';
+import {Input, Tag, Pagination, Button, Collapse, Radio, Divider, Col, Row} from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
@@ -50,7 +50,8 @@ class SearchPage extends React.Component {
             classifications: [],
             tags: [],
             filtersCount: null,
-            strictness: ANY_WORDS
+            strictness: ANY_WORDS,
+            toExlude: ""
         };
         return { ...state, ...this.parseQuery() }
     }
@@ -70,7 +71,8 @@ class SearchPage extends React.Component {
             selectedOrigin: this.stringToList(values.origin),
             selectedClassification: this.stringToList(values.classification),
             selectedTag: this.stringToList(values.tag),
-            strictness: this.readString(values.strictness, ANY_WORDS)
+            strictness: this.readString(values.strictness, ANY_WORDS),
+            toExclude: this.readString(values.toExclude, "")
         }
     }
 
@@ -123,7 +125,7 @@ class SearchPage extends React.Component {
             + "&sensibility=" + this.listToString(this.state.selectedSensibility) + "&open_data=" + this.listToString(this.state.selectedOpenData)
             + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.listToString(this.state.selectedOrigin)
             + "&classification=" + this.listToString(this.state.selectedClassification) + "&tag=" + this.listToString(this.state.selectedTag)
-            + "&strictness=" + this.state.strictness;
+            + "&strictness=" + this.state.strictness + "&toExclude=" + this.state.toExclude;
     }
 
     componentDidMount() {
@@ -500,8 +502,12 @@ class SearchPage extends React.Component {
         }
     }
 
-    onAdvancedChange = (e) => {
+    onRuleChange = (e) => {
         this.setStatePromise({ strictness:e.target.value, page_data_source: 1, }).then(() => this.onSearch());
+    }
+
+    onExcludeChange = (e) => {
+        this.setStatePromise({ toExclude:e.target.value, page_data_source: 1, }).then(() => this.onSearch());
     }
 
     export = () => {
@@ -536,10 +542,26 @@ class SearchPage extends React.Component {
                     <Collapse defaultActiveKey={this.getDefaultActiveKey()} ghost>
                         <Collapse.Panel header="Recherche avancée" key="1">
                             <div>
-                                <Radio.Group onChange={this.onAdvancedChange} value={this.state.strictness} defaultValue={ANY_WORDS}>
-                                    <Radio value={ANY_WORDS}>N'importe quel mot</Radio>
-                                    <Radio value={ALL_WORDS}>Tous les mots</Radio>
-                                </Radio.Group>
+                                <Row>
+                                    <Col span={3}>
+                                        Règle sur la recherche :
+                                    </Col>
+                                    <Col span={6}>
+                                        <Radio.Group onChange={this.onRuleChange} value={this.state.strictness} defaultValue={ANY_WORDS}>
+                                            <Radio value={ANY_WORDS}>N'importe quel mot</Radio>
+                                            <Radio value={ALL_WORDS}>Tous les mots</Radio>
+                                        </Radio.Group>
+                                    </Col>
+                                </Row>
+                                <Divider/>
+                                <Row gutter={10}>
+                                    <Col span={3}>
+                                        Mots à exclure :
+                                    </Col>
+                                    <Col span={6}>
+                                        <Input placeHolder="Mots à exclure de la recherche" defaultValue={this.state.toExclude} onBlur={this.onExcludeChange}/>
+                                    </Col>
+                                </Row>
                             </div>
                         </Collapse.Panel>
                     </Collapse>
