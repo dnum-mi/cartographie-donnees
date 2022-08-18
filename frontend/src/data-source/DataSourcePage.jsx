@@ -33,7 +33,15 @@ class DataSourcePage extends React.Component {
         }
     }
 
-    showDeleteConfirm = (event) => {
+    handleDelete = (event) => {
+        if (this.props.handleDelete) {
+            this.props.handleDelete();
+        } else {
+            this.showDeleteConfirm();
+        }
+    }
+
+    showDeleteConfirm = () => {
         confirm({
             title: 'Êtes-vous sûr de vouloir supprimer cette donnée ?',
             icon: <ExclamationCircleOutlined />,
@@ -132,7 +140,7 @@ class DataSourcePage extends React.Component {
                       editMode={this.state.editMode}
                       onActivateEdition={(e) => this.activateEdition(e)}
                       onCancelEdition={(e) => this.onCancelEdition(e)}
-                      onDelete={(e) => this.showDeleteConfirm(e)}
+                      onDelete={(e) => this.handleDelete(e)}
                       fromCreation={this.props.fromAppCreation || this.props.fromDataSourceCreation}
                     />
                 )}

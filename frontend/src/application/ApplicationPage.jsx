@@ -10,7 +10,6 @@ import {
     importDataSourceByApplication,
     readApplication,
     updateApplication,
-    updateDataSource
 } from '../api';
 import './ApplicationPage.css';
 import DataSourcePage from "../data-source/DataSourcePage";
@@ -103,6 +102,23 @@ class ApplicationPage extends React.Component {
         exportDataSourcesOfApplication("Données_de_" + this.state.application.name + ".csv", this.state.application.id);
     }
 
+    handleDelete = () => {
+        confirm({
+            title: 'Êtes-vous sûr de vouloir supprimer cette application ?',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Cette action est irréversible.',
+            okText: 'Oui',
+            okType: 'danger',
+            cancelText: 'Non',
+            onOk: () => {
+                deleteApplication(this.props.match.params.applicationId)
+                  .then(() => {
+                      this.props.history.replace('/');
+                  });
+            },
+        });
+    }
+
     handleSubmit = (dataSource) => {
         this.setState({
             loading: true,
@@ -150,7 +166,12 @@ class ApplicationPage extends React.Component {
                     search: "?application=" + this.state.application.name
                 }}/>
             ) : (
-                <DataSourcePage dataSource={emptyDataSource} handleSubmit={this.handleSubmit} fromAppModification/>
+                <DataSourcePage
+                  dataSource={emptyDataSource}
+                  handleSubmit={this.handleSubmit}
+                  handleDelete={this.handleDelete}
+                  fromAppModification
+                />
             );
     }
 }
