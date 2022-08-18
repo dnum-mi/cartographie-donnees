@@ -57,14 +57,16 @@ def search_users():
     ).limit(5).all()
     return jsonify(dict(results=[user.to_dict() for user in users]))
 
+
+@api.route('/api/users/count', methods=['GET'])
 @login_required
 @admin_required
-@api.route('/api/users/count', methods=['GET'])
 def count_users():
     if current_user.is_admin:
         return str(User.query.count())
     else:
         return '0'
+
 
 @api.route('/api/users/me', methods=['GET'])
 def read_me():
