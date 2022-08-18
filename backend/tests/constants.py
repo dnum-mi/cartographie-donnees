@@ -7,3 +7,12 @@ ADMIN_INFO = {
     'first_name': 'Admin',
     'last_name': 'Admin',
 }
+USER_CREDENTIALS = {
+    'email': 'user@default.com',
+    'password': 'default_password',
+}
+USER_INFO = {
+    **USER_CREDENTIALS,
+    'first_name': 'User',
+    'last_name': 'User',
+}
