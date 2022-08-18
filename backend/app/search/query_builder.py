@@ -60,9 +60,8 @@ def create_exclusion(exclusions, searchable_fields):
         return {
             'multi_match': {
                 'query': exclusions,
-                "type": "cross_fields",
-                'operator': 'and',
                 'fields': searchable_fields,
+                'fuzziness': 'AUTO'
             }
         }
     else:
@@ -92,7 +91,7 @@ def create_filters_query(filters_dict):
     return result
 
 
-def create_text_query(query, searchable_fields, strictness, exclusions):
+def create_text_query(query, searchable_fields, strictness):
     if strictness == 'ALL_WORDS':
         return {
             'multi_match': {
@@ -107,6 +106,7 @@ def create_text_query(query, searchable_fields, strictness, exclusions):
             'multi_match': {
                 'query': query,
                 'fields': searchable_fields,
+                'fuzziness': 'AUTO'
             },
         }
 
@@ -120,7 +120,7 @@ def create_query_filter(query, filters_dict, strictness, exclusions, searchable_
     exclusion = create_exclusion(exclusions, searchable_fields)
     print(exclusion)
     if query:
-        text_query = create_text_query(query, searchable_fields, strictness, exclusions)
+        text_query = create_text_query(query, searchable_fields, strictness)
     if len(slim_filters_dict.keys()):
         filters_query = create_filters_query(slim_filters_dict)
     if text_query:
