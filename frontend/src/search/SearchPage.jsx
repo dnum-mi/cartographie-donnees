@@ -546,27 +546,29 @@ class SearchPage extends React.Component {
                                     <Col span={3}>
                                         Règle sur la recherche :
                                     </Col>
-                                    <Col span={6}>
+                                    <Col span={9}>
                                         <Radio.Group onChange={this.onRuleChange} value={this.state.strictness} defaultValue={ANY_WORDS}>
                                             <Radio value={ANY_WORDS}>N'importe quel mot</Radio>
                                             <Radio value={ALL_WORDS}>Tous les mots</Radio>
                                         </Radio.Group>
                                     </Col>
-                                </Row>
-                                <Divider/>
-                                <Row gutter={10}>
-                                    <Col span={3}>
+                                    <Col span={2}>
                                         Mots à exclure :
                                     </Col>
                                     <Col span={6}>
-                                        <Input placeHolder="Mots à exclure de la recherche" defaultValue={this.state.toExclude} onBlur={this.onExcludeChange}/>
+                                        <Input
+                                          placeHolder="Mots à exclure de la recherche"
+                                          defaultValue={this.state.toExclude}
+                                          onBlur={this.onExcludeChange}
+                                          onPressEnter={this.onExcludeChange}
+                                        />
                                     </Col>
                                 </Row>
                             </div>
                         </Collapse.Panel>
                     </Collapse>
                 </div>
-                <Divider/>
+                <Divider style={{ marginTop: 0 }}/>
                 {this.renderDataSourcesResults()}
             </div>
         );
