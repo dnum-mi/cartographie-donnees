@@ -41,18 +41,19 @@ field_english_to_french_dic = {
     "validation_date": "Date de validation",
     "category": "Catégorie",
     "full_path": "Valeur",
-    "label": "Nom long",
+    "label": "Libellé",
     "organization_name": "Organisation",
     "first_name": "Prénom",
     "last_name": "Nom de famille",
     "email": "Email",
     "is_admin": "Administrateur ?",
     "password_hash": "Mot de passe",
-    "owners": "Propriétaires",
+    "owners": "Administrateurs",
     "historic": "Historique",
     'origin_application_name': "Application source",
     'data_source_count': 'Nombre de données',
-    "is_reference": "Donnée référentielle"
+    "is_reference": "Donnée référentielle",
+    "long_name": "Nom long",
 }
 
 field_french_to_english_dic = {
@@ -98,18 +99,19 @@ field_french_to_english_dic = {
     "Date de validation": "validation_date",
     "Catégorie": "category",
     "Valeur": "full_path",
-    "Nom long": "label",
+    "Libellé": "label",
     "Organisation": "organization_name",
     "Prénom": "first_name",
     "Nom de famille": "last_name",
     "Email": "email",
     "Administrateur ?": "is_admin",
     "Mot de passe": "password_hash",
-    "Propriétaires": "owners",
+    "Administrateurs": "owners",
     "Historique": "historic",
     'Application source': "origin_application_name",
     'Nombre de données': 'data_source_count',
-    "Donnée référentielle": "is_reference"
+    "Donnée référentielle": "is_reference",
+    "Nom long": "long_name",
 }
 
 

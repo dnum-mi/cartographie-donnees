@@ -138,6 +138,7 @@ class Application(SearchableMixin, BaseModel):
         application_dict = self.to_dict(populate_owners=True)
         application_dict['owners'] = ",".join([owner['email'] for owner in application_dict['owners']])
         del application_dict["id"]
+        del application_dict["organization_long_name"]
         return application_dict
 
     def update_from_dict(self, data):
