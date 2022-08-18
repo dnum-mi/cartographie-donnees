@@ -60,7 +60,7 @@ class TextAttribute extends React.Component {
       )
     } else if (this.props.isLink && this.props.value) {
       return (
-          <a href={textValue}>{textValue}</a>
+          <a href={textValue} target="_blank" rel="noreferrer">{textValue}</a>
       )
     } else if (this.props.isMail && this.props.value) {
       return (
