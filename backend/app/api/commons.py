@@ -58,7 +58,7 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
     file.stream.seek(0)
 
     # Decode using the same encoding as the Windows Excel default
-    csv_file = TextIOWrapper(file, encoding='cp1252')
+    csv_file = TextIOWrapper(file, encoding='utf_8_sig')
     csv_reader = csv.reader(csv_file, delimiter=';')
 
     # Headers are in french, they need to be translated
@@ -127,7 +127,7 @@ def export_resource(resource_class, filename, items=None):
     if not items_list:
         raise ValueError("There is not data to export")
     headers = items_list[0].keys()
-    with open(path, 'w', encoding='cp1252', newline='') as output_file:
+    with open(path, 'w', encoding='utf_8_sig', newline='') as output_file:
         fc = csv.DictWriter(output_file, fieldnames=headers, delimiter=';')
         fc.writeheader()
         fc.writerows(items_list)
