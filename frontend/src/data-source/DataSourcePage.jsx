@@ -33,6 +33,10 @@ class DataSourcePage extends React.Component {
         }
     }
 
+    componentDidMount() {
+        this.props.history.replace({ state: {} });
+    }
+
     showDeleteConfirm = (event) => {
         confirm({
             title: 'Êtes-vous sûr de vouloir supprimer cette donnée ?',
@@ -119,7 +123,7 @@ class DataSourcePage extends React.Component {
 
     duplicateDataSource = (event) => {
         let dataSource = this.state.dataSource;
-        dataSource.name = dataSource.name + "_copy";
+        dataSource.name = dataSource.name + " (Copie)";
         delete dataSource.id;
         createDataSource(
             dataSource,
