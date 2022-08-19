@@ -24,11 +24,13 @@ class DataSourceResult extends React.Component {
           <ExportOutlined/>
         </Link>
         <Paragraph className="paragraph">
-          Description : <span>{this.props.dataSource.description}</span>
+          <span className="attribute-label">Description :</span>
+          <span className="attribute-value">{this.props.dataSource.description}</span>
         </Paragraph>
         {!this.props.not_search && (
           <Paragraph className="paragraph">
-            Finalités de l'application : <span>{this.props.dataSource.application.goals}</span>
+            <span className="attribute-label">Finalités de l'application :</span>
+            <span className="attribute-value">{this.props.dataSource.application.goals}</span>
           </Paragraph>
         )}
 

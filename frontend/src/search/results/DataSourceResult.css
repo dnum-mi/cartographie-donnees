@@ -37,8 +37,9 @@
     word-break: break-all;
 }
 
-.DataSourceResult .paragraph span{
+.DataSourceResult .paragraph .attribute-value {
     color: rgba(0, 0, 0, 0.50);
+    margin-left: 5px;
 }
 
 .DataSourceResult .anticon-export {

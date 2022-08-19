@@ -1,7 +1,4 @@
-.attribute {
-}
-
-.attribute .attribute-label {
+.attribute-label {
     color: rgb(10, 7, 253);
     font-weight: 500;
 }
