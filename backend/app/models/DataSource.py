@@ -107,7 +107,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def referentiel_name(self):
-        return self.family_name if self.is_reference else None
+        return self.family_name if self.is_reference else []
 
     @property
     def nb_reutilizations(self):

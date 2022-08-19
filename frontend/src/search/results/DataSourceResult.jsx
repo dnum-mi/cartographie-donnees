@@ -43,7 +43,7 @@ class DataSourceResult extends React.Component {
                     <Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedType", this.props.dataSource.type_name)} color="red">{this.props.dataSource.type_name}</Tag>
                 </div>
                 <div className="attributes-two">
-                        {this.props.dataSource.referentiel_name ?  (<Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedReferentiel", this.props.dataSource.referentiel_name)} color="orange">{this.props.dataSource.referentiel_name}</Tag>): null}
+                        {this.props.dataSource.referentiel_name.map((tag) => <Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedReferentiel", tag)} color="orange">{tag}</Tag>)}
                         {this.props.dataSource.sensibility_name ?  (<Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedSensibility", this.props.dataSource.sensibility_name)} color="lime">{this.props.dataSource.sensibility_name}</Tag>): null}
                         {this.props.dataSource.open_data_name ?  (<Tag className="onHover" onClick={ () => this.props.onFilterSelect("selectedOpenData", this.props.dataSource.open_data_name)} color="green">{this.props.dataSource.open_data_name}</Tag>): null}
                         {this.props.dataSource.exposition_name.map((exposition) => <Tag className="onHover" color="gold" onClick={ () => this.props.onFilterSelect("selectedExposition", exposition)}>{exposition}</Tag>)}
