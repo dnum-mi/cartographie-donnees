@@ -70,10 +70,9 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
             if field in field_french_to_english_dic:
                 headers.append(field_french_to_english_dic[field])
             else:
-                raise ValueError("L'en-tête %s n'est pas une en-tête acceptée" % (field))
-        except (ValueError) as e:
+                raise ValueError(f"L'en-tête {field} n'est pas un en-tête accepté")
+        except ValueError as e:
             errors.append(dict(row=0, error=e))
-
 
     for row_index, row in enumerate(csv_reader):
         # Each row is converted into a dictionary containing the file headers as keys
