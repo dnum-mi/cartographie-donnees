@@ -57,7 +57,7 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
     # Seek to the beginning of file
     file.stream.seek(0)
 
-    # Decode using the same encoding as the Windows Excel default
+    # Decode using the signed UTF-8 encoding to read it nicely in Excel
     csv_file = TextIOWrapper(file, encoding='utf_8_sig')
     csv_reader = csv.reader(csv_file, delimiter=';')
 
