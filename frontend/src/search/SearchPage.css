@@ -52,6 +52,22 @@
     margin-bottom: 10px;
 }
 
+.SearchPage .search-input .search-advanced-input {
+    padding: 10px 0;
+}
+
+.SearchPage .search-input .search-advanced-input .ant-col {
+    line-height: 32px;
+}
+
+.SearchPage .search-input .search-advanced-input label {
+    margin-right: 10px;
+}
+
+.SearchPage .search-input .search-advanced-input input {
+    width: 300px;
+}
+
 .SearchPage .search-header {
     display: flex;
     margin: 10px 0px;
