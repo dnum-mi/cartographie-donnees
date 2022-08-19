@@ -3,6 +3,7 @@
 
 .attribute .attribute-label {
     color: rgb(10, 7, 253);
+    font-weight: 500;
 }
 
 .attribute .attribute-tooltip {
