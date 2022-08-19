@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Layout} from 'antd';
+import {Button, Layout, Space} from 'antd';
 import logo from '../Logo_du_Ministère_de_l\'Intérieur_(2020).svg';
 import './Navigation.css';
 import { logout } from "../api";
@@ -41,19 +41,21 @@ function Navigation({ user, location }) {
             </Link>
         </span>
         <div>
-        {location.pathname.split('/')[1] === "data-source" &&
-            <Link to="/search">
-                <Button icon={<SearchOutlined />}>
-                    Nouvelle recherche
-                </Button>
-            </Link>}
-        {user && (user.is_admin || user.applications.length) &&
-          <Link to="/admin">
-            <Button type="primary" data-test="nav-admin-btn">
-              Administration
-            </Button>
-          </Link>}
-          {loginButton}
+            <Space>
+                {location.pathname.split('/')[1] === "data-source" &&
+                    <Link to="/search">
+                        <Button icon={<SearchOutlined />}>
+                            Nouvelle recherche
+                        </Button>
+                    </Link>}
+                {user && (user.is_admin || user.applications.length) &&
+                    <Link to="/admin">
+                        <Button type="primary" data-test="nav-admin-btn">
+                            Administration
+                        </Button>
+                    </Link>}
+                {loginButton}
+            </Space>
         </div>
       </div>
     </Header>
