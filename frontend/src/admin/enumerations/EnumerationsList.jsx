@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Button, Input, Modal, Upload, Collapse } from 'antd';
+import {Button, Modal, Upload, Collapse, Skeleton} from 'antd';
 import { PlusOutlined, ExclamationCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 
 import { exportEnumerationUrl, importEnumeration, exportModel, getEnumerationCategories } from "../../api";
@@ -94,7 +94,16 @@ class EnumerationsList extends React.Component {
 
     renderContent() {
         if (this.state.loading) {
-            return <Loading />;
+            return (
+                <div>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                </div>
+            )
         }
         return (<>
             {this.state.error ? <Error error={this.state.error}/> : null}

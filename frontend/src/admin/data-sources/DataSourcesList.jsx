@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
-import { Button, Pagination, Modal, Upload } from 'antd';
+import {Button, Pagination, Modal, Upload, Skeleton} from 'antd';
 import { PlusOutlined, ExclamationCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 
 import { fetchDataSources, exportDataSourceUrl, importDataSource, exportModel } from "../../api";
@@ -61,7 +61,17 @@ class DataSourcesList extends React.Component {
 
     renderContent() {
         if (this.state.loading) {
-            return <Loading />;
+            return (
+                <div>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                </div>
+            )
+            // return <Loading />;
         }
         if (this.state.error) {
             return <Error error={this.state.error} />;
@@ -69,6 +79,18 @@ class DataSourcesList extends React.Component {
         return this.state.dataSources.map((dataSource) => (
             <DataSourceResult dataSource={dataSource} />
         ));
+    }
+
+    renderPagination() {
+        return (
+            <Pagination
+                showSizeChanger
+                current={this.state.page}
+                pageSize={this.state.count}
+                total={this.state.total_count}
+                onChange={this.onChange.bind(this)}
+            />
+        )
     }
 
       uploadfile({ onSuccess, onError, file }) {
@@ -130,14 +152,10 @@ class DataSourcesList extends React.Component {
                         <Button icon={<UploadOutlined />} type="default">Import</Button>
                     </Upload>)}
                 </div>
+                {this.renderPagination()}
+                <br/>
                 {this.renderContent()}
-                <Pagination
-                    showSizeChanger
-                    current={this.state.page}
-                    pageSize={this.state.count}
-                    total={this.state.total_count}
-                    onChange={this.onChange.bind(this)}
-                />
+                {this.renderPagination()}
             </div>
         );
     }
