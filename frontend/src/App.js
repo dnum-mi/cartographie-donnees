@@ -2,7 +2,6 @@ import React from 'react';
 import {Layout} from 'antd';
 
 import Router from './navigation/Router';
-import Navigation from "./navigation/Navigation";
 import './App.css';
 import { } from './auth/index';
 import { readMe } from './api';
@@ -54,7 +53,6 @@ class App extends React.Component {
       <div className="App">
         <UserProvider user={this.state.user}>
           <Layout className="layout">
-            <Navigation user={this.state.user}/>
             <Content className="page-content">
               <Router
                   user={this.state.user}
