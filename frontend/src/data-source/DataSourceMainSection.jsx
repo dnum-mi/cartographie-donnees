@@ -62,7 +62,7 @@ class DataSourceMainSection extends React.Component {
                   {this.getAttributeElement('origin_name')}
                 </Col>
                 <Col span={12}>
-                  {this.getAttributeElement('origin_application')}
+                  {this.getAttributeElement('origin_applications')}
                 </Col>
               </Row>
               <Row gutter={16}>

@@ -35,7 +35,6 @@ class Application(SearchableMixin, BaseModel):
     validation_date = db.Column(db.DateTime, nullable=True)
     historic = db.Column(db.Integer, nullable=True)
     data_sources = db.relationship('DataSource', backref='application', lazy='dynamic', foreign_keys='DataSource.application_id')
-    origin_data_sources = db.relationship('DataSource', backref='origin_application', lazy='dynamic', foreign_keys='DataSource.origin_application_id')
 
     @property
     def references(self):

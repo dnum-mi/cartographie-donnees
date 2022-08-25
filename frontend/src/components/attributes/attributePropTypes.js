@@ -39,3 +39,9 @@ export const tagPropTypes = {
 export const booleanPropTypes = {
   value: PropTypes.bool,
 }
+
+export const applicationPropTypes = {
+  applicationMode: PropTypes.oneOf([
+    'simple', 'multiple',
+  ]).isRequired,
+}

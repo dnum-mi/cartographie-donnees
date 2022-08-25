@@ -65,11 +65,12 @@ export default {
     tagCategory: 'Origine',
     tagColor: 'geekblue',
   },
-  origin_application: {
-    attributeId: 'origin_application',
-    label: "Application source",
+  origin_applications: {
+    attributeId: 'origin_applications',
+    label: "Applications sources",
     type: 'application',
-    tooltip: "Application source",
+    applicationMode: 'multiple',
+    tooltip: "Applications sources",
   },
   open_data_name: {
     attributeId: 'open_data_name',

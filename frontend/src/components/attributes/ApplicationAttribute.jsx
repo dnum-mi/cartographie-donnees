@@ -1,16 +1,25 @@
 import React from "react";
-import { commonPropTypes } from "./attributePropTypes";
+import {applicationPropTypes, commonPropTypes} from "./attributePropTypes";
 import { commonDefaultProps } from "./attributeDefaultProps";
 import ApplicationSearchSelect from "../ApplicationSearchSelect";
 import {Form} from 'antd'
+import ApplicationSearchTag from "../ApplicationSearchTag";
 
 class ApplicationAttribute extends React.Component {
 
   readElement() {
-    if (!this.props.value) {
-      return '-'
+    const originApplications = this.props.value;
+
+    if ( originApplications && originApplications.length > 0 ){
+      let returnStr = this.props.value[0].name;
+      if ( originApplications.length > 1 ) {
+        for (let i = 1; i < originApplications.length; i++) {
+          returnStr += ", " + originApplications[i].name;
+        }
+      }
+      return returnStr;
     }
-    return this.props.value.name
+    return '-'
   }
 
   rules = () => {
@@ -27,12 +36,21 @@ class ApplicationAttribute extends React.Component {
     return (
       <div className="attribute-input-container">
         <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
-          <ApplicationSearchSelect
-            limited={false}
-            onChange={this.props.onChange}
-            value={this.props.value}
-            allowClear
-          />
+          {this.props.applicationMode === 'multiple'
+          ?
+              <ApplicationSearchTag
+                  limited={false}
+                  onChange={this.props.onChange}
+                  value={this.props.value}
+              />
+          :
+              <ApplicationSearchSelect
+                  limited={false}
+                  onChange={this.props.onChange}
+                  value={this.props.value}
+                  allowClear
+              />
+          }
         </Form.Item>
       </div>
     )
@@ -57,6 +75,7 @@ ApplicationAttribute.defaultProps = {
 
 ApplicationAttribute.propTypes = {
   ...commonPropTypes,
+  ...applicationPropTypes,
 };
 
 export default ApplicationAttribute;

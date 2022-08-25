@@ -52,6 +52,14 @@ association_tag_table = db.Table(
     db.UniqueConstraint('data_source_id', 'tag_id')
 )
 
+origin_application_table = db.Table(
+    'origin_application',
+    db.Model.metadata,
+    db.Column('data_source_id', db.Integer, db.ForeignKey(
+        'data_source.id'), primary_key=True),
+    db.Column('application_id', db.Integer, db.ForeignKey('application.id'), primary_key=True),
+    db.UniqueConstraint('data_source_id', 'application_id')
+)
 
 class DataSource(SearchableMixin, BaseModel):
     __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
@@ -95,11 +103,12 @@ class DataSource(SearchableMixin, BaseModel):
     reutilizations = db.relationship("Application",
                                      secondary=association_reutilization_table,
                                      backref="data_source_reutilizations", cascade="all, delete")
-    origin_application_id = db.Column(
-        db.Integer, db.ForeignKey('application.id'))
     tags = db.relationship("Tag",
                            secondary=association_tag_table,
                            backref="data_sources", cascade="all, delete")
+    origin_applications = db.relationship("Application",
+                           secondary=origin_application_table,
+                           backref="origin_data_sources", cascade="all, delete")
 
     application_id = db.Column(db.Integer, db.ForeignKey(
         'application.id'), nullable=False)
@@ -265,19 +274,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def origin_application_name(self):
-        return self.origin_application.name if self.origin_application else None
-
-    @origin_application_name.setter
-    def origin_application_name(self, application_name):
-        if application_name:
-            application_id = Application.query.filter_by(
-                name=application_name).first()
-            if not application_id:
-                raise ValueError(
-                    "L'application '{}' n'existe pas.".format(application_name))
-            self.origin_application_id = application_id.id
-        else:
-            self.origin_application_id = None
+        return [origin_application.name for origin_application in self.origin_applications] if self.origin_applications else []
 
     @property
     def organization_name(self):
@@ -314,7 +311,6 @@ class DataSource(SearchableMixin, BaseModel):
             'description': self.description,
             'application_name': self.application_name,
             'application_long_name': self.application_long_name,
-            'origin_application_name': self.origin_application_name,
             'family_name': self.family_name,
             'families': [family.to_dict() for family in self.families],
             'tag_name': self.tag_name,
@@ -343,7 +339,8 @@ class DataSource(SearchableMixin, BaseModel):
             'origin_name': self.origin_name,
             'application': self.application.to_dict(),
             'organization_name': self.application.organization_name,
-            'origin_application': self.origin_application.to_dict() if self.origin_application else None,
+            'origin_applications': [application.to_dict() for application in self.origin_applications],
+            'origin_application_name': self.origin_application_name,
             'reutilizations': [application.to_dict() for application in self.reutilizations],
             'nb_reutilizations': self.nb_reutilizations,
             'is_reference': self.is_reference
@@ -376,7 +373,7 @@ class DataSource(SearchableMixin, BaseModel):
             'classification_name': ",".join(self.classification_name),
             'exposition_name': ",".join(self.exposition_name),
             'origin_name': self.origin_name,
-            'origin_application_name': self.origin_application_name,
+            'origin_application_name': ",".join(self.origin_application_name),
             'is_reference': self.is_reference
         }
 
@@ -408,7 +405,7 @@ class DataSource(SearchableMixin, BaseModel):
             'classifications') if data.get('classifications') else []
         self.expositions = data.get('expositions')
         self.origin_id = data.get('origin_id')
-        self.origin_application_id = data.get('origin_application_id')
+        self.origin_applications = data.get('origin_applications')
         self.is_reference = data.get('is_reference')
 
     @staticmethod
@@ -439,7 +436,7 @@ class DataSource(SearchableMixin, BaseModel):
             classifications=data.get('classifications'),
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
-            origin_application_id=data.get('origin_application_id'),
+            origin_applications=data.get('origin_applications'),
             is_reference=data.get('is_reference')
         )
 
@@ -543,6 +540,7 @@ class DataSource(SearchableMixin, BaseModel):
         db.session.execute("DELETE FROM association_reutilization")
         db.session.execute("DELETE FROM association_exposition")
         db.session.execute("DELETE FROM association_tag")
+        db.session.execute("DELETE FROM origin_application")
         super().delete_all()
 
     def __repr__(self):
