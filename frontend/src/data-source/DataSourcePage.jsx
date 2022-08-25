@@ -1,9 +1,9 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import {Form, Modal} from 'antd';
+import {Form, Modal, notification} from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
-import {deleteDataSource} from '../api';
+import {createDataSource, deleteDataSource} from '../api';
 import DataSourceAdminHeader from './DataSourceAdminHeader';
 import DataSourceMainSection from './DataSourceMainSection';
 
@@ -28,9 +28,13 @@ class DataSourcePage extends React.Component {
         super(props);
         this.state = {
             dataSource: Object.assign({}, this.props.dataSource),
-            editMode: props.forceEdit,
+            editMode: this.props.location?.state?.forceEdit || props.forceEdit,
             noRules: this.props.fromAppCreation || this.props.fromAppModification
         }
+    }
+
+    componentDidMount() {
+        this.props.history.replace({ state: {} });
     }
 
     handleDelete = (event) => {
@@ -125,6 +129,24 @@ class DataSourcePage extends React.Component {
         this.props.handleSubmit(this.state.dataSource)
     }
 
+    duplicateDataSource = (event) => {
+        let dataSource = this.state.dataSource;
+        dataSource.name = dataSource.name + " (Copie)";
+        delete dataSource.id;
+        createDataSource(
+            dataSource,
+        ).then((results) => {
+            this.props.history.push("/data-source/" + results.data.id, {forceEdit: true})
+        }).catch((error) => {
+            notification.error({
+                message: `Une erreur est survenue`,
+                description:
+                    "La fiche n'a pas pu être dupliquée.",
+                placement: 'bottomRight'
+            });
+        })
+    }
+
     renderContent() {
         const validateMessages = {
             required: "'Ce champ est requis!",
@@ -141,6 +163,7 @@ class DataSourcePage extends React.Component {
                       onActivateEdition={(e) => this.activateEdition(e)}
                       onCancelEdition={(e) => this.onCancelEdition(e)}
                       onDelete={(e) => this.handleDelete(e)}
+                      onDuplicate={(e) => this.duplicateDataSource(e)}
                       fromCreation={this.props.fromAppCreation || this.props.fromDataSourceCreation}
                     />
                 )}
