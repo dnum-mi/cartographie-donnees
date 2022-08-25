@@ -69,7 +69,11 @@ class TextAttribute extends React.Component {
     }
     return (
       <div style={{"whiteSpace": "pre-line", "wordBreak": "break-all"}}>
-        {textValue}
+        {
+          isNaN(textValue)
+              ? textValue
+              : new Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(textValue)
+        }
         {this.props.suffixValue ? this.suffixElement() : null}
       </div>
     )
