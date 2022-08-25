@@ -130,7 +130,7 @@ class SearchPage extends React.Component {
 
     componentDidMount() {
         this.setStatePromise({ homeDescription: this.isFirstTime() })
-          .then(this.onSearch)
+          .then(this.initSearch)
           .then(this.refreshFilters);
     }
 
@@ -216,12 +216,23 @@ class SearchPage extends React.Component {
         this.props.history.push({
             search: search
         })
+        return this.launchSearch(search)
+    };
 
+    initSearch = () => {
+        const search = this.getQuery(this.state.query);
+        this.props.history.replace({
+            search: search
+        })
+        return this.launchSearch(search)
+    }
+
+    launchSearch = (search) => {
         return this.setStatePromise({
             homeDescription: this.isFirstTime(),
         })
             .then(() => this.search(search));
-    };
+    }
 
     onChangePageDataSource = (page, count) => {
         this.setStatePromise({
