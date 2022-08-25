@@ -1,3 +1,5 @@
+from typing import Dict
+
 from sqlalchemy import inspect
 from app import db
 from app.search import add_to_index, remove_from_index, \
@@ -7,7 +9,7 @@ from app.search import add_to_index, remove_from_index, \
 
 class SearchableMixin(object):
     @classmethod
-    def search_with_filter(cls, query, filters_dict, strictness, exclusions, page, per_page):
+    def search_with_filter(cls, query: str, filters_dict: Dict, strictness: str, page: int, per_page: int, exclusions: str = ""):
         ids, total_count = query_index_with_filter(
             cls.__tablename__,
             query,
