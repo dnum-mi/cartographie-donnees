@@ -118,7 +118,6 @@ def create_query_filter(query, filters_dict, strictness, exclusions, searchable_
     text_query = None
     filters_query = None
     exclusion = create_exclusion(exclusions, searchable_fields)
-    print(exclusion)
     if query:
         text_query = create_text_query(query, searchable_fields, strictness)
     if len(slim_filters_dict.keys()):

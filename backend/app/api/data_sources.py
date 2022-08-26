@@ -42,6 +42,12 @@ def get_reutilizations(reutilizations):
     else:
         return []
 
+def get_origin_applications(origin_applications):
+    if origin_applications:
+        return [get_application_by_name(json.get("name"), return_id=False) for json in origin_applications]
+    else:
+        return []
+
 
 @api.route('/api/data-sources', methods=['POST'])
 @login_required
@@ -50,7 +56,7 @@ def create_data_source():
     try:
         json = request.get_json()
         json["application_id"] = get_application_by_name(json.get("application").get("name"))
-        json["origin_application_id"] = get_application_by_name(json.get("origin_application").get("name")) if json.get("origin_application") else None
+        json["origin_applications"] = get_origin_applications(json.get("origin_applications"))
         json["type_id"] = get_type_by_name(json.get("type_name"))
         json["families"] = get_family_by_name(json.get("family_name"))
         json["classifications"] = get_classification_by_name(json.get("classification_name"))
@@ -74,7 +80,7 @@ def create_data_source():
 @api.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
-    data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness, exclusions,1, 10000)
+    data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness,1, 10000, exclusions)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
 
@@ -183,7 +189,7 @@ def search_data_sources():
     count = request.args.get('count', 10, type=int)
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
     data_sources, total_count = DataSource.search_with_filter(
-        query, request_args, strictness, exclusions, page, count)
+        query, request_args, strictness, page, count, exclusions)
     return jsonify(dict(
         total_count=total_count,
         results=[data_source.to_dict() for data_source in data_sources]
@@ -287,7 +293,7 @@ def update_data_source(data_source_id):
         data_source = get_data_source(data_source_id)
         json = request.get_json()
         json["application_id"] = get_application_by_name(json.get("application").get("name"))
-        json["origin_application_id"] = get_application_by_name(json.get("origin_application").get("name")) if json.get("origin_application") else None
+        json["origin_applications"] = get_origin_applications(json.get("origin_applications"))
         json["families"] = get_family_by_name(json.get("family_name"))
         json["classifications"] = get_classification_by_name(json.get("classification_name"))
         json["reutilizations"] = get_reutilizations(json.get("reutilizations"))

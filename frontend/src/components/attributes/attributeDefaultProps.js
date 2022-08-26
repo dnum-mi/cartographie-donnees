@@ -23,3 +23,4 @@ export const tagDefaultProps = {
 };
 
 export const booleanDefaultProps = {};
+export const applicationDefaultProps = {};
