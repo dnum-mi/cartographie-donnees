@@ -19,7 +19,7 @@ class Application(SearchableMixin, BaseModel):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
-    long_name = db.Column(db.String, nullable=False)
+    long_name = db.Column(db.String)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
     goals = db.Column(db.Text, nullable=False)
     access_url = db.Column(db.Text)
