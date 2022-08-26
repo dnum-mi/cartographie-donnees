@@ -1,7 +1,7 @@
 import React from 'react';
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
-import {Input, Tag, Pagination, Button, Collapse, Radio, Divider, Col, Row} from 'antd';
+import {Input, Tag, Pagination, Button, Radio, Divider, Col, Row, Skeleton} from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
@@ -322,7 +322,16 @@ class SearchPage extends React.Component {
     renderDataSourcesResults = () => {
 
         if (this.state.loading) {
-            return <Loading />
+            return (
+                <div>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                </div>
+            )
         }
         if (this.state.error) {
             return <Error error={this.state.error} />
@@ -422,6 +431,8 @@ class SearchPage extends React.Component {
         }
         else {
             return (<div className="left-col">
+                {this.renderPagination()}
+                <br/>
                 <div className="results">
                     {this.state.dataSources.map((dataSource) => (
                         <DataSourceResult key={dataSource.id} dataSource={dataSource}
@@ -429,13 +440,7 @@ class SearchPage extends React.Component {
                         />
                     ))}
                 </div>
-                <Pagination
-                    showSizeChanger
-                    current={this.state.page_data_source}
-                    pageSize={this.state.count_data_source}
-                    total={this.state.total_count_data_source}
-                    onChange={this.onChangePageDataSource}
-                />
+                {this.renderPagination()}
             </div>)
         }
     }
@@ -453,6 +458,17 @@ class SearchPage extends React.Component {
             </Tag>)
         }
     }
+
+    renderPagination = () => (
+        <Pagination
+            showSizeChanger
+            current={this.state.page_data_source}
+            pageSize={this.state.count_data_source}
+            total={this.state.total_count_data_source}
+            onChange={this.onChangePageDataSource}
+        />
+    )
+
 
     renderTagList = (key, color) => {
         if (this.state[key] && this.state[key].length > 0) {

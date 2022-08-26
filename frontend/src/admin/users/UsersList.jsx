@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
-import { Button, Pagination, Modal, Upload } from 'antd';
+import {Button, Modal, Upload, Skeleton} from 'antd';
 import { PlusOutlined, ExclamationCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 
 import { fetchUsers, exportUsersUrl, importUsers, exportModel } from "../../api";
@@ -60,7 +60,16 @@ class UsersList extends React.Component {
 
     renderContent() {
         if (this.state.loading) {
-            return <Loading />;
+            return (
+                <div>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                </div>
+            )
         }
         if (this.state.error) {
             return <Error error={this.state.error} />;
