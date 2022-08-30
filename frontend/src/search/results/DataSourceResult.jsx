@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { withRouter, Link } from "react-router-dom";
 import { Tag, Typography } from 'antd';
 import { ExportOutlined } from '@ant-design/icons';
@@ -27,12 +28,10 @@ class DataSourceResult extends React.Component {
           <span className="attribute-label">Description :</span>
           <span className="attribute-value">{this.props.dataSource.description}</span>
         </Paragraph>
-        {!this.props.not_search && (
-          <Paragraph className="paragraph">
-            <span className="attribute-label">Finalités de l'application :</span>
-            <span className="attribute-value">{this.props.dataSource.application.goals}</span>
-          </Paragraph>
-        )}
+        <Paragraph className="paragraph">
+          <span className="attribute-label">Finalités de l'application :</span>
+          <span className="attribute-value">{this.props.dataSource.application.goals}</span>
+        </Paragraph>
 
         <div className="attributes">
           {this.props.dataSource.application ? (
@@ -137,6 +136,15 @@ class DataSourceResult extends React.Component {
       </div>
     );
   }
+}
+
+DataSourceResult.defaultProps = {
+  onFilterSelect: () => {},
+}
+
+DataSourceResult.propTypes = {
+  dataSource: PropTypes.object.isRequired,
+  onFilterSelect: PropTypes.func,
 }
 
 export default withRouter(DataSourceResult);
