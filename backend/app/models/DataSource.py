@@ -273,6 +273,21 @@ class DataSource(SearchableMixin, BaseModel):
     def origin_application_name(self):
         return [origin_application.name for origin_application in self.origin_applications] if self.origin_applications else []
 
+    @origin_application_name.setter
+    def origin_application_name(self, origin_application_name):
+        if origin_application_name:
+            new_origin_applications = []
+            for origin_application in origin_application_name.split(","):
+                new_origin_application = Application.query.filter_by(
+                    name=origin_application).first()
+                if not new_origin_application:
+                    raise ValueError(
+                        "L'application '{}' n'existe pas.".format(origin_application))
+                new_origin_applications.append(new_origin_application)
+            self.origin_applications = new_origin_applications
+        else:
+            self.origin_applications = []
+
     @property
     def organization_name(self):
         return self.application.organization_name
