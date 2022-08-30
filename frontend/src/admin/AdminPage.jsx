@@ -128,22 +128,16 @@ class AdminPage extends React.Component {
                         Importer des données
                     </h3>
                     <p>
-                        Les données peuvent être entièrement importées par un administrateur depuis le bouton "import"
+                        Les données peuvent être entièrement importées par un administrateur général depuis le bouton "import"
                         de la page administration des données. Il est conseillé de sauvegarder préalablement les données
                         de l'outil via le bouton "export" car l'ensemble des données sera écrasé lors de l’import.
-                    </p>
-                    <p>
-                        Les données peuvent aussi être importées par application par le propriétaire ou par un
-                        administrateur avec le bouton "import" de la fiche de l'application. Il est conseillé de
-                        sauvegarder préalablement les données de l’application via le bouton "export" car l'ensemble
-                        des données de l'application seront écrasés.
                     </p>
 
                     <h3>
                         Importer des applications
                     </h3>
                     <p>
-                        Les applications peuvent être entièrement importées par un administrateur depuis le bouton
+                        Les applications peuvent être entièrement importées par un administrateur général depuis le bouton
                         "import" de la page administration des applications. Pour importer les applications, il faut
                         préalablement vider l’ensemble des données de l’outil. Pour cela, il est conseillé d'importer
                         un fichier de données ne contenant que les en-têtes.
@@ -157,7 +151,7 @@ class AdminPage extends React.Component {
                         Importer des filtres
                     </h3>
                     <p>
-                        Les filtres peuvent être entièrement importés par un administrateur depuis le bouton "import"
+                        Les filtres peuvent être entièrement importés par un administrateur général depuis le bouton "import"
                         de la page administration des filtres. Pour importer les filtres, il faut préalablement vider
                         les données et applications de l’outil. Pour cela, il est conseillé d'importer un fichier de
                         données ne contenant que les en-têtes puis un fichier d'application ne contenant que les
