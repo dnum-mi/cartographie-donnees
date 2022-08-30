@@ -77,9 +77,6 @@ class DataSource(SearchableMixin, BaseModel):
                                backref="data_sources", cascade="all, delete")
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
     example = db.Column(db.Text)
-    referentiel_id = db.Column(db.Integer, db.ForeignKey('family.id'))
-    referentiel = relationship(
-        "Family", foreign_keys='DataSource.referentiel_id')
     is_reference = db.Column(db.Boolean)
     sensibility_id = db.Column(db.Integer, db.ForeignKey('sensibility.id'))
     open_data_id = db.Column(db.Integer, db.ForeignKey('open_data.id'))
@@ -124,7 +121,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def nb_referentiels(self):
-        return len(self.classifications)
+        return len(self.referentiel_name)
 
     def get_enumeration_single(self, enumeration_id):
         return getattr(self, enumeration_id).full_path if getattr(self, enumeration_id) else None
@@ -356,7 +353,6 @@ class DataSource(SearchableMixin, BaseModel):
             'tag_name': ",".join(self.tag_name),
             'type_name': self.type_name,
             'example': self.example,
-            'referentiel_name': self.referentiel_name,
             'sensibility_name': self.sensibility_name,
             'open_data_name': self.open_data_name,
             'database_name': self.database_name,
@@ -387,7 +383,6 @@ class DataSource(SearchableMixin, BaseModel):
         self.tags = data.get('tags') if data.get('tags') else []
         self.type_id = data.get('type_id')
         self.example = data.get('example')
-        self.referentiel_id = data.get('referentiel_id')
         self.sensibility_id = data.get('sensibility_id')
         self.open_data_id = data.get('open_data_id')
         self.database_name = data.get('database_name')
@@ -419,7 +414,6 @@ class DataSource(SearchableMixin, BaseModel):
             reutilizations=data.get('reutilizations'),
             type_id=data.get('type_id'),
             example=data.get('example'),
-            referentiel_id=data.get('referentiel_id'),
             sensibility_id=data.get('sensibility_id'),
             open_data_id=data.get('open_data_id'),
             database_name=data.get('database_name'),
