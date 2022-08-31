@@ -1,9 +1,10 @@
 import React from 'react';
 import {Redirect, withRouter} from 'react-router-dom';
-import {Modal} from 'antd';
+import {Modal, notification} from 'antd';
 import {ExclamationCircleOutlined} from '@ant-design/icons';
 
 import {
+    createApplication,
     createDataSource,
     deleteApplication,
     exportDataSourcesOfApplication,
@@ -119,6 +120,24 @@ class ApplicationPage extends React.Component {
         });
     }
 
+    handleDuplication = () => {
+        const application = this.state.application;
+        application.name = application.name + " (Copie)";
+        delete application.id;
+        createApplication(
+          application,
+        ).then((results) => {
+            this.props.history.push("/application/" + results.data.id, {forceEdit: true})
+        }).catch((error) => {
+            notification.error({
+                message: `Une erreur est survenue`,
+                description:
+                  "La fiche n'a pas pu être dupliquée.",
+                placement: 'bottomRight'
+            });
+        })
+    }
+
     handleSubmit = (dataSource) => {
         this.setState({
             loading: true,
@@ -170,6 +189,7 @@ class ApplicationPage extends React.Component {
                   dataSource={emptyDataSource}
                   handleSubmit={this.handleSubmit}
                   handleDelete={this.handleDelete}
+                  handleDuplication={this.handleDuplication}
                   fromAppModification
                 />
             );

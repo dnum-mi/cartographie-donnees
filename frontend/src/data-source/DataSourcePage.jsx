@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import { withRouter } from 'react-router-dom';
 import {Form, Modal, notification} from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
@@ -11,18 +12,12 @@ import './DataSourcePage.css';
 import DataSourceMetricsSection from "./DataSourceMetricsSection";
 import DataSourceReutilisationsSection from "./DataSourceReutilizationsSection";
 import withCurrentUser from "../hoc/user/withCurrentUser";
-import attributes from './attributes'
+import attributes from './attributes';
 
 const { confirm } = Modal;
 
 class DataSourcePage extends React.Component {
     formRef = React.createRef();
-
-    static defaultProps = {
-        forceEdit: false,
-        fromAppCreation: false,
-        fromDataSourceCreation: false
-    }
 
     constructor(props) {
         super(props);
@@ -129,7 +124,15 @@ class DataSourcePage extends React.Component {
         this.props.handleSubmit(this.state.dataSource)
     }
 
-    duplicateDataSource = (event) => {
+    handleDuplication = (event) => {
+        if (this.props.handleDuplication) {
+            this.props.handleDuplication();
+        } else {
+            this.duplicateDataSource();
+        }
+    }
+
+    duplicateDataSource = () => {
         let dataSource = this.state.dataSource;
         dataSource.name = dataSource.name + " (Copie)";
         delete dataSource.id;
@@ -163,7 +166,7 @@ class DataSourcePage extends React.Component {
                       onActivateEdition={(e) => this.activateEdition(e)}
                       onCancelEdition={(e) => this.onCancelEdition(e)}
                       onDelete={(e) => this.handleDelete(e)}
-                      onDuplicate={(e) => this.duplicateDataSource(e)}
+                      onDuplicate={(e) => this.handleDuplication(e)}
                       fromCreation={this.props.fromAppCreation || this.props.fromDataSourceCreation}
                     />
                 )}
@@ -194,6 +197,24 @@ class DataSourcePage extends React.Component {
             </div>
         );
     }
+}
+
+DataSourcePage.propTypes = {
+    dataSource: PropTypes.object,
+    handleSubmit: PropTypes.func,
+    handleDelete: PropTypes.func,
+    handleDuplication: PropTypes.func,
+    forceEdit: PropTypes.bool,
+    fromAppCreation: PropTypes.bool,
+    fromAppModification: PropTypes.bool,
+    fromDataSourceCreation: PropTypes.bool,
+}
+
+DataSourcePage.defaultProps = {
+    forceEdit: false,
+    fromAppCreation: false,
+    fromAppModification: false,
+    fromDataSourceCreation: false,
 }
 
 export default withRouter(withCurrentUser(DataSourcePage));
