@@ -1,1 +1,1 @@
-web: staging_boot.sh
+web: sh ./staging_boot.sh
