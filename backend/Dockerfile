@@ -54,8 +54,8 @@ RUN set -ex && [ -z "$PYPI_URL" ] || pip_args=" --index-url $PYPI_URL " ; \
 # Init db and serve the backend
 COPY backend/app app
 COPY backend/migrations migrations
-COPY backend/backend.py backend/config.py backend/boot.sh ./
-RUN chmod +x boot.sh
+COPY backend/backend.py backend/config.py backend/docker_boot.sh ./
+RUN chmod +x docker_boot.sh
 
 ENV FLASK_APP backend.py
 
@@ -63,4 +63,4 @@ RUN chown -R --verbose backend:backend ./
 USER backend
 
 EXPOSE 5000
-ENTRYPOINT ["./boot.sh"]
+ENTRYPOINT ["./docker_boot.sh"]
