@@ -344,6 +344,7 @@ class SearchPage extends React.Component {
                     <div className="filters">
                         {Object.keys(filters).map((key) => (
                           <SearchTree
+                            key={key}
                             filterCategoryName={filters[key].categoryName}
                             treeData={this.getFilterData(key)}
                             tooltip={filters[key].tooltip}
@@ -435,8 +436,10 @@ class SearchPage extends React.Component {
                 <br/>
                 <div className="results">
                     {this.state.dataSources.map((dataSource) => (
-                        <DataSourceResult key={dataSource.id} dataSource={dataSource}
-                            onFilterSelect={(key, value) => this.addFilter(key, value)}
+                        <DataSourceResult
+                          key={dataSource.id}
+                          dataSource={dataSource}
+                          onFilterSelect={(key, value) => this.addFilter(key, value)}
                         />
                     ))}
                 </div>
@@ -568,7 +571,7 @@ class SearchPage extends React.Component {
                     />
                     <Row className="search-advanced-input">
                         <Col span={12}>
-                            <label for="search-type">
+                            <label htmlFor="search-type">
                                 Règle sur la recherche :
                             </label>
                             <Radio.Group
@@ -582,12 +585,12 @@ class SearchPage extends React.Component {
                             </Radio.Group>
                         </Col>
                         <Col span={12}>
-                            <label for="search-exclusion">
+                            <label htmlFor="search-exclusion">
                                 Mots à exclure :
                             </label>
                             <Input
                               id="search-exclusion"
-                              placeHolder="Mots à exclure de la recherche"
+                              placeholder="Mots à exclure de la recherche"
                               defaultValue={this.state.toExclude}
                               onBlur={this.onExcludeChange}
                               onPressEnter={this.onExcludeChange}

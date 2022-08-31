@@ -19,7 +19,7 @@ export const textPropTypes = {
   suffixAttributeId: PropTypes.string,
   suffixEditionPlaceholder: PropTypes.string,
   suffixAttributeLabel: PropTypes.string,
-  suffixValue: PropTypes.string,
+  suffixValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   isTextArea: PropTypes.bool,
 }
 

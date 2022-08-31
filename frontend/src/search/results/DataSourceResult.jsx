@@ -55,6 +55,7 @@ class DataSourceResult extends React.Component {
           ) : null}
           {this.props.dataSource.family_name.map((tag) => (
             <Tag
+              key={tag}
               className="onHover"
               onClick={() => this.props.onFilterSelect("selectedFamily", tag)}
               color="blue"
@@ -73,6 +74,7 @@ class DataSourceResult extends React.Component {
         <div className="attributes-two">
           {this.props.dataSource.referentiel_name.map((tag) => (
             <Tag
+              key={tag}
               className="onHover"
               onClick={() => this.props.onFilterSelect("selectedReferentiel", tag)}
               color="orange"
@@ -100,6 +102,7 @@ class DataSourceResult extends React.Component {
           ) : null}
           {this.props.dataSource.exposition_name.map((exposition) => (
             <Tag
+              key={exposition}
               className="onHover"
               color="gold"
               onClick={() => this.props.onFilterSelect("selectedExposition", exposition)}
@@ -117,6 +120,7 @@ class DataSourceResult extends React.Component {
           )) : null}
           {this.props.dataSource.classification_name.map((tag) => (
             <Tag
+              key={tag}
               className="onHover"
               onClick={() => this.props.onFilterSelect("selectedClassification", tag)}
               color="purple"
@@ -126,6 +130,7 @@ class DataSourceResult extends React.Component {
           ))}
           {this.props.dataSource.tag_name.map((tag) => (
             <Tag
+              key={tag}
               className="onHover"
               onClick={() => this.props.onFilterSelect("selectedTag", tag)}
             >
