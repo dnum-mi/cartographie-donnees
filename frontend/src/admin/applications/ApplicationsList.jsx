@@ -77,7 +77,10 @@ class ApplicationsList extends React.Component {
             return <Error error={this.state.error} />;
         }
         return this.state.applications.map((application) => (
-            <ApplicationResult application={application} />
+            <ApplicationResult
+              key={application.id}
+              application={application}
+            />
         ));
     }
 

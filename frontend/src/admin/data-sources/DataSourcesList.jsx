@@ -77,7 +77,10 @@ class DataSourcesList extends React.Component {
             return <Error error={this.state.error} />;
         }
         return this.state.dataSources.map((dataSource) => (
-            <DataSourceResult dataSource={dataSource} />
+            <DataSourceResult
+              key={dataSource.id}
+              dataSource={dataSource}
+            />
         ));
     }
 
