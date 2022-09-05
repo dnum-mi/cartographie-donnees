@@ -72,10 +72,10 @@ class User(UserMixin, BaseModel):
             self.applications = new_applications
 
     @staticmethod
-    def from_dict(data):
+    def from_dict(data, create_admin=False):
         return User(
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
             email=data.get('email'),
-            # Do not enable to create a user with is_admin=True
+            is_admin = data.get('is_admin', False) if create_admin == True else False 
         )

@@ -22,7 +22,7 @@ def create_user():
         confirm_password = json.get('confirm_password', None)
         if not password or password != confirm_password:
             abort(400, dict(description="Incorrect password matching"))
-        user = User.from_dict(json)
+        user = User.from_dict(json, create_admin=True)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()

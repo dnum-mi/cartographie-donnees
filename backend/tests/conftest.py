@@ -30,7 +30,7 @@ def client(testing_app):
 
 @pytest.fixture()
 def admin_user(testing_app) -> User:
-    default_admin = User.from_dict(ADMIN_INFO)
+    default_admin = User.from_dict(ADMIN_INFO, create_admin=True)
     default_admin.set_password(ADMIN_INFO['password'])
     default_admin.is_admin = True
     db.session.add(default_admin)
