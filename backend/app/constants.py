@@ -56,7 +56,8 @@ field_english_to_french_dic = {
     "long_name": "Nom long",
     "referentiel_count":"Nombre de référentiels utilisés",
     "reutilization_count":"Nombre de réutilisations",
-    "application_description_level":"Niveau de description de l'application"
+    "application_description_level":"Niveau de description de l'application",
+    "datasource_description_level":"Niveau de description des données"
 }
 
 field_french_to_english_dic = {
@@ -117,7 +118,8 @@ field_french_to_english_dic = {
     "Nom long": "long_name",
     "Nombre de référentiels utilisés":"referentiel_count",
     "Nombre de réutilisations":"reutilization_count",
-    "Niveau de description de l'application":"application_description_level"
+    "Niveau de description de l'application":"application_description_level",
+    "Niveau de description des données":"datasource_description_level"
 }
 
 

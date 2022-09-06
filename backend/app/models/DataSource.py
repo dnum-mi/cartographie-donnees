@@ -4,6 +4,7 @@ from sqlalchemy.orm import validates, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from app import db
 from app.models import SearchableMixin, BaseModel, Type, Application, OpenData, Family, UpdateFrequency, Origin, Exposition, Sensibility, Tag
+from app.constants import DATASOURCE_ID_NO_COMMENT
 
 
 association_classification_table = db.Table(
@@ -122,6 +123,15 @@ class DataSource(SearchableMixin, BaseModel):
     @property
     def nb_referentiels(self):
         return len(self.referentiel_name)
+
+    @property
+    def datasource_description_level(self):
+        truthy_count = 0
+        for key in DATASOURCE_ID_NO_COMMENT:
+            if getattr(self, key) is not None and getattr(self, key) != []:
+                truthy_count+=1
+        return truthy_count/len(DATASOURCE_ID_NO_COMMENT)
+
 
     def get_enumeration_single(self, enumeration_id):
         return getattr(self, enumeration_id).full_path if getattr(self, enumeration_id) else None
@@ -355,7 +365,8 @@ class DataSource(SearchableMixin, BaseModel):
             'origin_application_name': self.origin_application_name,
             'reutilizations': [application.to_dict() for application in self.reutilizations],
             'nb_reutilizations': self.nb_reutilizations,
-            'is_reference': self.is_reference
+            'is_reference': self.is_reference,
+            'datasource_description_level': self.datasource_description_level
         }
 
     def to_export(self):

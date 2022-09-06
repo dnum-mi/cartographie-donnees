@@ -1,8 +1,8 @@
+from statistics import mean
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
 from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
-from app.constants import DATASOURCE_ID_NO_COMMENT
 import datetime
 
 ownerships = db.Table(
@@ -73,28 +73,15 @@ class Application(SearchableMixin, BaseModel):
         reutilizations_list = [name for ds in self.data_sources for name in ds.reutilization_name ]
         return len(set(reutilizations_list))
 
-
-    #TODO VERY SLOW!!
-
-    @hybrid_property
+    @property
     def application_description_level(self):
-        #print(self.data_sources.with_entities(*datasource_field_no_comment).count())
         if self.data_source_count==0:
             return 1
         else:
-            truthy_count = 0
-            for ds in self.data_sources:
-                for key in DATASOURCE_ID_NO_COMMENT:
-                    if getattr(ds, key) is not None and getattr(ds, key) !=[]:
-                        truthy_count+=1
-            
-            # flatten_datasources = (getattr(ds, key) for key in DATASOURCE_ID_NO_COMMENT for ds in self.data_sources)
-            # for elt in flatten_datasources:
-            #     if elt is not None and elt != []:
-            #         truthy_count +=1
-
-            return round(truthy_count/(self.data_source_count*len(DATASOURCE_ID_NO_COMMENT)), 2)
-
+            return round(
+                mean([ds.datasource_description_level for ds in self.data_sources]),
+                2
+            )
     
     @validates('access_url')
     def validate_access_url(self, key, access_url):
