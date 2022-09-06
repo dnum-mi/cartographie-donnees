@@ -74,8 +74,28 @@ class Application(SearchableMixin, BaseModel):
         return len(set(reutilizations_list))
 
 
-    #TODO application_description_level
+    #TODO VERY SLOW!!
 
+    @hybrid_property
+    def application_description_level(self):
+        #print(self.data_sources.with_entities(*datasource_field_no_comment).count())
+        if self.data_source_count==0:
+            return 1
+        else:
+            truthy_count = 0
+            for ds in self.data_sources:
+                for key in DATASOURCE_ID_NO_COMMENT:
+                    if getattr(ds, key) is not None and getattr(ds, key) !=[]:
+                        truthy_count+=1
+            
+            # flatten_datasources = (getattr(ds, key) for key in DATASOURCE_ID_NO_COMMENT for ds in self.data_sources)
+            # for elt in flatten_datasources:
+            #     if elt is not None and elt != []:
+            #         truthy_count +=1
+
+            return round(truthy_count/(self.data_source_count*len(DATASOURCE_ID_NO_COMMENT)), 2)
+
+    
     @validates('access_url')
     def validate_access_url(self, key, access_url):
         if not access_url:
@@ -134,7 +154,7 @@ class Application(SearchableMixin, BaseModel):
             'data_source_count': self.data_source_count,
             'referentiel_count': self.referentiel_count,
             'reutilization_count': self.reutilization_count,
-            # 'application_description_level': self.application_description_level,
+            'application_description_level': self.application_description_level,
         }
 
         if populate_data_sources:
