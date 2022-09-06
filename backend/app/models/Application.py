@@ -2,7 +2,7 @@ from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
 from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
-
+from app.constants import DATASOURCE_ID_NO_COMMENT
 import datetime
 
 ownerships = db.Table(
@@ -64,6 +64,18 @@ class Application(SearchableMixin, BaseModel):
     def data_source_count(self):
         return self.data_sources.count()
 
+    @hybrid_property
+    def referentiel_count(self):
+        return len(self.references)
+
+    @hybrid_property
+    def reutilization_count(self):
+        reutilizations_list = [name for ds in self.data_sources for name in ds.reutilization_name ]
+        return len(set(reutilizations_list))
+
+
+    #TODO application_description_level
+
     @validates('access_url')
     def validate_access_url(self, key, access_url):
         if not access_url:
@@ -100,6 +112,7 @@ class Application(SearchableMixin, BaseModel):
         else:
             return context_email
 
+
     def to_dict(self, populate_data_sources=False, populate_owners=True):
         result = {
             'id': self.id,
@@ -119,6 +132,9 @@ class Application(SearchableMixin, BaseModel):
             'validation_date': self.validation_date.strftime("%d/%m/%Y") if self.validation_date else None,
             'historic': self.historic,
             'data_source_count': self.data_source_count,
+            'referentiel_count': self.referentiel_count,
+            'reutilization_count': self.reutilization_count,
+            # 'application_description_level': self.application_description_level,
         }
 
         if populate_data_sources:
@@ -184,8 +200,13 @@ class Application(SearchableMixin, BaseModel):
     @classmethod
     def filter_import_dict(cls, import_dict):
         new_import_dict = super().filter_import_dict(import_dict)
-        if 'data_source_count' in new_import_dict:
-            del new_import_dict['data_source_count']
+
+        # Remove fields added in export
+        added_fields = ['data_source_count','referentiel_count','reutilization_count','application_description_level']
+        for key in added_fields:
+            if key in new_import_dict:
+                del new_import_dict[key]
+
         if import_dict['owners']:
             # Transform owners string into an array of emails
             owner_emails = import_dict['owners'].split(',')
