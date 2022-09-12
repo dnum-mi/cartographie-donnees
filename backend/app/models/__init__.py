@@ -22,6 +22,9 @@ from .DataSource import DataSource
 # Associations
 from .Application import ownerships
 
+# Other
+from .WildCard import WildCard
+
 
 def get_enumeration_model_by_name(name):
     if name.lower() == "type":
