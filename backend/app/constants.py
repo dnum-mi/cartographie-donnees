@@ -54,6 +54,9 @@ field_english_to_french_dic = {
     'data_source_count': 'Nombre de données',
     "is_reference": "Donnée référentielle",
     "long_name": "Nom long",
+    "key":"clé",
+    "namespace":"namespace",
+    "value":"valeur"
 }
 
 field_french_to_english_dic = {
@@ -112,6 +115,9 @@ field_french_to_english_dic = {
     'Nombre de données': 'data_source_count',
     "Donnée référentielle": "is_reference",
     "Nom long": "long_name",
+    "clé":"key",
+    "namespace":"namespace",
+    "valeur":"value"
 }
 
 

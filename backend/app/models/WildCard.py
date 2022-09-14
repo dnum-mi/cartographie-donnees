@@ -27,3 +27,7 @@ class WildCard(BaseModel):
         self.namespace = data.get('namespace')
         self.key = data.get('key')
         self.value = data.get('value')
+
+    def to_export(self):
+        wild_card_dict = self.to_dict()
+        return wild_card_dict

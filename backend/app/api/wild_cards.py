@@ -44,3 +44,18 @@ def fetch_wild_cards_by_namespace(namespace):
     wild_cards = WildCard.query.filter_by(namespace=namespace).all()
     return jsonify([wild_card.to_dict() for wild_card in wild_cards])
 
+@api.route('/api/wild-cards/import', methods=['POST'])
+@login_required
+@admin_required
+def import_wild_cards():
+    try:
+        import_resource(WildCard)
+    except CSVFormatError as e:
+        raise BadRequest(e.message)
+    return jsonify(dict(description='OK', code=200))
+
+@api.route('/api/wild-cards/export', methods=['GET'])
+@login_required
+@admin_required
+def export_wild_cards():
+    return export_resource(WildCard, "wild_cards.csv")
