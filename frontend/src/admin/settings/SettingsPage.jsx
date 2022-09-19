@@ -38,6 +38,7 @@ class SettingsPage extends React.Component {
   onCancelEdition = (event) => {
     this.setState({ editMode: false });
     this.setState({data: {...this.state.original_data}});
+    this.formRef.current.resetFields();
   };
   
   updateData = (value, namespace, key=null) =>{
@@ -72,7 +73,15 @@ class SettingsPage extends React.Component {
     })
   }
 
-  submit = (event) => {
+
+  handleFormValuesChange = (changed_values, allValues) =>{
+    const [id, value] = Object.entries(changed_values)[0]
+    const [namespace,key] = id.split("/")
+    this.addChangeToSubmit(value, namespace, key)
+  }
+
+
+  submit = (values) => {
     this.setState({ editMode: false });
     let payload = []
     // Flatten wildcards nested dict to list of dict
@@ -81,7 +90,11 @@ class SettingsPage extends React.Component {
         payload.push({namespace, key, value})
       }
     }
-    updateWildCards(payload)
+    updateWildCards(payload);
+    for (const [id, value] of Object.entries(this.state.to_submit)) {
+      const [namespace,key] = id.split("/")
+      this.updateData(value, namespace, key)
+    }
     this.setState({to_submit:{}})
   }
 
@@ -109,6 +122,8 @@ class SettingsPage extends React.Component {
           validateMessages={validateMessages}
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
+          autoComplete="off"
+          onValuesChange={this.handleFormValuesChange}
           // layout="vertical" 
         >
         

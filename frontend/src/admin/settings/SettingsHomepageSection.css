@@ -21,3 +21,10 @@
     border: 0;
     color: rgba(0, 0, 0, 0.85);
 }
+
+.SettingsHomepageSection TextArea:disabled{
+    margin: 0;
+    background: white;
+    border: 0;
+    color: rgba(0, 0, 0, 0.85);
+}

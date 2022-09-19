@@ -4,6 +4,7 @@ import {fetchWildCards} from "../../api";
 
 import './SettingsHomepageSection.css';
 
+const { TextArea } = Input;
 
 class SettingsHomepageSection extends React.Component {
 
@@ -27,7 +28,6 @@ class SettingsHomepageSection extends React.Component {
 
     fetchWildCards("homepage")
         .then((response) => {
-
             this.props.updateData(response.data.homepage, "homepage");
             this.setState({
                 loading: false,
@@ -42,12 +42,19 @@ class SettingsHomepageSection extends React.Component {
         });
     };
 
-    handleChange = (event) => {
-        const target = event.target;
-        const value = target.value;
-        const name = target.name;
-        this.props.updateData(value,'homepage',name)
-        this.props.addChangeToSubmit(value,'homepage',name)
+
+    createTextArea(key, label){
+        return (
+        <Form.Item 
+            name ={`homepage/${key}`} 
+            initialValue={this.props.data["homepage"][key]} 
+            label={label}>
+                <TextArea
+                disabled={!this.props.editMode} 
+                autoSize
+                />
+        </Form.Item>
+        );
     }
 
     render() {
@@ -61,11 +68,17 @@ class SettingsHomepageSection extends React.Component {
                         </Skeleton>
                     </div>
                     : <div> 
-                        <Form.Item label="Texte de la page d'accueil">
-                            <Input name ="text" disabled={!this.props.editMode} value={this.props.data["homepage"]["text"]} onChange={this.handleChange}/>
-                        </Form.Item>
-                        <Form.Item label="Adresse mail de contact">
-                            <Input name ="email" disabled={!this.props.editMode} value={this.props.data["homepage"]["email"]} onChange={this.handleChange}/>
+                        {this.createTextArea("app_title", "Titre de l’application")}
+                        {this.createTextArea("welcome_title", "Titre d'accueil")}
+                        {this.createTextArea("welcome_text", "Texte d'accueil")}
+                        <Form.Item 
+                        name ="homepage/email" 
+                        label="Adresse mail de contact"
+                        initialValue={this.props.data["homepage"]["email"]} 
+                        rules={[{type: 'email'}]}>
+                            <Input 
+                            disabled={!this.props.editMode} 
+                            />
                         </Form.Item>
                     </div>
                 }
