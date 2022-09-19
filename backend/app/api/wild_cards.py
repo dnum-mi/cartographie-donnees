@@ -1,3 +1,4 @@
+from collections import defaultdict
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request, abort
 from flask_login import login_required, current_user
@@ -12,6 +13,7 @@ from app.models.WildCard import WildCard
 
 from . import api
 
+# TODO prevent adding new (namespace,key)
 
 @api.route('/api/wild-cards', methods=['POST'])
 @login_required
@@ -39,10 +41,24 @@ def create_update_wildcards():
     except Exception as e:
         raise BadRequest(str(e))
 
+@api.route('/api/wild-cards', methods=['GET'])
+def fetch_wild_cards():
+    wild_cards = WildCard.query.all()
+    return jsonify([wild_card.to_dict() for wild_card in wild_cards])
+
 @api.route('/api/wild-cards/<namespace>', methods=['GET'])
 def fetch_wild_cards_by_namespace(namespace):
     wild_cards = WildCard.query.filter_by(namespace=namespace).all()
-    return jsonify([wild_card.to_dict() for wild_card in wild_cards])
+    wild_cards_list = [wild_card.to_dict() for wild_card in wild_cards]
+
+    # Transform to {namespace: {key:value}} format
+    wild_cards_dict = defaultdict(dict)
+    for wc in wild_cards_list:
+        wild_cards_dict[wc['namespace']][wc['key']] = wc['value']
+
+    return jsonify(wild_cards_dict)
+
+
 
 @api.route('/api/wild-cards/import', methods=['POST'])
 @login_required
