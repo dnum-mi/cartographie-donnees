@@ -11,7 +11,7 @@ class SettingsRouter extends React.Component {
                     path={this.props.match.url}
                     exact
                 >
-                    <SettingsPage />
+                    <SettingsPage refreshHomepage = {this.props.refreshHomepage}/>
                 </Route>
             </Switch>
         );

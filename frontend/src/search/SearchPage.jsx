@@ -394,32 +394,21 @@ class SearchPage extends React.Component {
     }
 
     renderLeftCol = () => {
+        const encoder = new TextEncoder();
+  
         if (this.state.homeDescription) {
             return (<div className="left-col">
                 <div className="home-description">
                     <h3>
-                        Bienvenue dans l’outil de cartographie des données du ministère de l’intérieur !
+                        {this.props.homepageContent["welcome_title"]}
                     </h3>
-                    <p>
-                        Cet outil permet d’explorer les caractéristiques des données actuellement recensées au
-                        sein du ministère de l’intérieur afin de faciliter leur réutilisation au sein des différents
-                        services. Comme pour un moteur de recherche classique, il est possible de combiner une recherche
-                        textuelle (barre supérieure) à des filtres (présents à la droite de votre écran) pour identifier
-                        les données potentiellement pertinentes à votre cas d’usage.
-
-                    </p>
-                    <p>
-                        Chaque donnée possède une fiche présentant ses caractéristiques ainsi qu’un ensemble d’indicateurs
-                        chiffrés visant à établir sa fiabilité et sa réutilisabilité. Outre le résultat de la recherche,
-                        il est possible de naviguer d’une donnée à l’autre par le biais des applications. En effet, chaque
-                        donnée est hébergée par une application existante au sein du ministère qui détaille la liste des
-                        données qui lui sont associées.
-
-                    </p>
-                    <p>
-                        Cherchant constamment à améliorer notre exhaustivité, n’hésitez pas à nous contacter (<i>dnum-cartographie-data@interieur.gouv.fr</i>) si vous avez
-                        la moindre suggestion ou donnée qui ne serait pas encore recensée.
-                    </p>
+                    <div>
+                        {this.props.homepageContent["welcome_text"]}
+                    </div>
+                    <br/>
+                    <a>
+                        {this.props.homepageContent["email"]}
+                    </a>
                 </div>
             </div>);
         }

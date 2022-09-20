@@ -4,6 +4,7 @@ import SettingsHeader from "./SettingsHeader.jsx"
 import SettingsHomepageSection from "./SettingsHomepageSection.jsx"
 import {Form} from "antd";
 import {updateWildCards} from "../../api";
+import { checkPropTypes } from 'prop-types';
 
 
 class SettingsPage extends React.Component {
@@ -82,7 +83,7 @@ class SettingsPage extends React.Component {
 
 
   submit = (values) => {
-    this.setState({ editMode: false });
+
     let payload = []
     // Flatten wildcards nested dict to list of dict
     for (const [namespace, dict] of Object.entries(this.state.to_submit  )) {
@@ -90,12 +91,20 @@ class SettingsPage extends React.Component {
         payload.push({namespace, key, value})
       }
     }
+
+    // POST
     updateWildCards(payload);
-    for (const [id, value] of Object.entries(this.state.to_submit)) {
-      const [namespace,key] = id.split("/")
-      this.updateData(value, namespace, key)
+    
+    // update state
+    for (const item of payload) {
+      this.updateData(item.value, item.namespace, item.key)
+      this.props.refreshHomepage(item.key, item.value)
     }
-    this.setState({to_submit:{}})
+
+    this.setState({
+      editMode: false,
+      to_submit:{}
+    })
   }
 
 
@@ -132,7 +141,7 @@ class SettingsPage extends React.Component {
             onActivateEdition={(e) => this.activateEdition(e)}
             onCancelEdition={(e) => this.onCancelEdition(e)}
           />
-          <div className='ConfigSection'>  
+          <div className='ConfigSection'>
             <SettingsHomepageSection
                 editMode={this.state.editMode}
                 data={this.state.data}
