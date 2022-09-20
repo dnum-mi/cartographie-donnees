@@ -2,10 +2,11 @@ import React from 'react';
 import {withRouter} from 'react-router-dom';
 import SettingsHeader from "./SettingsHeader.jsx"
 import SettingsHomepageSection from "./SettingsHomepageSection.jsx"
-import {Form} from "antd";
-import {updateWildCards} from "../../api";
-import { checkPropTypes } from 'prop-types';
+import {Form, Modal, Skeleton} from "antd";
+import {updateWildCards, exportWildCardsUrl, exportModel, importWildCards, fetchWildCards} from "../../api";
+import {ExclamationCircleOutlined} from '@ant-design/icons';
 
+const {confirm} = Modal;
 
 class SettingsPage extends React.Component {
   formRef = React.createRef();
@@ -31,37 +32,63 @@ class SettingsPage extends React.Component {
     }
   }
 
-  activateEdition = (event) => {
-    this.setState({ editMode: true });
-    this.setState({original_data: {...this.state.data}});
-  };
-
-  onCancelEdition = (event) => {
-    this.setState({ editMode: false });
-    this.setState({data: {...this.state.original_data}});
-    this.formRef.current.resetFields();
-  };
-  
-  updateData = (value, namespace, key=null) =>{
-    if(key === null){
-      this.setState({
-        data: {
-          [namespace]: value 
-        }
-      })
-    } else {
-      this.setState({
-        data: {
-          ...this.state.data,
-          [namespace]: {
-            ...this.state.data[namespace],
-            [key]:value
-          } 
-        }
-      })
-    }
+  //#region Init
+  componentDidMount() {
+    this.fetchHomepageFromApi();
   }
 
+  fetchHomepageFromApi = () => {
+  this.setState({
+      loading: true,
+      error: null,
+  });
+
+  fetchWildCards("homepage")
+      .then((response) => {
+          this.props.refreshHomepage(response.data.homepage);
+          this.refreshForm(this.props.homepageContent, "homepage")
+          this.setState({
+              loading: false,
+              error: null,
+          });
+      })
+      .catch((error) => {
+      this.setState({
+          loading: false,
+          error,
+      });
+      });
+  };
+
+  //#endregion
+
+  //#region Toolbox 
+  // TODO Weird behavior of ant design, I have to use setFieldsValue to update fields, if I want to keep a State, I should just use the values from the form?
+  // Should I remove the data state?
+
+  // Use refreshHomepage when we get new homepage data or import data
+  refreshForm = (item, namespace, key=null) =>{
+    if(key === null){
+      for (const [id, value] of Object.entries(item)){  
+        this.formRef.current.setFieldsValue({
+          [`${namespace}/${id}`]: value
+        });  
+      }
+
+    } else {
+      this.formRef.current.setFieldsValue({
+        [`${namespace}/${key}`]: item
+      });  
+    }
+  }
+  
+  handleFormValuesChange = (changed_values, allValues) =>{
+    const [id, value] = Object.entries(changed_values)[0]
+    const [namespace,key] = id.split("/")
+    this.addChangeToSubmit(value, namespace, key)
+  }
+  
+  // to_submit is a dict to keep only one update
   addChangeToSubmit = (value, namespace, key) =>{
     this.setState({
       to_submit:{
@@ -73,13 +100,58 @@ class SettingsPage extends React.Component {
       }
     })
   }
+  
+  //#endregion
 
-
-  handleFormValuesChange = (changed_values, allValues) =>{
-    const [id, value] = Object.entries(changed_values)[0]
-    const [namespace,key] = id.split("/")
-    this.addChangeToSubmit(value, namespace, key)
+  //#region Button behaviours
+  onExport = () => {
+    exportModel(exportWildCardsUrl, "Parametres.csv");
   }
+
+  onUploadfile = ({onSuccess, onError, file}) => {
+    confirm({
+      title: 'Import des paramètres',
+      icon: <ExclamationCircleOutlined/>,
+      content: <div>
+          Vous êtes sur le point de remplacer les paramètres. Cette action est irréversible ! <br/>
+          Vous pouvez comparer votre fichier avec la base actuelle en téléchargeant le fichier CSV à l'aide du bouton d'export."
+        </div>,
+      onOk: () => {
+        this.setState({
+          loading: true,
+          error: null,
+        })
+        const formData = new FormData();
+        formData.append("file", file);
+        importWildCards(formData)
+          .then(() => {
+            onSuccess(null, file);
+            this.fetchHomepageFromApi();
+          })
+          .catch((error) => {
+            this.setState({
+              loading: false,
+              error,
+            })
+          });
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  };
+
+
+  activateEdition = (event) => {
+    this.setState({ editMode: true });
+    this.setState({original_data: {...this.state.data}});
+  };
+
+  onCancelEdition = (event) => {
+    this.setState({ editMode: false });
+    this.setState({data: {...this.state.original_data}});
+    this.formRef.current.resetFields();
+  };
 
 
   submit = (values) => {
@@ -97,8 +169,8 @@ class SettingsPage extends React.Component {
     
     // update state
     for (const item of payload) {
-      this.updateData(item.value, item.namespace, item.key)
-      this.props.refreshHomepage(item.key, item.value)
+      this.refreshForm(item.value, item.namespace, item.key)
+      this.props.refreshHomepage(item.value, item.key) //update app view
     }
 
     this.setState({
@@ -107,9 +179,12 @@ class SettingsPage extends React.Component {
     })
   }
 
+  //#endregion
+
+
+
 
   render() {
-
     const validateMessages = {
       required: "'Ce champ est requis!",
       types: {
@@ -140,20 +215,27 @@ class SettingsPage extends React.Component {
             editMode={this.state.editMode}
             onActivateEdition={(e) => this.activateEdition(e)}
             onCancelEdition={(e) => this.onCancelEdition(e)}
+            onExport={this.onExport}
+            onUploadfile={this.onUploadfile}
           />
-          <div className='ConfigSection'>
-            <SettingsHomepageSection
-                editMode={this.state.editMode}
-                data={this.state.data}
-                updateData = {this.updateData}
-                addChangeToSubmit = {this.addChangeToSubmit}
-              />
+          {
+            (this.state.loading)
+              ? <div>
+                  <Skeleton loading={true} active>
+                  </Skeleton>
+              </div>
+              : <div className='ConfigSection'>
+                  <SettingsHomepageSection
+                      editMode={this.state.editMode}
+                      homepageContent={this.props.homepageContent}
+                    />
 
-            {/* <SettingsTooltipsSection
-              editMode={this.state.editMode}
-              dataSource={this.state.dataSource}
-            /> */}
-          </div>
+                  {/* <SettingsTooltipsSection
+                    editMode={this.state.editMode}
+                    dataSource={this.state.dataSource}
+                  /> */}
+                </div>
+          }
         </Form>
       </div>
     );

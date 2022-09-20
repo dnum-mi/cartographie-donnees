@@ -112,7 +112,7 @@ class AdminPage extends React.Component {
                     key="settings"
                     path={this.props.match.url + '/settings'}
                 >
-                    <SettingsRouter refreshHomepage = {this.props.refreshHomepage}/>
+                    <SettingsRouter refreshHomepage = {this.props.refreshHomepage} homepageContent= {this.props.homepageContent}/>
                 </Route>
                 )}
 

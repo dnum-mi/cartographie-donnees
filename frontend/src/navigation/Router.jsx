@@ -54,7 +54,7 @@ function Router({ user, onLogin, homepageContent, refreshHomepage }) {
         </Route>
         {user && (
           <Route path="/admin">
-            <AdminPage user={user} refreshHomepage = {refreshHomepage}/>
+            <AdminPage user={user} refreshHomepage = {refreshHomepage} homepageContent= {homepageContent}/>
           </Route>
         )}
         <Route key="404">

@@ -65,13 +65,19 @@ class App extends React.Component {
         }));
   };
 
-  refreshHomepage = (key,value) => {
-    this.setState({
-      homepageContent: {
-        ...this.state.homepageContent,
-        [key]:value
-      }
-    })
+  refreshHomepage = (value, key=null) => {
+    if(key === null){
+      this.setState({
+        homepageContent: value
+      })
+    } else {
+      this.setState({
+        homepageContent: {
+          ...this.state.homepageContent,
+          [key]:value
+        } 
+      })
+    }
   }
 
   render() {
