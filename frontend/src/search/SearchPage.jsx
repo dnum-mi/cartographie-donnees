@@ -15,6 +15,7 @@ import {
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 import filters from "../filters";
+import Results from "./Results";
 
 const { Search } = Input;
 
@@ -25,7 +26,6 @@ class SearchPage extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.state = this.getInitState();
     }
 
@@ -243,6 +243,9 @@ class SearchPage extends React.Component {
     }
 
     getQueryResume = () => {
+        if (this.state.loading) {
+            return <></>
+        }
         const firstPage = 1 + (this.state.page_data_source - 1) * this.state.count_data_source;
         const lastPage = this.state.page_data_source * this.state.count_data_source;
         const totalElement = this.state.total_count_data_source;
@@ -311,6 +314,9 @@ class SearchPage extends React.Component {
     };
 
     getFilterData = (key) => {
+        if (!this.state.filtersCount) {
+            return null;
+        }
         const treeData = this.state[filters[key].listKey];
         const [treeDataWithCount, _] = this.enrichTreeWithNodeCount(
           treeData,
@@ -320,48 +326,54 @@ class SearchPage extends React.Component {
     };
 
     renderDataSourcesResults = () => {
-
-        if (this.state.loading) {
-            return (
-                <div>
-                    <Skeleton loading={true} active >
-                    </Skeleton>
-                    <Skeleton loading={true} active >
-                    </Skeleton>
-                    <Skeleton loading={true} active >
-                    </Skeleton>
-                </div>
-            )
-        }
         if (this.state.error) {
             return <Error error={this.state.error} />
         }
         return (<>
             {this.renderSearchPageHeader()}
             <div className="content">
-                {this.renderLeftCol()}
+                <div className="left-col">
+                    {this.renderLeftCol()}
+                </div>
                 <div className="right-col">
-                    <div className="filters">
-                        {Object.keys(filters).map((key) => (
-                          <SearchTree
-                            key={key}
-                            filterCategoryName={filters[key].categoryName}
-                            treeData={this.getFilterData(key)}
-                            tooltip={filters[key].tooltip}
-                            color={filters[key].color}
-                            multiple={filters[key].multiple}
-                            expandedKeys={filters[key].expandedKeys}
-                            focus={filters[key].focus}
-                            onSelectedFiltersChange={(value) => this.onSelectedFiltersChange(filters[key].selectedKey, value)}
-                            checkedKeys={this.state[filters[key].selectedKey]}
-                            resultsCount={this.state.total_count_data_source}
-                          />
-                          ))}
-                    </div>
+                    {this.renderRightCol()}
                 </div>
             </div>
         </>);
     };
+
+    renderLoading = () => {
+        return (
+            <div style={{marginRight: "10px"}}>
+                <Skeleton loading={true} active />
+                <Skeleton loading={true} active />
+                <Skeleton loading={true} active />
+            </div>
+        )
+    }
+
+    renderRightCol = () => {
+        return (
+            <div className="filters">
+                {Object.keys(filters).map((key) => (
+                    <SearchTree
+                        key={key}
+                        loading={this.state.loading}
+                        filterCategoryName={filters[key].categoryName}
+                        treeData={this.getFilterData(key)}
+                        tooltip={filters[key].tooltip}
+                        color={filters[key].color}
+                        multiple={filters[key].multiple}
+                        expandedKeys={filters[key].expandedKeys}
+                        focus={filters[key].focus}
+                        onSelectedFiltersChange={(value) => this.onSelectedFiltersChange(filters[key].selectedKey, value)}
+                        checkedKeys={this.state[filters[key].selectedKey]}
+                        resultsCount={this.state.total_count_data_source}
+                    />
+                ))}
+            </div>
+        )
+    }
 
     renderSearchPageHeader = () => {
         if (this.state.homeDescription) {
@@ -394,8 +406,10 @@ class SearchPage extends React.Component {
     }
 
     renderLeftCol = () => {
-        if (this.state.homeDescription) {
-            return (<div className="left-col">
+        if (this.state.loading) {
+            return this.renderLoading();
+        } else if (this.state.homeDescription) {
+            return (
                 <div className="home-description">
                     <h3>
                         Bienvenue dans l’outil de cartographie des données du ministère de l’intérieur !
@@ -421,57 +435,18 @@ class SearchPage extends React.Component {
                         la moindre suggestion ou donnée qui ne serait pas encore recensée.
                     </p>
                 </div>
-            </div>);
-        }
-        else if (!this.state.dataSources.length) {
-            return (
-                <p className="left-col">
-                    Aucun résultat trouvé, essayez d'être moins spécifique.
-                </p>
             );
         }
         else {
-            return (<div className="left-col">
-                {this.renderPagination()}
-                <br/>
-                <div className="results">
-                    {this.state.dataSources.map((dataSource) => (
-                        <DataSourceResult
-                          key={dataSource.id}
-                          dataSource={dataSource}
-                          onFilterSelect={(key, value) => this.addFilter(key, value)}
-                        />
-                    ))}
-                </div>
-                {this.renderPagination()}
-            </div>)
+            return <Results dataSources={this.state.dataSources}
+                            page_data_source={this.state.page_data_source}
+                            count_data_source={this.state.count_data_source}
+                            total_count_data_source={this.state.total_count_data_source}
+                            onChangePageDataSource={this.onChangePageDataSource}
+                            addFilter={this.addFilter}
+            />;
         }
     }
-
-    renderTag = (key, color) => {
-        if (this.state[key]) {
-            return (<Tag color={color} closable onClose={
-                (e) => {
-                    this.removeFilter(key, this.state[key])
-                }
-            }
-                key={this.state[key]}
-            >
-                {this.state[key]}
-            </Tag>)
-        }
-    }
-
-    renderPagination = () => (
-        <Pagination
-            showSizeChanger
-            current={this.state.page_data_source}
-            pageSize={this.state.count_data_source}
-            total={this.state.total_count_data_source}
-            onChange={this.onChangePageDataSource}
-        />
-    )
-
 
     renderTagList = (key, color) => {
         if (this.state[key] && this.state[key].length > 0) {

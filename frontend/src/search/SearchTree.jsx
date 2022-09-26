@@ -1,5 +1,5 @@
 import React from "react";
-import { Collapse, Tree } from 'antd';
+import {Collapse, Skeleton, Tree} from 'antd';
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -46,18 +46,25 @@ class SearchTree extends React.Component {
     hiddenTree = () => this.props.treeData.filter((val, i) => i >= this.props.countToShow);
 
     numberNotShown = () => {
-        if (!this.props.treeData) {
-            return null;
+        if (!this.props.treeData || this.props.loading) {
+            return "...";
         }
         return this.nodeCount(this.hiddenTree());
     };
 
     countOfNotShown = () => {
-        if (!this.props.treeData) {
-            return null;
+        if (!this.props.treeData || this.props.loading) {
+            return <>.../...</>;
         }
-        return this.nodeCountSum(this.hiddenTree());
+        return <>{this.nodeCountSum(this.hiddenTree())} / {this.props.resultsCount}</>;
     };
+
+    renderTreeCount = (node) => {
+        if (this.props.loading) {
+            return <>.../...</>;
+        }
+        return <>{node.count}/{this.props.resultsCount}</>;
+    }
 
     convertTitles = (treeData) => {
         return treeData.map((node) => {
@@ -67,7 +74,7 @@ class SearchTree extends React.Component {
                       {node.value}
                   </span>
                   <span className="search-tree-count">
-                      {node.count}/{this.props.resultsCount}
+                      {this.renderTreeCount(node)}
                   </span>
               </div>
             );
@@ -167,7 +174,7 @@ class SearchTree extends React.Component {
                 Plus de choix ({this.numberNotShown()})...
             </span>
             <span>
-                {this.countOfNotShown()} / {this.props.resultsCount}
+                {this.countOfNotShown()}
             </span>
         </div>
     )
@@ -175,6 +182,36 @@ class SearchTree extends React.Component {
     isActiveKey = () => {
         return (this.props.focus || this.props.checkedKeys.length > 0)
             ? this.props.filterCategoryName : undefined
+    }
+
+    renderTree = () => {
+        if (!this.props.treeData) {
+            return (
+                <div style={{margin: "10px"}}>
+                    <Skeleton loading={true} active />
+                    <Skeleton loading={true} active />
+                    <Skeleton loading={true} active />
+                </div>
+            )
+        } else {
+            return (
+                <>
+                    <Tree
+                    checkable
+                    blockNode
+                    multiple={this.props.multiple}
+                    onExpand={this.onExpand}
+                    expandedKeys={this.state.expandedKeys}
+                    autoExpandParent={this.state.autoExpandParent}
+                    onCheck={this.onCheck}
+                    checkedKeys={this.addChildren(this.props.checkedKeys)}
+                    treeData={this.prepareTreeData(this.props.treeData)}
+                    fieldNames={{ title: 'titleComponent', key: 'full_path', children: 'children' }}
+                    />
+                    {!this.isExpanded() && this.renderMoreChoices()}
+                </>
+            )
+        }
     }
 
     render() {
@@ -189,19 +226,7 @@ class SearchTree extends React.Component {
                     key={this.props.filterCategoryName}
                     className={this.props.color}
                 >
-                    <Tree
-                        checkable
-                        blockNode
-                        multiple={this.props.multiple}
-                        onExpand={this.onExpand}
-                        expandedKeys={this.state.expandedKeys}
-                        autoExpandParent={this.state.autoExpandParent}
-                        onCheck={this.onCheck}
-                        checkedKeys={this.addChildren(this.props.checkedKeys)}
-                        treeData={this.prepareTreeData(this.props.treeData)}
-                        fieldNames={{ title: 'titleComponent', key: 'full_path', children: 'children' }}
-                    />
-                    {!this.isExpanded() && this.renderMoreChoices()}
+                    {this.renderTree()}
                 </Panel>
             </Collapse>
         )
