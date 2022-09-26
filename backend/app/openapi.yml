@@ -381,8 +381,6 @@ components:
         last_name:
           type: string
 
-#Many types of array to be confirmed
-    # technically for data source [post/put] it should be requesting only ApplicationID, but DS is a very long schema (waiting till finished for copy paste)
     DataSource:
       type: object
       required:
