@@ -21,6 +21,24 @@ required = [Type, Family, Organization]
 @login_required
 @admin_or_any_owner_required
 def get_enumeration_categories():
+    """Obtenir une liste des catégories
+    ---
+    get:
+      summary: Obtenir une liste des catégories
+      description: Retourne une liste du nom de toutes les catégories d'énumérations. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    type: array
+                    items:
+                        type: string
+                        example:
+                            - Famille
+                            - Organisation
+    """
     return jsonify([enumeration_english_to_french[category.__tablename__] for category in all_category])
 
 
@@ -28,6 +46,30 @@ def get_enumeration_categories():
 @login_required
 @admin_or_any_owner_required
 def fetch_enumerations():
+    """Obtenir une liste des énumérations
+    ---
+    get:
+      summary: Obtenir une liste des énumérations
+      description: Retourne une liste du nom de toutes les énumérations d'une catégorie si le paramètre de catégorie est fourni, sinon de toutes les énumérations triées par catégorie. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
+
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    oneOf:
+                        - $ref: "#/components/schemas/Enumeration avec categorie"
+                        - $ref: "#/components/schemas/Enumeration sans categorie"
+
+
+    """
     category = request.args.get('category')
     if category:
         category = enumeration_french_to_english[category]
@@ -58,6 +100,35 @@ def fetch_enumerations():
 @login_required
 @admin_required
 def create_enumeration():
+    """Créer une énumérations
+    ---
+    post:
+      summary: Créer une énumérations
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    category:
+                        type: string
+                    full_path:
+                        type: string
+
+
+      responses:
+        200:
+          description: L'énumération qui vient d'être créé
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/Enumeration"
+
+
+    """
     try:
         json = request.get_json()
         category = enumeration_french_to_english[json["category"]]
@@ -74,6 +145,37 @@ def create_enumeration():
 @login_required
 @admin_required
 def update_enumeration(enumeration_id):
+    """Modifier une énumérations
+    ---
+    put:
+      summary: Modifier une énumérations
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    category:
+                        type: string
+                    full_path:
+                        type: string
+                    label:
+                        type: string
+
+
+      responses:
+        200:
+          description: L'énumération qui vient d'être modifiée
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/Enumeration"
+
+
+    """
     try:
         json = request.get_json()
         category = enumeration_french_to_english[json["category"]]
@@ -111,6 +213,28 @@ def convert_dict(category, dic):
 @login_required
 @admin_required
 def export_enumerations():
+    """Exporter les énumérations
+    ---
+    get:
+      summary: Exporter les énumérations
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+
+      responses:
+        200:
+          description: Les énumérations en format CSV
+          content:
+                application/csv:
+                    schema:
+                        type: object
+                        properties:
+                            Valeur:
+                                type: string
+                            Libellé:
+                                type: string
+                            Catégorie:
+                                type: string
+    """
     enumerations = []
     for category in all_category:
         enums = category.query.all()
@@ -145,6 +269,36 @@ def export_enumerations():
 @login_required
 @admin_required
 def import_enumerations():
+    """Importer les énumérations
+    ---
+    post:
+      summary: Importer les énumérations
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      requestBody:
+          description: Le CSV des énumérations
+          required: true
+          content:
+            application/csv:
+              schema:
+                type: object
+                properties:
+                    Valeur:
+                        type: string
+                    Libellé:
+                        type: string
+                    Catégorie:
+                        type: string
+
+      responses:
+        200:
+          description: Un message "ok"
+          content:
+            text/plain:
+                schema:
+                    type: string
+                    example: ok
+    """
     try:
         for category in all_category:
             db.session.query(category).delete(synchronize_session='fetch')
@@ -173,6 +327,28 @@ def import_enumerations():
 @login_required
 @admin_required
 def batch_delete_enumerations(enumeration_category):
+    """Supprimer une catégorie d'énumération
+    ---
+    delete:
+      summary: Supprimer une catégorie d'énumération
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      parameters:
+        - name: enumeration_category
+          in: path
+          required: true
+          schema:
+            type: string
+
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+
+    """
     Enumeration = get_enumeration_model_by_name(enumeration_category)
     enumerations = Enumeration.query.all()
     [db.session.delete(enumeration) for enumeration in enumerations]
@@ -184,6 +360,46 @@ def batch_delete_enumerations(enumeration_category):
 @login_required
 @admin_required
 def delete_enumeration(category, enumeration_id):
+    """Supprimer une énumération
+    ---
+    delete:
+      summary: Supprimer une énumération
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: enumeration_id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+        400:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            code:
+                                type: integer
+                                description: Code d'erreur (400)
+                                example: 400
+                            description:
+                                type: string
+                                example: Impossible de supprimer cette valeur, vérifier que toutes ses occurences dans les données et applications ont disparues ...
+                                description: Justification
+
+    """
     source = None
     model_name = ""
     if category == "Famille":
