@@ -372,7 +372,7 @@ def export_users():
             200:
               description: Le CSV contenant les utilisateurs
               content:
-                    application/json:
+                    application/csv:
                         schema:
                             $ref: "#/components/schemas/Utilisateur CSV"
     """
