@@ -178,7 +178,8 @@ export default {
       type: 'text',
       isTextArea: true,
       tooltip: 'Finalité de l\'application',
-      required: true
+      required: true,
+      textEditDisabledIfApplicationNotSelected: true
     },
     name: {
       attributeId: 'application_name',

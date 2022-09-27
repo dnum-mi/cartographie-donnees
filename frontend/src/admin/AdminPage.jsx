@@ -38,9 +38,12 @@ class AdminPage extends React.Component {
         countDataSource().then((response)=> {
             this.setState({data_source_count: response.data});
         })
-        countUser().then((response)=> {
-            this.setState({user_count: response.data});
-        })
+        if (this.props.user.is_admin === true) {
+            countUser().then((response)=> {
+                this.setState({user_count: response.data});
+            })
+        }
+
     }
 
     renderMenu() {

@@ -20,21 +20,6 @@ def admin_required(func):
     return decorated_view
 
 
-def admin_or_any_owner_required(func):
-    """
-    If you decorate a view with this, it will ensure that the current user
-    has the administrator privilege OR that he / she owns an application.
-    (If they are not, it returns a 403 status code.)
-    Always use @login_required before this decorator.
-    """
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_admin and not len(current_user.applications):
-            abort(403)
-        return func(*args, **kwargs)
-    return decorated_view
-
-
 def admin_or_owner_required(func):
     """
     If you decorate a view with this, it will ensure that the current user

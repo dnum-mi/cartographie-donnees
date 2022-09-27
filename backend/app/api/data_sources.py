@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
     get_enumeration_model_by_name, Origin, Tag
-from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
+from app.decorators import admin_required, admin_or_owner_required
 from app.api.enumerations import get_type_by_name, get_family_by_name, get_classification_by_name, \
     get_exposition_by_name, get_referentiel_by_name, get_sensibily_by_name, get_open_data_by_name, \
     get_update_frequency_by_name, get_origin_by_name, get_tag_by_name
@@ -19,7 +19,6 @@ from . import api
 
 @api.route('/api/data-sources', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def fetch_data_sources():
     page = int(request.args.get('page', 1, type=int))
     count = int(request.args.get('count', 10, type=int))
@@ -51,7 +50,6 @@ def get_origin_applications(origin_applications):
 
 @api.route('/api/data-sources', methods=['POST'])
 @login_required
-@admin_or_any_owner_required
 def create_data_source():
     try:
         json = request.get_json()
@@ -208,7 +206,6 @@ def count_data_sources_by_enumeration():
 
 @api.route('/api/data-sources/count', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def count_data_sources():
     base_query = DataSource.query
     if not current_user.is_admin:

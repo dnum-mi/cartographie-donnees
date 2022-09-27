@@ -50,21 +50,29 @@ class ApplicationSection extends React.Component {
       this.props.onChange({ application: newChoice})
   }
 
+  renderApplicationEdit = () => {
+    return (
+        <>
+          {this.getAttributeElement('name')}
+          {this.getAttributeElement('long_name')}
+          {this.getAttributeElement('access_url')}
+          {this.getAttributeElement('organization_name', 'organization_long_name')}
+          {this.getAttributeElement('context_email')}
+          {this.getDataSourceCountElement()}
+          {this.getAttributeElement('operator_count')}
+          {this.getAttributeElement('user_count')}
+          {this.getAttributeElement('monthly_connection_count')}
+          {this.getAttributeElement('historic')}
+          {this.getAttributeElement('validation_date')}
+        </>
+    )
+  }
+
   render() {
     return (
       <div className="application-section">
         {this.props.editMode && this.props.allowAppSelection ? <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> : undefined}
-        {this.getAttributeElement('name')}
-        {this.getAttributeElement('long_name')}
-        {this.getAttributeElement('access_url')}
-        {this.getAttributeElement('organization_name', 'organization_long_name')}
-        {this.getAttributeElement('context_email')}
-        {this.getDataSourceCountElement()}
-        {this.getAttributeElement('operator_count')}
-        {this.getAttributeElement('user_count')}
-        {this.getAttributeElement('monthly_connection_count')}
-        {this.getAttributeElement('historic')}
-        {this.getAttributeElement('validation_date')}
+        {this.props.application.id !== null && this.renderApplicationEdit()}
       </div>
     );
   }

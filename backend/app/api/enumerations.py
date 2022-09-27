@@ -4,7 +4,7 @@ from flask import jsonify, request, send_file
 from io import TextIOWrapper, BytesIO
 import csv
 from app import db
-from app.decorators import admin_required, admin_or_any_owner_required
+from app.decorators import admin_required
 from flask_login import login_required
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, \
     Sensibility, OpenData, UpdateFrequency, Origin, Tag, get_enumeration_model_by_name
@@ -19,14 +19,12 @@ required = [Type, Family, Organization]
 
 @api.route('/api/enumerations/categories', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def get_enumeration_categories():
     return jsonify([enumeration_english_to_french[category.__tablename__] for category in all_category])
 
 
 @api.route('/api/enumerations', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def fetch_enumerations():
     category = request.args.get('category')
     if category:
