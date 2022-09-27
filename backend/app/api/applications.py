@@ -253,7 +253,7 @@ def update_application(application_id):
 
 @api.route('/api/applications/<application_id>', methods=['DELETE'])
 @login_required
-@admin_required
+@admin_or_owner_required
 def delete_application(application_id):
     application = get_application(application_id)
     source = db.session.query(DataSource).filter(DataSource.application_id == application_id).first()
