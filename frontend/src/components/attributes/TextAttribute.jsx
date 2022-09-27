@@ -102,12 +102,18 @@ class TextAttribute extends React.Component {
 
   writeElement() {
     let input;
+    const mustAwaitApplicationSelection = this.props.textEditDisabledIfApplicationNotSelected && !this.props.applicationIsSelected;
     if (this.props.isTextArea) {
       input = (
         <TextArea
           id={this.props.attributeId}
-          placeholder={this.props.editionPlaceholder}
+          placeholder={
+            mustAwaitApplicationSelection
+              ? "Veuillez sélectionner une application"
+              : this.props.editionPlaceholder
+          }
           className={this.attributeInputClassName()}
+          disabled={mustAwaitApplicationSelection}
         />
       );
     } else {
@@ -115,8 +121,13 @@ class TextAttribute extends React.Component {
         <Input
           id={this.props.attributeId}
           type={this.props.inputType}
-          placeholder={this.props.editionPlaceholder}
+          placeholder={
+            mustAwaitApplicationSelection
+                ? "Veuillez sélectionner une application"
+                : this.props.editionPlaceholder
+          }
           className={this.attributeInputClassName()}
+          disabled={mustAwaitApplicationSelection}
         />
       );
     }

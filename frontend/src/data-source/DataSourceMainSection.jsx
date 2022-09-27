@@ -26,6 +26,7 @@ class DataSourceMainSection extends React.Component {
         suffixValue={data[config.suffixAttributeId]}
         editMode={this.props.editMode}
         noRules={this.props.noRules && !fromApplication}
+        applicationIsSelected={!!this.props.dataSource.application.id}
         {...config}
       />
     );
