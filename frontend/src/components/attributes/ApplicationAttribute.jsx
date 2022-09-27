@@ -1,9 +1,8 @@
 import React from "react";
 import {applicationPropTypes, commonPropTypes} from "./attributePropTypes";
 import { commonDefaultProps } from "./attributeDefaultProps";
-import ApplicationSearchSelect from "../ApplicationSearchSelect";
 import {Form} from 'antd'
-import ApplicationSearchTag from "../ApplicationSearchTag";
+import ApplicationSelect from "../../data-source/ApplicationSelect";
 
 class ApplicationAttribute extends React.Component {
 
@@ -36,21 +35,9 @@ class ApplicationAttribute extends React.Component {
     return (
       <div className="attribute-input-container">
         <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
-          {this.props.applicationMode === 'multiple'
-          ?
-              <ApplicationSearchTag
-                  limited={false}
-                  onChange={this.props.onChange}
-                  value={this.props.value}
-              />
-          :
-              <ApplicationSearchSelect
-                  limited={false}
-                  onChange={this.props.onChange}
-                  value={this.props.value}
-                  allowClear
-              />
-          }
+          <ApplicationSelect 
+            mode = {this.props.applicationMode}
+          />
         </Form.Item>
       </div>
     )

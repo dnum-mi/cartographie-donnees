@@ -13,7 +13,7 @@ class ApplicationSearchTag extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [], // Choices
+            data: [],
             loading: false,
             search: props.limited ? searchApplicationsLimited : searchApplications
         };
