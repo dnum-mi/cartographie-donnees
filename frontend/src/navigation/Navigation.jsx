@@ -48,7 +48,7 @@ function Navigation({ user, location }) {
                             Nouvelle recherche
                         </Button>
                     </Link>}
-                {user && (user.is_admin || user.applications.length) &&
+                {user &&
                     <Link to="/admin">
                         <Button type="primary" data-test="nav-admin-btn">
                             Administration
