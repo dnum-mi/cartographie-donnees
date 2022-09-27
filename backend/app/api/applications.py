@@ -5,7 +5,7 @@ from flask import jsonify, request
 from flask_login import login_required, current_user
 
 from app.models import Application, DataSource
-from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
+from app.decorators import admin_required, admin_or_owner_required
 from app.api.enumerations import get_organization_by_name
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
@@ -31,7 +31,6 @@ def get_application_by_name(name, line=None, return_id=True):
 
 @api.route('/api/applications', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def fetch_applications():
     """Endpoint retournant une liste paginée d'applications.
     L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
@@ -159,7 +158,6 @@ def import_applications():
 
 @api.route('/api/applications/search_limited', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def search_applications_limited():
     page = int(request.args.get('page', 1))
     count = int(request.args.get('count', 1000))
@@ -183,7 +181,6 @@ def search_applications_limited():
 
 @api.route('/api/applications/search', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def search_applications():
     page = int(request.args.get('page', 1))
     count = int(request.args.get('count', 1000))
