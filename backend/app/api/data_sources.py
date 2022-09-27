@@ -169,7 +169,7 @@ def export_data_source_of_application(application_id):
     ---
     get:
         summary: Exporter les données d'une application
-        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut créer des données que pour des applications dont il est propriétaire.
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut exporter des données que pour des applications dont il est propriétaire.
         parameters:
             - pathApplicationId
 
