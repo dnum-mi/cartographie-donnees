@@ -11,7 +11,6 @@ class SearchTree extends React.Component {
         super(props);
         this.state = {
             expandedKeys : this.props.expandedKeys,
-            selectedKeys : this.props.selectedKeys,
             autoExpandParent : true,
             expanded: false,
         }
@@ -111,29 +110,6 @@ class SearchTree extends React.Component {
         return result;
     }
 
-    addChildren = (keys) => {
-        let result = [...keys];
-        for (let key of keys) {
-            const children = this.flatTree(this.props.treeData)
-              .filter((k) => (k !== key && k.indexOf(key) === 0))
-            result = result.concat(children)
-        }
-        return result;
-    }
-
-    filterOutChildren = (keys) => {
-        let result = [...keys];
-        for (let key of keys) {
-            const keyIsChild = keys
-              .map((k) => key !== k && key.indexOf(k) === 0)
-              .reduce((acc, isChild) => acc || isChild, false);
-            if (keyIsChild) {
-                result = result.filter((k) => k !== key)
-            }
-        }
-        return result;
-    }
-
     setExpandedKeys = (expandedKeys) => {
         this.setState({
             expandedKeys
@@ -151,9 +127,112 @@ class SearchTree extends React.Component {
         this.setAutoExpandParent(false);
     };
 
-    onCheck = (checkedKeys) => {
-        this.props.onSelectedFiltersChange(this.filterOutChildren(checkedKeys));
+    onCheck = (checkedKeys, newNode) => {
+        const checked = [...this.props.checkedKeys];
+        if (newNode.node.halfChecked) { // if newNode was halfchecked
+            // check all childs
+            // remove all from state, done in render
+            for(const child of newNode.node.children) {
+                const index = checked.indexOf(child.full_path);
+                if (index > -1) {
+                    checked.splice(index, 1);
+                }
+            }
+            // check newNode
+            checked.push(newNode.node.full_path)
+            // half check parent
+            // remove from state, done in render
+            for(const node of newNode.checkedNodes) {
+                //find parents
+                if (newNode.node.full_path.includes(node.full_path) && !(newNode.node.full_path===node.full_path)) {
+                    const index = checked.indexOf(node.full_path);
+                    if (index > -1) {
+                        checked.splice(index, 1);
+                    }
+                }
+            }
+        } else if (newNode.node.checked) {// if newNode was checked
+            // uncheck newNode
+            const index = checked.indexOf(newNode.node.full_path);
+            if (index > -1) {
+                checked.splice(index, 1);
+            }
+            // uncheck all childs
+            for(const child of newNode.node.children) {
+                const index = checked.indexOf(child.full_path);
+                if (index > -1) {
+                    checked.splice(index, 1);
+                }
+            }
+            // half / uncheck parents
+            // remove from state, done in render
+            for(const node of newNode.checkedNodes) {
+                //find parents
+                if (newNode.node.full_path.includes(node.full_path) && !(newNode.node.full_path===node.full_path)) {
+                    const index = checked.indexOf(node.full_path);
+                    if (index > -1) {
+                        checked.splice(index, 1);
+                    }
+                }
+            }
+        } else { // if newNode was unchecked
+            // check newNode
+            checked.push(newNode.node.full_path);
+            // check all child
+            // remove from state, done in render
+            for(const child of newNode.node.children) {
+                const index = checked.indexOf(child.full_path);
+                if (index > -1) {
+                    checked.splice(index, 1);
+                }
+            }
+            // half check parent
+            // parent can't be checked, done in render
+        }
+        // send real checks
+        this.props.onSelectedFiltersChange(checked);
     };
+
+    parseAllFromRequest = () => {
+        const realChecks = this.props.checkedKeys;
+        let fakeChecks = [...realChecks];
+        let fakeHalfChecks = [];
+        for (const real of realChecks) {
+            const nodes = this.findNode(real, this.props.treeData);
+            const node = nodes[0];
+            const rest = nodes.slice(1);
+            // add children of checked to halfchecked
+            fakeHalfChecks = fakeHalfChecks.concat(this.flattenChildren(node).map((node) => node.full_path));
+            // add parents of checked to half-checked
+            fakeHalfChecks = fakeHalfChecks.concat(rest.map((treenode) => treenode.full_path));
+        }
+        return {
+            checked: fakeChecks,
+            halfChecked: fakeHalfChecks
+        }
+    }
+
+    flattenChildren = (node) => {
+        const ret = [];
+        for (const child of node.children) {
+            ret.push(child);
+            ret.concat(this.flattenChildren(child   ));
+        }
+        return ret;
+    }
+
+    findNode = (nodePath, tree) => {
+        for (const node of tree) {
+            if (node.full_path === nodePath) {
+                return [node];
+            }
+            const found = this.findNode(nodePath, node.children);
+            if (found) {
+                return [...found, node];
+            }
+        }
+        return null;
+    }
 
     onClickHeader = (key) => {
         if (key.length === 0){
@@ -199,12 +278,13 @@ class SearchTree extends React.Component {
                     <Tree
                     checkable
                     blockNode
+                    checkStrictly={true}
                     multiple={this.props.multiple}
                     onExpand={this.onExpand}
                     expandedKeys={this.state.expandedKeys}
                     autoExpandParent={this.state.autoExpandParent}
                     onCheck={this.onCheck}
-                    checkedKeys={this.addChildren(this.props.checkedKeys)}
+                    checkedKeys={this.parseAllFromRequest()}
                     treeData={this.prepareTreeData(this.props.treeData)}
                     fieldNames={{ title: 'titleComponent', key: 'full_path', children: 'children' }}
                     />

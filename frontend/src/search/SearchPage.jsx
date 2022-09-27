@@ -91,11 +91,7 @@ class SearchPage extends React.Component {
           || this.state.selectedTag.length !== 0);
     }
 
-    readString(value) {
-        return this.readString(value, null);
-    }
-
-    readString(value, defaultValue) {
+    readString(value, defaultValue=null) {
         if (value) {
             return value;
         }
