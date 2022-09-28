@@ -54,6 +54,10 @@ field_english_to_french_dic = {
     'data_source_count': 'Nombre de données',
     "is_reference": "Donnée référentielle",
     "long_name": "Nom long",
+    "referentiel_count":"Nombre de référentiels utilisés",
+    "reutilization_count":"Nombre de réutilisations",
+    "application_description_level":"Niveau de description de l'application",
+    "datasource_description_level":"Niveau de description des données"
 }
 
 field_french_to_english_dic = {
@@ -112,6 +116,10 @@ field_french_to_english_dic = {
     'Nombre de données': 'data_source_count',
     "Donnée référentielle": "is_reference",
     "Nom long": "long_name",
+    "Nombre de référentiels utilisés":"referentiel_count",
+    "Nombre de réutilisations":"reutilization_count",
+    "Niveau de description de l'application":"application_description_level",
+    "Niveau de description des données":"datasource_description_level"
 }
 
 
@@ -144,3 +152,34 @@ enumeration_english_to_french = {
 }
 
 FULL_PATH_DELIMITER = '>'
+
+DATASOURCE_ORIGINAL_FIELDS_ID = [
+    'name',
+    'description',
+    'application_id',
+    'reutilizations',
+    'family_name',
+    'tag_name',
+    'type_name',
+    'example',
+    'sensibility_name',
+    'open_data_name',
+    'database_name',
+    'database_table_name',
+    'database_table_count',
+    'fields',
+    'field_count',
+    'volumetry',
+    'volumetry_comment',
+    'monthly_volumetry',
+    'monthly_volumetry_comment',
+    'update_frequency_name',
+    'conservation',
+    'classification_name',
+    'exposition_name',
+    'origin_name',
+    'origin_applications',
+    'is_reference'
+]
+
+DATASOURCE_ID_NO_COMMENT =  [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if (field not in ['volumetry_comment','monthly_volumetry_comment', 'is_reference'])]
