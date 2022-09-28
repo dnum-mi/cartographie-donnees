@@ -6,6 +6,7 @@ import Attribute from "../components/Attribute";
 import attributes from "./attributes";
 import ApplicationSelect from "./ApplicationSelect";
 import {Link} from "react-router-dom";
+import withCurrentUser from "../hoc/user/withCurrentUser";
 
 class ApplicationSection extends React.Component {
 
@@ -72,7 +73,7 @@ class ApplicationSection extends React.Component {
     return (
       <div className="application-section">
         {this.props.editMode && this.props.allowAppSelection ? <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> : undefined}
-        {this.props.application.id !== null && this.renderApplicationEdit()}
+        {(this.props.currentUser.user.is_admin || this.props.application.id !== null) && this.renderApplicationEdit()}
       </div>
     );
   }
@@ -83,4 +84,4 @@ ApplicationSection.propTypes = {
   editMode: PropTypes.bool,
 };
 
-export default ApplicationSection;
+export default withCurrentUser(ApplicationSection);
