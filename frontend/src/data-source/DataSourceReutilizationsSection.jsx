@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import './DataSourceReutilizationsSection.css';
 import ApplicationCard from "./ApplicationCard";
-import ApplicationSearchTag from "../components/ApplicationSearchTag";
+import ApplicationSelect from "./ApplicationSelect";
 
 class DataSourceReutilizationsSection extends React.Component {
 
@@ -31,10 +31,10 @@ class DataSourceReutilizationsSection extends React.Component {
 
   writeComponent = () => {
     return (
-      <ApplicationSearchTag
-        limited={false}
+      <ApplicationSelect
         value={this.props.dataSource.reutilizations}
         onChange={(reutilizations) => this.props.onChange(reutilizations)}
+        mode={"multiple"}
       />
     );
   }

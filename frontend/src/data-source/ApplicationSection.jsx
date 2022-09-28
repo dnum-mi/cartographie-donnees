@@ -7,6 +7,8 @@ import attributes from "./attributes";
 import ApplicationSelect from "./ApplicationSelect";
 import {Link} from "react-router-dom";
 import withCurrentUser from "../hoc/user/withCurrentUser";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Divider } from "antd";
 
 class ApplicationSection extends React.Component {
 
@@ -72,7 +74,24 @@ class ApplicationSection extends React.Component {
   render() {
     return (
       <div className="application-section">
-        {this.props.editMode && this.props.allowAppSelection ? <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> : undefined}
+        {
+          this.props.editMode && this.props.allowAppSelection ? 
+          (
+            <div className="attribute">
+              <label className="attribute-label">
+                  Choix d'Application
+                  <QuestionCircleOutlined
+                      className="attribute-tooltip"
+                      title="xxxx"
+                  />
+              <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> 
+              </label>
+              <Divider />
+            </div>
+          ) : 
+          undefined
+        }
+        {this.props.application.id !== null && this.renderApplicationEdit()}
         {(this.props.currentUser.user.is_admin || this.props.application.id !== null) && this.renderApplicationEdit()}
       </div>
     );

@@ -17,6 +17,7 @@ import DataSourcePage from "../data-source/DataSourcePage";
 import emptyDataSource from "./emptyDataSourceForApplication.json";
 import Error from "../components/Error";
 import Loading from "../components/Loading";
+const _ = require('lodash');
 
 const {confirm} = Modal;
 
@@ -177,7 +178,8 @@ class ApplicationPage extends React.Component {
         if (this.state.error) {
             return <Error error={this.state.error}/>
         }
-        emptyDataSource.application = this.state.application
+        let _emptyDataSource = _.cloneDeep(emptyDataSource)
+        _emptyDataSource.application = this.state.application
         return this.state.application.data_source_count > 0 ?
             (
                 <Redirect to={{
@@ -186,7 +188,7 @@ class ApplicationPage extends React.Component {
                 }}/>
             ) : (
                 <DataSourcePage
-                  dataSource={emptyDataSource}
+                  dataSource={_emptyDataSource}
                   handleSubmit={this.handleSubmit}
                   handleDelete={this.handleDelete}
                   handleDuplication={this.handleDuplication}

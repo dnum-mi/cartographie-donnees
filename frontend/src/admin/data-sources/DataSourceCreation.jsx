@@ -11,6 +11,7 @@ import './DataSourceCreation.css';
 import withCurrentUser from "../../hoc/user/withCurrentUser.jsx";
 import DataSourcePage from "../../data-source/DataSourcePage";
 import emptyDataSource from "../../data-source/emptyDataSource.json"
+const _ = require('lodash');
 
 class DataSourceCreation extends React.Component {
 
@@ -103,12 +104,13 @@ class DataSourceCreation extends React.Component {
     };
 
     render() {
+        
         let dataSource = {}
         if (this.state.application) {
             dataSource["application_name"] = this.state.application.name;
             dataSource["application"] = this.state.application;
         }
-        let initialDataSource = emptyDataSource
+        let initialDataSource = _.cloneDeep(emptyDataSource)
         if (this.props.initialDataSource) {
             initialDataSource = this.props.initialDataSource
         }

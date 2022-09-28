@@ -1,8 +1,8 @@
 import React from "react";
-import {Divider, Select, Spin} from "antd";
-import {fetchApplications, searchApplicationsLimited} from "../api";
+import { Divider, Select, Spin } from "antd";
+import { fetchApplications, searchApplicationsLimited } from "../api";
 import Loading from "../components/Loading";
-import {QuestionCircleOutlined} from "@ant-design/icons";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 export default class ApplicationSelect extends React.Component {
     constructor(props) {
@@ -14,11 +14,19 @@ export default class ApplicationSelect extends React.Component {
     }
 
     componentDidMount() {
-        searchApplicationsLimited("").then((data)=> this.setState({applications: data.data.results, loading: false}))
+        searchApplicationsLimited("").then((data) => this.setState({ applications: data.data.results, loading: false }))
     }
 
+    valuesToOptions = (values) => !!values ? (values.map((value) => ({ key: value.id, value: value.id, label: value.name }))) : [];
+
+    optionsToValues = (options) => !!options ? (options.map((option) => ({ id: option.value, name: option.label }))) : [];
+
     onChange = (newChoice) => {
-        this.props.onChange(this.state.applications.find((app) => app.id === newChoice));
+        if (!!this.props.mode && this.props.mode == "multiple") {
+            this.props.onChange(this.optionsToValues(newChoice));
+        } else {
+            this.props.onChange(this.state.applications.find((app) => app.id === newChoice));
+        }
     }
 
     render() {
@@ -26,18 +34,21 @@ export default class ApplicationSelect extends React.Component {
             return <Loading />;
         }
         return (
-            <div className="attribute">
-                <label className="attribute-label">
-                    Choix d'Application
-                    <QuestionCircleOutlined
-                        className="attribute-tooltip"
-                        title="xxxx"
-                    />
-                </label>
                 <Select
-                    value={this.props.value.id}
+                    mode={this.props.mode}
+                    labelInValue={!!this.props.mode && this.props.mode == "multiple"}
+                    value={
+                        (!!this.props.mode && this.props.mode == "multiple") ?
+                            this.valuesToOptions(this.props.value) :
+                            this.props.value.id
+                    }
                     placeholder="Sélectionnez une application"
                     showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
+                    filterSort={(optionA, optionB) =>
+                        optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                    }
                     onChange={this.onChange}
                     style={{ width: '100%' }}
                 >
@@ -47,8 +58,6 @@ export default class ApplicationSelect extends React.Component {
                         </Select.Option>
                     )}
                 </Select>
-                <Divider/>
-            </div>
         );
     }
 }

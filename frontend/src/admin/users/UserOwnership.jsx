@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {Form, Input, Tag} from "antd";
 import Loading from "../../components/Loading";
 import Error from "../../components/Error";
-import ApplicationSearchTag from "../../components/ApplicationSearchTag";
+import ApplicationSelect from "../../data-source/ApplicationSelect";
 const _ = require("lodash");
 
 class UserOwnership extends React.Component {
@@ -73,9 +73,7 @@ class UserOwnership extends React.Component {
             initialValue = {applications}
 
         >
-            <ApplicationSearchTag
-                limited={false}
-            />
+            <ApplicationSelect mode={"multiple"}/>
         </Form.Item>
     }
 
