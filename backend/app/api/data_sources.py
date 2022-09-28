@@ -227,6 +227,7 @@ def fetch_data_source_applications():
     return jsonify([
         {
             'id': application.id,
+            'label': application.long_name,
             'value': application.name,
             'full_path': application.name,
             'children': [],
