@@ -6,6 +6,7 @@ import ApplicationsRouter from "./applications/ApplicationsRouter";
 import DataSourcesRouter from "./data-sources/DataSourcesRouter";
 import EnumerationsRouter from "./enumerations/EnumerationsRouter";
 import UsersRouter from "./users/UsersRouter";
+import SettingsRouter from "./settings/SettingsRouter";
 import {countApplication, countDataSource, countUser} from '../api';
 
 class AdminPage extends React.Component {
@@ -68,6 +69,12 @@ class AdminPage extends React.Component {
                     Administrateurs ({this.state.user_count})
                 </Menu.Item>
                 )}
+                {this.props.user.is_admin && (
+                <Menu.Item key="settings">
+                    Paramètres
+                </Menu.Item>
+                )}
+
             </Menu>
         );
     }
@@ -103,6 +110,15 @@ class AdminPage extends React.Component {
                     <UsersRouter count={this.get_count} />
                 </Route>
                 )}
+                {this.props.user.is_admin && (
+                <Route
+                    key="settings"
+                    path={this.props.match.url + '/settings'}
+                >
+                    <SettingsRouter refreshHomepage = {this.props.refreshHomepage} homepageContent= {this.props.homepageContent}/>
+                </Route>
+                )}
+
                 <Route
                     key="root"
                     path={this.props.match.url}

@@ -66,6 +66,14 @@ export const importUsers = (file) => axios.post(API_HOST + '/users/import', file
 export const exportUsersUrl = API_HOST + '/users/export';
 export const countUser = () => axios.get(API_HOST + '/users/count');
 
+/** WildCards API */
+const wildCardEndpoint = API_HOST + '/wild-cards';
+export const fetchWildCards = (namespace) => axios.get(namespace ? wildCardEndpoint + '/' + namespace : wildCardEndpoint);
+export const updateWildCards = (wild_card_list) => axios.post(wildCardEndpoint, {"data":wild_card_list});
+export const importWildCards = (file) => axios.post(wildCardEndpoint + '/import', file, { "headers": { 'Content-Type': 'multipart/form-data' } });
+export const exportWildCardsUrl = wildCardEndpoint + '/export';
+
+
 /** Auth API */
 export const login = (email, password) => axios.post(API_HOST + '/login', { email, password });
 export const logout = () => axios.post(API_HOST + '/logout');

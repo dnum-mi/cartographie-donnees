@@ -17,6 +17,7 @@
 .SearchPage .content .home-description {
     padding: 0 20px;
     font-size: medium;
+    white-space: pre-line;
 }
 
 .SearchPage .content .right-col {

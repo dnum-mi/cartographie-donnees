@@ -4,7 +4,7 @@ import {Layout} from 'antd';
 import Router from './navigation/Router';
 import './App.css';
 import { } from './auth/index';
-import { readMe } from './api';
+import { readMe, fetchWildCards } from './api';
 import Loading from "./components/Loading";
 import Error from "./components/Error";
 import { UserProvider } from "./hoc/user/UserProvider"
@@ -16,16 +16,39 @@ class App extends React.Component {
     super(props);
     this.state = {
       user: null,
+      homepageContent: {},
       loading: true,
       error: null,
     };
   }
 
   componentDidMount() {
+    this.fetchHomepageContent()
     this.refreshUser();
   }
 
   setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
+
+  fetchHomepageContent = () => {
+
+    this.setState({
+        loading: true,
+        error: null,
+    });
+
+    fetchWildCards("homepage")
+        .then((response) => {
+            return this.setStatePromise({homepageContent: response.data.homepage})
+        })
+        // .then(() => this.setStatePromise({ loading: false, error: null })) TODO Why does it make it bug
+        .catch((error) => {
+            this.setState({
+                loading: false,
+                error,
+            });
+        });
+    };
+
 
   refreshUser = () => {
     readMe()
@@ -42,6 +65,21 @@ class App extends React.Component {
         }));
   };
 
+  refreshHomepage = (value, key=null) => {
+    if(key === null){
+      this.setState({
+        homepageContent: value
+      })
+    } else {
+      this.setState({
+        homepageContent: {
+          ...this.state.homepageContent,
+          [key]:value
+        } 
+      })
+    }
+  }
+
   render() {
     if (this.state.error) {
       return <Error error={this.state.error} />
@@ -54,6 +92,8 @@ class App extends React.Component {
               <Router
                   user={this.state.user}
                   onLogin={this.refreshUser}
+                  homepageContent={this.state.homepageContent}
+                  refreshHomepage = {this.refreshHomepage}
               />
             </Content>
             <Footer className="footer">
