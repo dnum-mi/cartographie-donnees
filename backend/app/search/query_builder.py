@@ -38,7 +38,7 @@ def create_filter_value_query(field, value):
 
 
 def create_filter_query(filter_key, values, filter_type):
-    bool_condition = 'must' if filter_type == 'multiple' else 'should'
+    bool_condition = 'should'
     result = {
         'bool': {
             bool_condition: []
@@ -50,8 +50,7 @@ def create_filter_query(filter_key, values, filter_type):
         result['bool'][bool_condition].append(
             create_filter_value_query(filter_key, v)
         )
-    if bool_condition == 'should':
-        result["bool"]["minimum_should_match"] = 1
+    result["bool"]["minimum_should_match"] = 1
     return result
 
 
