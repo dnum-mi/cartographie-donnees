@@ -31,9 +31,9 @@ def fetch_enumerations():
         category = enumeration_french_to_english[category]
         Enumeration = get_enumeration_model_by_name(category)
         enumerations = Enumeration.query.all()
-        _list = [(enum.id, remove_accent(enum.value)) for enum in enumerations]
-        _list.sort(key=lambda tup: tup[1])
+        _list = [(enum.id, enum.value) for enum in enumerations]
         enumerations = [Enumeration.query.filter_by(id=id).one() for id, _ in _list]
+        enumerations.sort(key=lambda tup: remove_accent(tup.full_path))
         enumerations = [enumeration.to_dict() for enumeration in enumerations]
     else:
         enumerations = []
