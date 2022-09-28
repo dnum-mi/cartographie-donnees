@@ -17,6 +17,8 @@ import Error from "../components/Error";
 import filters from "../filters";
 import Results from "./Results";
 
+import default_wildcards from './default_wildcards.json'
+
 const { Search } = Input;
 
 const ANY_WORDS = "ANY_WORDS"
@@ -408,14 +410,14 @@ class SearchPage extends React.Component {
             return (
                 <div className="home-description">
                     <h3>
-                        {this.props.homepageContent["welcome_title"]}
+                        {this.props.homepageContent ? this.props.homepageContent["welcome_title"] : default_wildcards["title"]}
                     </h3>
                     <div>
-                        {this.props.homepageContent["welcome_text"]}
+                        {this.props.homepageContent ? this.props.homepageContent["welcome_text"] : default_wildcards["text"]}
                     </div>
                     <br/>
                     <a>
-                        {this.props.homepageContent["email"]}
+                        {this.props.homepageContent ? this.props.homepageContent["email"] : default_wildcards["email"]}
                     </a>
                 </div>
             );

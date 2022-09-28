@@ -22,7 +22,7 @@ const onLogoutClick = () => {
 function Navigation({ user, homepageContent, location }) {
 
   // TODO app title not updating unless I recharge the page
-  // State goes up to app but does not go down to 
+  // State goes up to app but does not go down to
   // const [appTitle, setAppTitle] = useState(homepageContent["app_title"]);
 
   // useEffect(() => {
@@ -48,7 +48,7 @@ function Navigation({ user, homepageContent, location }) {
             <Link className="home" to="/">
               <img alt="Ministère de l'intérieur" src={logo} height="90" />
               <span className="home-title">
-                {homepageContent["app_title"]}
+                {homepageContent ? homepageContent["app_title"] : "Cartographie des données MI"}
               </span>
             </Link>
         </span>
