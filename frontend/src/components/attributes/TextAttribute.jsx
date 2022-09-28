@@ -3,6 +3,7 @@ import { Input, Typography, Form } from "antd";
 import { commonPropTypes, textPropTypes } from "./attributePropTypes";
 import { commonDefaultProps, textDefaultProps } from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
+import withCurrentUser from "../../hoc/user/withCurrentUser";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -102,7 +103,7 @@ class TextAttribute extends React.Component {
 
   writeElement() {
     let input;
-    const mustAwaitApplicationSelection = this.props.textEditDisabledIfApplicationNotSelected && !this.props.applicationIsSelected;
+    const mustAwaitApplicationSelection = this.props.textEditDisabledIfApplicationNotSelected && !this.props.currentUser.user.is_admin && !this.props.applicationIsSelected;
     if (this.props.isTextArea) {
       input = (
         <TextArea
@@ -164,4 +165,4 @@ TextAttribute.propTypes = {
   ...textPropTypes,
 };
 
-export default TextAttribute;
+export default withCurrentUser(TextAttribute);
