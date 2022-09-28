@@ -34,14 +34,6 @@ export default class ApplicationSelect extends React.Component {
             return <Loading />;
         }
         return (
-            <div className="attribute">
-                <label className="attribute-label">
-                    Choix d'Application
-                    <QuestionCircleOutlined
-                        className="attribute-tooltip"
-                        title="xxxx"
-                    />
-                </label>
                 <Select
                     mode={this.props.mode}
                     labelInValue={!!this.props.mode && this.props.mode == "multiple"}
@@ -66,8 +58,6 @@ export default class ApplicationSelect extends React.Component {
                         </Select.Option>
                     )}
                 </Select>
-                <Divider />
-            </div>
         );
     }
 }
