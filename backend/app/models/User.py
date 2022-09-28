@@ -58,11 +58,11 @@ class User(UserMixin, BaseModel):
         return initial_dict
 
     # TODO cannot seem to be able to call Application.query directly here
-    def update_from_dict(self, data, app_query=None):
+    def update_from_dict(self, data, app_query=None, update_admin = False):
         self.first_name = data.get('first_name')
         self.last_name = data.get('last_name')
         self.email = data.get('email')
-        self.is_admin = data.get('is_admin', False)
+        self.is_admin = data.get('is_admin', False) if update_admin==True else False
         if "ownedApplications" in data:
             new_applications = []
             for application in data["ownedApplications"]:
@@ -72,10 +72,10 @@ class User(UserMixin, BaseModel):
             self.applications = new_applications
 
     @staticmethod
-    def from_dict(data):
+    def from_dict(data, create_admin=False):
         return User(
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
             email=data.get('email'),
-            # Do not enable to create a user with is_admin=True
+            is_admin = data.get('is_admin', False) if create_admin == True else False 
         )

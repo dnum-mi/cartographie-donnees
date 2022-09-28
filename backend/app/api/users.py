@@ -22,7 +22,7 @@ def create_user():
         confirm_password = json.get('confirm_password', None)
         if not password or password != confirm_password:
             abort(400, dict(description="Incorrect password matching"))
-        user = User.from_dict(json)
+        user = User.from_dict(json, create_admin=True)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -89,11 +89,12 @@ def read_user(user_id):
 
 @api.route('/api/users/<user_id>', methods=['PUT'])
 @login_required
+@admin_required
 def update_user(user_id):
     try:
         user = get_user(user_id)
         json = request.get_json()
-        user.update_from_dict(json, Application.query)
+        user.update_from_dict(json, Application.query, update_admin = True)
         db.session.commit()
         db.session.refresh(user)
         return jsonify(user.to_dict())
