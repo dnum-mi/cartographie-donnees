@@ -102,7 +102,13 @@ def create_text_query(query: str, searchable_fields: List[str], strictness: Stri
     }
 
 
-def create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields):
+def create_query_filter(
+        query: str,
+        filters_dict: Dict[str, List[str]],
+        strictness: Strictness,
+        exclusions: str,
+        searchable_fields: List[str]
+):
     slim_filters_dict = {
         k: v for k, v in filters_dict.items() if len(v) > 0
     }
