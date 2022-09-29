@@ -5,11 +5,12 @@ from app import db
 from app.search import add_to_index, remove_from_index, \
     query_index_with_filter, query_count, remove_all_from_index, \
     bulk_add_to_index, set_default_analyzer
+from app.search.enums import Strictness
 
 
 class SearchableMixin(object):
     @classmethod
-    def search_with_filter(cls, query: str, filters_dict: Dict, strictness: str, page: int, per_page: int, exclusions: str = ""):
+    def search_with_filter(cls, query: str, filters_dict: Dict, strictness: Strictness, page: int, per_page: int, exclusions: str = ""):
         ids, total_count = query_index_with_filter(
             cls.__tablename__,
             query,

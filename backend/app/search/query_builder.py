@@ -1,10 +1,12 @@
-import copy
 import json
+from typing import List, Dict
 
 from flask import current_app
 
+from app.search.enums import Strictness
 
-def create_filter_value_query(field, value):
+
+def create_filter_value_query(field: str, value: str):
     if field == 'application':
         return {
             'term': {
@@ -37,24 +39,23 @@ def create_filter_value_query(field, value):
     return result
 
 
-def create_filter_query(filter_key, values, filter_type):
-    bool_condition = 'should'
-    result = {
-        'bool': {
-            bool_condition: []
-        }
-    }
+def create_filter_query(filter_key: str, values: List[str]):
     if len(values) == 1:
         return create_filter_value_query(filter_key, values[0])
+    result = {
+        'bool': {
+            'should': [],
+            'minimum_should_match': 1
+        }
+    }
     for v in values:
-        result['bool'][bool_condition].append(
+        result['bool']['should'].append(
             create_filter_value_query(filter_key, v)
         )
-    result["bool"]["minimum_should_match"] = 1
     return result
 
 
-def create_exclusion(exclusions, searchable_fields):
+def create_exclusion(exclusions: str, searchable_fields: List[str]):
     if len(exclusions) > 0:
         return {
             'multi_match': {
@@ -66,8 +67,8 @@ def create_exclusion(exclusions, searchable_fields):
     else:
         return None
 
-def create_filters_query(filters_dict):
-    from ..models import get_enumeration_type_by_name
+
+def create_filters_query(filters_dict: Dict[str, List[str]]):
     result = {
         'bool': {
             'must': []
@@ -75,23 +76,15 @@ def create_filters_query(filters_dict):
     }
     if len(filters_dict.keys()) == 1:
         filter_key = list(filters_dict.keys())[0]
-        if filter_key == 'application':
-            enum_type = 'simple'
-        else:
-            enum_type = get_enumeration_type_by_name(filter_key)
-        return create_filter_query(filter_key, filters_dict[filter_key], enum_type)
+        return create_filter_query(filter_key, filters_dict[filter_key])
     for field, field_values in filters_dict.items():
         if len(field_values) > 0:
-            if field == 'application':
-                enum_type = 'simple'
-            else:
-                enum_type = get_enumeration_type_by_name(field)
-            result['bool']['must'].append(create_filter_query(field, field_values, enum_type))
+            result['bool']['must'].append(create_filter_query(field, field_values))
     return result
 
 
-def create_text_query(query, searchable_fields, strictness):
-    if strictness == 'ALL_WORDS':
+def create_text_query(query: str, searchable_fields: List[str], strictness: Strictness):
+    if strictness == Strictness.ALL_WORDS:
         return {
             'multi_match': {
                 'query': query,
@@ -100,14 +93,13 @@ def create_text_query(query, searchable_fields, strictness):
                 'fields': searchable_fields,
             },
         }
-    else:
-        return {
-            'multi_match': {
-                'query': query,
-                'fields': searchable_fields,
-                'fuzziness': 'AUTO'
-            },
-        }
+    return {
+        'multi_match': {
+            'query': query,
+            'fields': searchable_fields,
+            'fuzziness': 'AUTO'
+        },
+    }
 
 
 def create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields):

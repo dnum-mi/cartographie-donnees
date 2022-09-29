@@ -12,6 +12,7 @@ from app.api.commons import import_resource, export_resource
 
 from . import api
 from .. import db
+from ..search.enums import Strictness
 
 
 def get_application_by_name(name, line=None, return_id=True):
@@ -166,7 +167,7 @@ def search_applications_limited():
     request_args = {}
     if organization:
         request_args["organization"] = [organization]
-    applications, total_count = Application.search_with_filter(query, request_args, "ANY_WORDS", page, count)
+    applications, total_count = Application.search_with_filter(query, request_args, Strictness.ANY_WORDS, page, count)
     if not current_user.is_admin:
         application_of_user = []
         for application in applications:
@@ -189,7 +190,7 @@ def search_applications():
     request_args = {}
     if organization:
         request_args["organization"] = [organization]
-    applications, total_count = Application.search_with_filter(query, request_args, "ANY_WORDS", page, count)
+    applications, total_count = Application.search_with_filter(query, request_args, Strictness.ANY_WORDS, page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
