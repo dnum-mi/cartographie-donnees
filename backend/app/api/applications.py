@@ -180,6 +180,7 @@ def search_applications_limited():
         results=[application.to_dict() for application in application_of_user]
     ))
 
+
 @api.route('/api/applications/search', methods=['GET'])
 @login_required
 def search_applications():
@@ -196,12 +197,15 @@ def search_applications():
         results=[application.to_dict() for application in applications]
     ))
 
+
 @api.route('/api/applications/count', methods=['GET'])
+@login_required
 def count_applications():
     base_query = Application.query
     if not current_user.is_admin:
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     return str(base_query.count())
+
 
 @api.route('/api/applications/organizations', methods=['GET'])
 def fetch_application_organizations():
