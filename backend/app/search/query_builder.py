@@ -61,7 +61,6 @@ def create_exclusion(exclusions: str, searchable_fields: List[str]):
             'multi_match': {
                 'query': exclusions,
                 'fields': searchable_fields,
-                'fuzziness': 'AUTO'
             }
         }
     else:
@@ -88,7 +87,6 @@ def create_text_query(query: str, searchable_fields: List[str], strictness: Stri
         return {
             'multi_match': {
                 'query': query,
-                "type": "cross_fields",
                 'operator': 'and',
                 'fields': searchable_fields,
             },
@@ -97,7 +95,6 @@ def create_text_query(query: str, searchable_fields: List[str], strictness: Stri
         'multi_match': {
             'query': query,
             'fields': searchable_fields,
-            'fuzziness': 'AUTO'
         },
     }
 

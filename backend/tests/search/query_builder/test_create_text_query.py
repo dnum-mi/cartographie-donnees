@@ -7,7 +7,6 @@ def test_create_text_query_all_words():
     assert query == {
         'multi_match': {
             'query': 'test',
-            "type": "cross_fields",
             'operator': 'and',
             'fields': ['name', 'description'],
         },
@@ -20,6 +19,5 @@ def test_create_text_query_any_words():
         'multi_match': {
             'query': 'test',
             'fields': ['name', 'description'],
-            'fuzziness': 'AUTO'
         },
     }
