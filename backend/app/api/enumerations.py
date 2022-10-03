@@ -20,12 +20,59 @@ required = [Type, Family, Organization]
 @api.route('/api/enumerations/categories', methods=['GET'])
 @login_required
 def get_enumeration_categories():
+    """Obtenir une liste des catégories
+    ---
+    get:
+      tags:
+        - Filtres
+      summary: Obtenir une liste des catégories de filtres
+      description: Retourne une liste du nom de toutes les catégories de filtres. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    type: array
+                    items:
+                        type: string
+                        example:
+                            - Famille
+                            - Organisation
+    """
     return jsonify([enumeration_english_to_french[category.__tablename__] for category in all_category])
 
 
 @api.route('/api/enumerations', methods=['GET'])
 @login_required
 def fetch_enumerations():
+    """Obtenir une liste des filtres
+    ---
+    get:
+      tags:
+        - Filtres
+      summary: Obtenir une liste des filtres
+      description: Retourne une liste de toutes les valeurs d'une catégorie de filtre. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
+
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: Filtrage par catégorie de filtre
+          schema:
+            type: string
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    oneOf:
+                        - $ref: "#/components/schemas/Enumeration avec categorie"
+                        - $ref: "#/components/schemas/Enumeration sans categorie"
+
+
+    """
     category = request.args.get('category')
     if category:
         category = enumeration_french_to_english[category]
@@ -56,6 +103,38 @@ def fetch_enumerations():
 @login_required
 @admin_required
 def create_enumeration():
+    """Créer une valeur de filtre
+    ---
+    post:
+      tags:
+        - Filtres
+      summary: Créer une valeur de filtre
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    category:
+                        type: string
+                    full_path:
+                        type: string
+                        description: Le chemin complet du filtre contenant éventuellement le sigle > pour marquer une relation parent-enfant.
+
+
+      responses:
+        200:
+          description: La valeur de filtre qui vient d'être créée
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/Enumeration"
+
+
+    """
     try:
         json = request.get_json()
         category = enumeration_french_to_english[json["category"]]
@@ -72,6 +151,41 @@ def create_enumeration():
 @login_required
 @admin_required
 def update_enumeration(enumeration_id):
+    """Modifier une valeur de filtre
+    ---
+    put:
+      tags:
+        - Filtres
+      summary: Modifier une valeur de filtre
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    category:
+                        type: string
+                    full_path:
+                        type: string
+                        description: Le chemin complet du filtre contenant éventuellement le sigle > pour marquer une relation parent-enfant (ex MI > DGPN).
+                    label:
+                        type: string
+                        description: Le nom long de ce filtre (ex "Direction générale de la police nationale")
+
+
+      responses:
+        200:
+          description: La valeur de filtre qui vient d'être modifiée
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/Enumeration"
+
+
+    """
     try:
         json = request.get_json()
         category = enumeration_french_to_english[json["category"]]
@@ -109,6 +223,30 @@ def convert_dict(category, dic):
 @login_required
 @admin_required
 def export_enumerations():
+    """Exporter les filtres
+    ---
+    get:
+      tags:
+        - Filtres
+      summary: Exporter les filtres
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+
+      responses:
+        200:
+          description: Les filtres en format CSV
+          content:
+                application/csv:
+                    schema:
+                        type: object
+                        properties:
+                            Valeur:
+                                type: string
+                            Libellé:
+                                type: string
+                            Catégorie:
+                                type: string
+    """
     enumerations = []
     for category in all_category:
         enums = category.query.all()
@@ -143,6 +281,38 @@ def export_enumerations():
 @login_required
 @admin_required
 def import_enumerations():
+    """Importer les filtres
+    ---
+    post:
+      tags:
+        - Filtres
+      summary: Importer les filtres
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      requestBody:
+          description: Le CSV des filtres
+          required: true
+          content:
+            application/csv:
+              schema:
+                type: object
+                properties:
+                    Valeur:
+                        type: string
+                    Libellé:
+                        type: string
+                    Catégorie:
+                        type: string
+
+      responses:
+        200:
+          description: Un message "ok"
+          content:
+            text/plain:
+                schema:
+                    type: string
+                    example: ok
+    """
     try:
         for category in all_category:
             db.session.query(category).delete(synchronize_session='fetch')
@@ -171,6 +341,30 @@ def import_enumerations():
 @login_required
 @admin_required
 def batch_delete_enumerations(enumeration_category):
+    """Supprimer une catégorie de filtre
+    ---
+    delete:
+      tags:
+        - Filtres
+      summary: Supprimer une catégorie de filtre
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      parameters:
+        - name: enumeration_category
+          in: path
+          required: true
+          schema:
+            type: string
+
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+
+    """
     Enumeration = get_enumeration_model_by_name(enumeration_category)
     enumerations = Enumeration.query.all()
     [db.session.delete(enumeration) for enumeration in enumerations]
@@ -182,6 +376,48 @@ def batch_delete_enumerations(enumeration_category):
 @login_required
 @admin_required
 def delete_enumeration(category, enumeration_id):
+    """Supprimer une valeur de filtre
+    ---
+    delete:
+      tags:
+        - Filtres
+      summary: Supprimer une valeur de filtre
+      description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: enumeration_id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+        400:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            code:
+                                type: integer
+                                description: Code d'erreur (400)
+                                example: 400
+                            description:
+                                type: string
+                                example: Impossible de supprimer cette valeur, vérifier que toutes ses occurences dans les données et applications ont disparues ...
+                                description: Justification
+
+    """
     source = None
     model_name = ""
     if category == "Famille":

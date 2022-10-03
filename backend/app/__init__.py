@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_redoc import Redoc
 
 from .staging_auth import BasicAuth
 
@@ -33,6 +34,7 @@ def create_app(testing=False):
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) if app.config['ELASTICSEARCH_URL'] else None
     login.init_app(app)
     mail.init_app(app)
+    redoc = Redoc(app, 'openapi.yml')
 
     if not app.debug and not app.testing:
         if not os.path.exists('logs'):
