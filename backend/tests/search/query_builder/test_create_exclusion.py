@@ -7,7 +7,6 @@ def test_exclusion_query():
         'multi_match': {
             'query': 'mots à exclure',
             'fields': ['name', 'description'],
-            'fuzziness': 'AUTO'
         }
     }
 

@@ -21,7 +21,6 @@ def test_query_with_filters_and_text(sample_organizations: List[Organization]):
                 "must": [{
                     'multi_match': {
                         'query': 'test',
-                        "type": "cross_fields",
                         'operator': 'and',
                         'fields': ['name', 'description'],
                     },
@@ -43,7 +42,6 @@ def test_query_with_filters_and_text(sample_organizations: List[Organization]):
                     'multi_match': {
                         'query': 'mots à exclure',
                         'fields': ['name', 'description'],
-                        'fuzziness': 'AUTO'
                     }
                 }
             }
@@ -65,7 +63,6 @@ def test_query_only_with_text(sample_organizations: List[Organization]):
                 "must": [{
                     'multi_match': {
                         'query': 'test',
-                        "type": "cross_fields",
                         'operator': 'and',
                         'fields': ['name', 'description'],
                     },
@@ -74,7 +71,6 @@ def test_query_only_with_text(sample_organizations: List[Organization]):
                     'multi_match': {
                         'query': 'mots à exclure',
                         'fields': ['name', 'description'],
-                        'fuzziness': 'AUTO'
                     }
                 }
             }
@@ -111,7 +107,6 @@ def test_query_only_with_filters(sample_organizations: List[Organization]):
                     'multi_match': {
                         'query': 'mots à exclure',
                         'fields': ['name', 'description'],
-                        'fuzziness': 'AUTO'
                     }
                 }
             }

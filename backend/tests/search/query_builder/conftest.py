@@ -34,19 +34,3 @@ def sample_organizations(testing_app) -> List[Organization]:
     db.session.refresh(org3)
     db.session.refresh(org4)
     yield [org1, org2, org3, org4]
-
-
-@pytest.fixture()
-def sample_families(testing_app) -> List[Family]:
-    family1 = Family.from_dict({
-        'full_path': 'Matériels > Armes à feu',
-    })
-    family2 = Family.from_dict({
-        'full_path': 'Matériels > Véhicules',
-    })
-    db.session.add(family1)
-    db.session.add(family2)
-    db.session.commit()
-    db.session.refresh(family1)
-    db.session.refresh(family2)
-    yield [family1, family2]

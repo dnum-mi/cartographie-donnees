@@ -1,0 +1,5 @@
+﻿Prénom;Nom de famille;Email;Administrateur ?;Mot de passe
+Admin;Admin;admin.admin@artelys.com;True;pbkdf2:sha256:150000$3cgEBN9E$3f
+User1;User1;admin.simple1@artelys.com;False;pbkdf2:sha256:150000$3cgEBN9E$3f
+User2;User2;admin.simple2@artelys.com;False;pbkdf2:sha256:150000$3cgEBN9E$3f
+User3;User3;admin.simple3@artelys.com;False;pbkdf2:sha256:150000$3cgEBN9E$3f

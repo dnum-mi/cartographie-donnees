@@ -99,6 +99,7 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
         try:
             db.session.commit()
         except StatementError as e:
+            db.session.rollback()
             raise CSVFormatError([dict(row='inconnue', error=e)])
         # TODO: test it
         if issubclass(resource_class, SearchableMixin):
