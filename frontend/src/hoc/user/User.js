@@ -1,6 +1,10 @@
+import default_user from "./defaultUser"
+const _ = require("lodash")
+
 export default class User {
     constructor(user) {
-        this.user = user
+        this.user = _.cloneDeep(default_user)
+        this.user = { ...this.user, ...user }
     }
 
     userIsAdmin = () => {
@@ -8,7 +12,7 @@ export default class User {
     }
 
     userHasAdminRightsToDatasource = (dataSource) => {
-        return this.user &&  (this.userIsAdmin() || this.userOwnsDataSource(dataSource))
+        return this.user && (this.userIsAdmin() || this.userOwnsDataSource(dataSource))
     }
     userOwnsDataSource = (dataSource) => {
         return dataSource &&
