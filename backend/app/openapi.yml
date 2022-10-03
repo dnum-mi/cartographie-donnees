@@ -30,7 +30,7 @@ components:
     countDataSrc:
       name: count
       in: query
-      description: La quantité de données par page
+      description: Le nombre de données par page
       schema:
         type: integer
         default: 10

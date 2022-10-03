@@ -145,10 +145,10 @@ def search_users():
 @login_required
 @admin_required
 def count_users():
-    """Quantité d'utilisateurs
+    """Nombre d'utilisateurs
     ---
     get:
-        summary: Quantité d'utilisateurs
+        summary: Nombre d'utilisateurs
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
         responses:

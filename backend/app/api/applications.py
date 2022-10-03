@@ -50,7 +50,7 @@ def fetch_applications():
 
             - name: count
               in: query
-              description: La quantité d'applications par page
+              description: Le nombre d'applications par page
               required: false
               schema:
                 type: integer
@@ -122,7 +122,7 @@ def reindex_applications():
     ---
     get:
       summary: Réindexer les applications
-      description:
+      description: Synchronisation de l'index elasticsearch correspondant aux applications avec la base de données.
       responses:
         200:
           content:
@@ -223,7 +223,7 @@ def search_applications_limited():
 
             - name: count
               in: query
-              description: La quantité d'applications par page
+              description: Le nombre d'applications par page
               required: false
               schema:
                 type: integer
@@ -259,7 +259,7 @@ def search_applications_limited():
                                     $ref: "#/components/schemas/ApplicationGet"
                             total_count:
                                 type: integer
-                                description: Quantité totale de résultats
+                                description: Nombre totale de résultats
     """
     page = int(request.args.get('page', 1))
     count = int(request.args.get('count', 1000))
@@ -303,7 +303,7 @@ def search_applications():
 
             - name: count
               in: query
-              description: La quantité d'applications par page
+              description: Le nombre d'applications par page
               required: false
               schema:
                 type: integer
@@ -339,7 +339,7 @@ def search_applications():
                                     $ref: "#/components/schemas/ApplicationGet"
                             total_count:
                                 type: integer
-                                description: Quantité totale de résultats
+                                description: Nombre total de résultats
     """
     page = int(request.args.get('page', 1))
     count = int(request.args.get('count', 1000))
@@ -357,11 +357,11 @@ def search_applications():
 
 @api.route('/api/applications/count', methods=['GET'])
 def count_applications():
-    """Quantité d'applications
+    """Nombre d'applications
     ---
     get:
-      summary: Quantité d'applications
-      description: Recevoir la quantité totale d'applications existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
+      summary: Nombre d'applications
+      description: Recevoir le nombre total d'applications existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
 
       responses:
         200:
@@ -382,7 +382,7 @@ def fetch_application_organizations():
     ---
     get:
       summary: Organisation des applications
-      description: 500 par page
+      description: Liste des organisations (MOA) reliées aux applications correspondant à la recherche.
       parameters:
             - name: page
               in: query
@@ -533,7 +533,7 @@ def delete_application(application_id):
                     schema:
                         $ref: "#/components/schemas/JsonResponse200"
             '400':
-                description: Vérifier que l'application n'héberge aucunes données avant la suppression.
+                description: Vérifier que l'application n'héberge aucune donnée avant la suppression.
     """
     application = get_application(application_id)
     source = db.session.query(DataSource).filter(DataSource.application_id == application_id).first()

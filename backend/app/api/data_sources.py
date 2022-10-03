@@ -304,7 +304,7 @@ def reindex_data_sources():
     ---
     get:
       summary: Réindexer les données
-      description:
+      description: Synchronisation de l'index elasticsearch correspondant aux données avec la base de données.
       responses:
         200:
           content:
@@ -469,11 +469,11 @@ def count_data_sources_by_enumeration():
 @login_required
 @admin_or_any_owner_required
 def count_data_sources():
-    """Quantité de données
+    """Nombre de données
     ---
     get:
-      summary: Quantité de données
-      description: Recevoir la quantité totale de données existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les donnnées dont l'utilisateur est propriétaire de l'application.
+      summary: Nombre de données
+      description: Recevoir le nombre total de données existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les donnnées dont l'utilisateur est propriétaire de l'application.
 
       responses:
         200:
