@@ -172,10 +172,10 @@ def update_enumeration(enumeration_id):
                         type: string
                     full_path:
                         type: string
-                        description: Le chemin complet du filtre contenant éventuellement le sigle > pour marquer une relation parent-enfant (ex : MI > DGPN).
+                        description: Le chemin complet du filtre contenant éventuellement le sigle > pour marquer une relation parent-enfant (ex MI > DGPN).
                     label:
                         type: string
-                        description: Le nom long de ce filtre (ex: "Direction générale de la police nationale")
+                        description: Le nom long de ce filtre (ex "Direction générale de la police nationale")
 
 
       responses:
