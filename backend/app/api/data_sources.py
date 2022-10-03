@@ -24,6 +24,8 @@ def fetch_data_sources():
     """Obtenir des données
     ---
     get:
+        tags:
+            - Donnees
         summary: Obtenir des données
         description: Endpoint retournant une liste paginée de données. L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les données donc l'application appartenant à l'utilisateur.
         parameters:
@@ -81,6 +83,8 @@ def create_data_source():
     """Créer une donnée
     ---
     post:
+        tags:
+            - Donnees
         summary: Créer une donnée
         description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut créer des données que pour des applications dont il est propriétaire.
 
@@ -130,6 +134,8 @@ def export_data_source_request():
     """Exporter les données de recherche
     ---
     get:
+        tags:
+            - Donnees
         summary: Exporter les données de recherche
         description: Export de toutes les données (limite 10 000) en format CSV.
         parameters:
@@ -168,6 +174,8 @@ def export_data_source_of_application(application_id):
     """Exporter les données d'une application
     ---
     get:
+        tags:
+            - Donnees
         summary: Exporter les données d'une application
         description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut exporter des données que pour des applications dont il est propriétaire.
         parameters:
@@ -193,6 +201,8 @@ def export_data_sources():
     """Exporter toutes les données
     ---
     get:
+        tags:
+            - Donnees
         summary: Exporter toutes les données
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -215,6 +225,8 @@ def import_data_sources_by_application(application_id):
     """Importer les données d'une application
     ---
     post:
+        tags:
+            - Donnees
         summary: Importer les données d'une application
         description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut créer des données que pour des applications dont il est propriétaire.
 
@@ -235,6 +247,8 @@ def import_data_sources_by_application(application_id):
                         $ref: "#/components/schemas/JsonResponse200"
 
     put:
+        tags:
+            - Filtres
         summary: Remplacer les données d'une application
         description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut modifier des données que pour des applications dont il est propriétaire.
 
@@ -273,6 +287,8 @@ def import_data_sources():
     """Importer toutes les données
     ---
     post:
+        tags:
+            - Donnees
         summary: Importer toutes les données
         description: Toutes les données actuelles sont remplacées par cet import. L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -303,6 +319,8 @@ def reindex_data_sources():
     """Réindexer les données
     ---
     get:
+      tags:
+        - Donnees
       summary: Réindexer les données
       description: Synchronisation de l'index elasticsearch correspondant aux données avec la base de données.
       responses:
@@ -373,6 +391,8 @@ def search_data_sources():
     """Obtenir des données avec recherche limitée
     ---
     get:
+        tags:
+            - Donnees
         summary: Obtenir des données avec recherche limitée
         description: Endpoint retournant une liste paginée de données basée sur une recherche.
 
@@ -425,6 +445,8 @@ def count_data_sources_by_enumeration():
     """Obtenir le décompte de données par énumération
     ---
     get:
+        tags:
+            - Donnees
         summary: Obtenir le décompte de données par énumération
 
         parameters:
@@ -472,6 +494,8 @@ def count_data_sources():
     """Nombre de données
     ---
     get:
+      tags:
+        - Donnees
       summary: Nombre de données
       description: Recevoir le nombre total de données existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les donnnées dont l'utilisateur est propriétaire de l'application.
 
@@ -493,6 +517,8 @@ def fetch_data_source_families():
     """Obtenir les éléments de l'arbre des familles
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des familles
 
       responses:
@@ -510,6 +536,8 @@ def fetch_data_source_types():
     """Obtenir les éléments de l'arbre des types
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des types
 
       responses:
@@ -527,6 +555,8 @@ def fetch_data_source_applications():
     """Obtenir les éléments de l'arbre d'applications
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre d'applications
       description: Les applications ne peuvent pas avoir de children.
 
@@ -553,6 +583,8 @@ def fetch_data_source_organizations():
     """Obtenir les éléments de l'arbre des organisations
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des organisations
 
       responses:
@@ -570,6 +602,8 @@ def fetch_data_source_referentiels():
     """Obtenir les éléments de l'arbre des référentiels
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des référentiels
 
       responses:
@@ -587,6 +621,8 @@ def fetch_data_source_sensibilities():
     """Obtenir les éléments de l'arbre des sensibilités
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des sensibilités
 
       responses:
@@ -604,6 +640,8 @@ def fetch_data_source_open_data():
     """Obtenir les éléments de l'arbre des open data
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des open data
 
       responses:
@@ -621,6 +659,8 @@ def fetch_data_source_expositions():
     """Obtenir les éléments de l'arbre des expositions
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des expositions
 
       responses:
@@ -638,6 +678,8 @@ def fetch_data_source_origins():
     """Obtenir les éléments de l'arbre des origines
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des origines
 
       responses:
@@ -655,6 +697,8 @@ def fetch_data_source_classifications():
     """Obtenir les éléments de l'arbre des axes d'analyse
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des axes d'analyse
 
       responses:
@@ -672,6 +716,8 @@ def fetch_data_source_tags():
     """Obtenir les éléments de l'arbre des tags
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir les éléments de l'arbre des tags
 
       responses:
@@ -689,6 +735,8 @@ def read_data_source(data_source_id):
     """Obtenir une donnée
     ---
     get:
+      tags:
+        - Donnees
       summary: Obtenir une donnée
       parameters:
       - dataSourceId
@@ -711,6 +759,8 @@ def update_data_source(data_source_id):
     """Modifier une donnée
     ---
     put:
+      tags:
+        - Donnees
       summary: Modifier une donnée
       description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de modifier les données donc l'application appartenant à l'utilisateur.
 
@@ -763,6 +813,8 @@ def delete_data_source(data_source_id):
     """Supprimer une donnée
     ---
     delete:
+      tags:
+        - Donnees
       summary: Supprimer une donnée
       description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de supprimer les données donc l'application appartenant à l'utilisateur.
 

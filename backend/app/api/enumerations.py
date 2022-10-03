@@ -24,8 +24,10 @@ def get_enumeration_categories():
     """Obtenir une liste des catégories
     ---
     get:
-      summary: Obtenir une liste des catégories
-      description: Retourne une liste du nom de toutes les catégories d'énumérations. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
+      tags:
+        - Filtres
+      summary: Obtenir une liste des catégories de filtres
+      description: Retourne une liste du nom de toutes les catégories de filtres. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
 
       responses:
         200:
@@ -46,16 +48,19 @@ def get_enumeration_categories():
 @login_required
 @admin_or_any_owner_required
 def fetch_enumerations():
-    """Obtenir une liste des énumérations
+    """Obtenir une liste des filtres
     ---
     get:
-      summary: Obtenir une liste des énumérations
-      description: Retourne une liste du nom de toutes les énumérations d'une catégorie si le paramètre de catégorie est fourni, sinon de toutes les énumérations triées par catégorie. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
+      tags:
+        - Filtres
+      summary: Obtenir une liste des filtres
+      description: Retourne une liste de toutes les valeurs d'une catégorie de filtre. L'authentification est requise. L'utilisateur doit être administrateur principal ou propriétaire d'application.
 
       parameters:
         - name: category
           in: query
           required: false
+          description: Filtrage par catégorie de filtre
           schema:
             type: string
 
@@ -100,10 +105,12 @@ def fetch_enumerations():
 @login_required
 @admin_required
 def create_enumeration():
-    """Créer une énumérations
+    """Créer une valeur de filtre
     ---
     post:
-      summary: Créer une énumérations
+      tags:
+        - Filtres
+      summary: Créer une valeur de filtre
       description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
       requestBody:
@@ -117,11 +124,12 @@ def create_enumeration():
                         type: string
                     full_path:
                         type: string
+                        description: Le chemin complet du filtre contenant éventuellement le sigle > pour marquer une relation parent-enfant.
 
 
       responses:
         200:
-          description: L'énumération qui vient d'être créé
+          description: La valeur de filtre qui vient d'être créée
           content:
             application/json:
                 schema:
@@ -145,10 +153,12 @@ def create_enumeration():
 @login_required
 @admin_required
 def update_enumeration(enumeration_id):
-    """Modifier une énumérations
+    """Modifier une valeur de filtre
     ---
     put:
-      summary: Modifier une énumérations
+      tags:
+        - Filtres
+      summary: Modifier une valeur de filtre
       description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
       requestBody:
@@ -162,13 +172,15 @@ def update_enumeration(enumeration_id):
                         type: string
                     full_path:
                         type: string
+                        description: Le chemin complet du filtre contenant éventuellement le sigle > pour marquer une relation parent-enfant (ex : MI > DGPN).
                     label:
                         type: string
+                        description: Le nom long de ce filtre (ex: "Direction générale de la police nationale")
 
 
       responses:
         200:
-          description: L'énumération qui vient d'être modifiée
+          description: La valeur de filtre qui vient d'être modifiée
           content:
             application/json:
                 schema:
@@ -213,16 +225,18 @@ def convert_dict(category, dic):
 @login_required
 @admin_required
 def export_enumerations():
-    """Exporter les énumérations
+    """Exporter les filtres
     ---
     get:
-      summary: Exporter les énumérations
+      tags:
+        - Filtres
+      summary: Exporter les filtres
       description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
 
       responses:
         200:
-          description: Les énumérations en format CSV
+          description: Les filtres en format CSV
           content:
                 application/csv:
                     schema:
@@ -269,14 +283,16 @@ def export_enumerations():
 @login_required
 @admin_required
 def import_enumerations():
-    """Importer les énumérations
+    """Importer les filtres
     ---
     post:
-      summary: Importer les énumérations
+      tags:
+        - Filtres
+      summary: Importer les filtres
       description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
       requestBody:
-          description: Le CSV des énumérations
+          description: Le CSV des filtres
           required: true
           content:
             application/csv:
@@ -327,10 +343,12 @@ def import_enumerations():
 @login_required
 @admin_required
 def batch_delete_enumerations(enumeration_category):
-    """Supprimer une catégorie d'énumération
+    """Supprimer une catégorie de filtre
     ---
     delete:
-      summary: Supprimer une catégorie d'énumération
+      tags:
+        - Filtres
+      summary: Supprimer une catégorie de filtre
       description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
       parameters:
@@ -360,10 +378,12 @@ def batch_delete_enumerations(enumeration_category):
 @login_required
 @admin_required
 def delete_enumeration(category, enumeration_id):
-    """Supprimer une énumération
+    """Supprimer une valeur de filtre
     ---
     delete:
-      summary: Supprimer une énumération
+      tags:
+        - Filtres
+      summary: Supprimer une valeur de filtre
       description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
       parameters:

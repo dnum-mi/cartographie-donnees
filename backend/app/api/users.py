@@ -19,6 +19,8 @@ def create_user():
     """Créer un nouvel utilisateur
     ---
     post:
+        tags:
+            - Utilisateurs
         summary: Créer un nouvel utilisateur
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
         requestBody:
@@ -79,6 +81,8 @@ def fetch_users():
     """Obtenir tous les utilisateurs
     ---
     get:
+        tags:
+            - Utilisateurs
         summary: Obtenir tous les utilisateurs
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -107,6 +111,8 @@ def search_users():
     """Obtenir des utilisateurs par recherche
     ---
     get:
+        tags:
+            - Utilisateurs
         summary: Obtenir des utilisateurs par recherche
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -148,6 +154,8 @@ def count_users():
     """Nombre d'utilisateurs
     ---
     get:
+        tags:
+            - Utilisateurs
         summary: Nombre d'utilisateurs
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -169,6 +177,8 @@ def read_me():
     """Obtenir son profil utilisateur
     ---
     get:
+        tags:
+            - Utilisateurs
         summary: Obtenir son profil utilisateur
 
         responses:
@@ -197,6 +207,8 @@ def read_user(user_id):
     """Obtenir les données d'un utilisateur
     ---
     get:
+        tags:
+            - Utilisateurs
         summary: Obtenir les données d'un utilisateur
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -226,6 +238,8 @@ def update_user(user_id):
     """Modifier les données d'un utilisateur
     ---
     put:
+        tags:
+            - Utilisateurs
         summary: Modifier les données d'un utilisateur
         description: L'authentification est requise.
 
@@ -292,6 +306,8 @@ def delete_user(user_id):
     """Supprimer un utilisateur
     ---
     delete:
+        tags:
+            - Utilisateurs
         summary: Supprimer un utilisateur
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -332,6 +348,8 @@ def import_users():
     """Importer les utilisateurs
     ---
     post:
+        tags:
+            - Utilisateurs
         summary: Importer les utilisateurs
         description: Tous les utilisateurs actuels sont remplacés par cet import. L'authentification est requise. L'utilisateur doit être administrateur principal.
 
@@ -365,6 +383,8 @@ def export_users():
     """Exporter les utilisateurs
     ---
     get:
+        tags:
+            - Utilisateurs
         summary: Exporter les utilisateurs
         description: L'authentification est requise. L'utilisateur doit être administrateur principal.
 

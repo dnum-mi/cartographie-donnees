@@ -36,7 +36,8 @@ def login():
     ---
     post:
         summary: Se connecter
-
+        tags:
+          - Authentification
         requestBody:
           required: true
           content:
@@ -85,7 +86,8 @@ def logout():
     ---
     post:
         summary: Se déconnecter
-
+        tags:
+          - Authentification
         responses:
             200:
               content:
@@ -104,6 +106,8 @@ def forgot_password():
     """Mot de passe oublié
     ---
     post:
+        tags:
+          - Authentification
         summary: Mot de passe oublié
         description: Envoi un email à l'adresse courriel avec un lien de réinitialisation de mot de passe.
 
@@ -150,6 +154,8 @@ def reset_password():
     """Réinitialisation du mot de passe
     ---
     post:
+        tags:
+          - Authentification
         summary: Réinitialisation du mot de passe
         description: Lien obtenu par courriel pour réinitialiser son mot de passe.
 

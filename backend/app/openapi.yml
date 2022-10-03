@@ -5,7 +5,12 @@ info:
 servers:
   - url: http://localhost:5000
 paths:
-
+tags:
+  - name: Applications
+  - name: Authentification
+  - name: Donnees
+  - name: Filtres
+  - name: Utilisateurs
 
 components:
 

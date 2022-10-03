@@ -36,6 +36,8 @@ def fetch_applications():
     """Obtenir des applications
     ---
     get:
+        tags:
+            - Applications
         summary: Obtenir des applications
         description: Endpoint retournant une liste paginée d'applications. L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
 
@@ -86,6 +88,8 @@ def create_application():
     """Créer une nouvelle application
     ---
     post:
+      tags:
+        - Applications
       summary: Créer une nouvelle application
       requestBody:
           description: Un objet JSON contenant les données de la nouvelle application
@@ -121,6 +125,8 @@ def reindex_applications():
     """Réindexer les applications
     ---
     get:
+      tags:
+        - Applications
       summary: Réindexer les applications
       description: Synchronisation de l'index elasticsearch correspondant aux applications avec la base de données.
       responses:
@@ -142,16 +148,6 @@ def get_application(application_id):
     return Application.query.get_or_404(app_id)
 
 
-def convert_dict(dic):
-    newf_dict = {}
-    for key, value in dic.items():
-        if not value:
-            new_dict[key] = None
-        else:
-            new_dict[key] = value
-    return new_dict
-
-
 @api.route('/api/applications/export', methods=['GET'])
 @login_required
 @admin_required
@@ -159,6 +155,8 @@ def export_applications():
     """Exporter les applications
     ---
     get:
+      tags:
+        - Applications
       summary: Exporter les applications
       description: Export en CSV de toutes les applications
       responses:
@@ -179,6 +177,8 @@ def import_applications():
     """Importer les applications
     ---
     post:
+      tags:
+        - Applications
       summary: Importer les applications
       description: Importer et remplacer toutes les applications à partir d'un CSV
       requestBody:
@@ -209,6 +209,8 @@ def search_applications_limited():
     """Obtenir des applications avec recherche limitée
     ---
     get:
+        tags:
+            - Applications
         summary: Obtenir des applications avec recherche limitée
         description: Endpoint retournant une liste paginée d'applications basée sur une recherche. L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
 
@@ -289,6 +291,8 @@ def search_applications():
     """Obtenir des applications avec recherche
     ---
     get:
+        tags:
+            - Applications
         summary: Obtenir des applications avec recherche
         description: Endpoint retournant une liste paginée d'applications basée sur une recherche.
 
@@ -360,6 +364,8 @@ def count_applications():
     """Nombre d'applications
     ---
     get:
+      tags:
+        - Applications
       summary: Nombre d'applications
       description: Recevoir le nombre total d'applications existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
 
@@ -381,6 +387,8 @@ def fetch_application_organizations():
     """Organisation des applications
     ---
     get:
+      tags:
+        - Applications
       summary: Organisation des applications
       description: Liste des organisations (MOA) reliées aux applications correspondant à la recherche.
       parameters:
@@ -436,6 +444,8 @@ def read_application(application_id):
     """Obtenir une application
     ---
     get:
+        tags:
+            - Applications
         summary: Obtenir une application
         description: Endpoint retournant une application par son ID.
 
@@ -466,6 +476,8 @@ def update_application(application_id):
     """Mettre à jour une application
     ---
     put:
+        tags:
+            - Applications
         summary: Mettre à jour une application
         description: L'authentification est requise. L'utilisateur doit être propriétaire d'application.
         parameters:
@@ -517,6 +529,8 @@ def delete_application(application_id):
     """Supprimer une application
     ---
     delete:
+        tags:
+            - Applications
         summary: Supprimer une application
         description: L'authentification est requise. L'utilisateur doit être propriétaire d'application.
         parameters:
