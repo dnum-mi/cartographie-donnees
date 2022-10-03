@@ -62,10 +62,7 @@ def search_users():
 @login_required
 @admin_required
 def count_users():
-    if current_user.is_admin:
-        return str(User.query.count())
-    else:
-        return '0'
+    return str(User.query.count())
 
 
 @api.route('/api/users/me', methods=['GET'])
