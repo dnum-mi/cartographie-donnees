@@ -1,7 +1,7 @@
 import React from 'react';
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
-import {Input, Tag, Pagination, Button, Radio, Divider, Col, Row, Skeleton} from 'antd';
+import { Input, Tag, Pagination, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
@@ -80,20 +80,20 @@ class SearchPage extends React.Component {
 
     isFirstTime = () => {
         return !(this.state.query
-          || this.state.selectedOrganization.length !== 0
-          || this.state.selectedFamily.length !== 0
-          || this.state.selectedType.length !== 0
-          || this.state.selectedApplication.length !== 0
-          || this.state.selectedReferentiel.length !== 0
-          || this.state.selectedSensibility.length !== 0
-          || this.state.selectedOpenData.length !== 0
-          || this.state.selectedExposition.length !== 0
-          || this.state.selectedOrigin.length !== 0
-          || this.state.selectedClassification.length !== 0
-          || this.state.selectedTag.length !== 0);
+            || this.state.selectedOrganization.length !== 0
+            || this.state.selectedFamily.length !== 0
+            || this.state.selectedType.length !== 0
+            || this.state.selectedApplication.length !== 0
+            || this.state.selectedReferentiel.length !== 0
+            || this.state.selectedSensibility.length !== 0
+            || this.state.selectedOpenData.length !== 0
+            || this.state.selectedExposition.length !== 0
+            || this.state.selectedOrigin.length !== 0
+            || this.state.selectedClassification.length !== 0
+            || this.state.selectedTag.length !== 0);
     }
 
-    readString(value, defaultValue=null) {
+    readString(value, defaultValue = null) {
         if (value) {
             return value;
         }
@@ -127,20 +127,35 @@ class SearchPage extends React.Component {
     }
 
     componentDidMount() {
-        this.setStatePromise({ homeDescription: this.isFirstTime() })
-          .then(this.initSearch)
-          .then(this.refreshFilters);
+        this.refreshFilters().then(
+            this.launchSearch)
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.location.search !== prevProps.location.search) {
-            let newState = { homeDescription: this.isFirstTime(), ...this.parseQuery() };
-            this.setStatePromise(newState)
-              .then(() => {
-                  const search = this.getQuery(this.state.query);
-                  this.search(search);
-              })
+            this.launchSearch()
         }
+    }
+
+    launchSearch = () => {
+        let newState = { homeDescription: this.isFirstTime(), ...this.parseQuery() };
+        return this.setStatePromise(newState)
+            .then(() => {
+                const search = this.getQuery(this.state.query);
+                this.search(search);
+            })
+    }
+
+    search(search) {
+        this.setState({
+            loading: true,
+            error: null,
+        });
+
+        this.refreshDataSources(search)
+            .then(() => this.refreshFilterCount(search))
+            .then(() => this.setState({ loading: false, error: null }))
+            .catch((error) => this.setState({ loading: false, error }));
     }
 
     setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve()));
@@ -152,7 +167,7 @@ class SearchPage extends React.Component {
         .then((response) => this.setStatePromise({ filtersCount: response.data.results }));
 
     refreshFilters = () => Promise.all([
-      this.refreshOrganizations(),
+        this.refreshOrganizations(),
         this.refreshFamilies(),
         this.refreshTypes(),
         this.refreshApplications(),
@@ -197,40 +212,15 @@ class SearchPage extends React.Component {
     refreshTags = () => searchTags()
         .then((response) => this.setStatePromise({ tags: response.data }));
 
-    search(search) {
-        this.setState({
-            loading: true,
-            error: null,
-        });
 
-        this.refreshDataSources(search)
-            .then(() => this.refreshFilterCount(search))
-            .then(() => this.setStatePromise({ loading: false, error: null }))
-            .catch((error) => this.setStatePromise({ loading: false, error }));
-    }
 
     onSearch = () => {
         const search = this.getQuery(this.state.query);
         this.props.history.push({
             search: search
         })
-        return this.launchSearch(search)
     };
 
-    initSearch = () => {
-        const search = this.getQuery(this.state.query);
-        this.props.history.replace({
-            search: search
-        })
-        return this.launchSearch(search)
-    }
-
-    launchSearch = (search) => {
-        return this.setStatePromise({
-            homeDescription: this.isFirstTime(),
-        })
-            .then(() => this.search(search));
-    }
 
     onChangePageDataSource = (page, count) => {
         this.setStatePromise({
@@ -248,18 +238,18 @@ class SearchPage extends React.Component {
         const lastPage = this.state.page_data_source * this.state.count_data_source;
         const totalElement = this.state.total_count_data_source;
         return 'Données '
-          + Math.min(firstPage, totalElement).toString()
-          + ' à '
-          + Math.min(lastPage, totalElement).toString()
-          + ' sur '
-          + totalElement.toString();
+            + Math.min(firstPage, totalElement).toString()
+            + ' à '
+            + Math.min(lastPage, totalElement).toString()
+            + ' sur '
+            + totalElement.toString();
     }
 
     //cliked on tag X below searchbar
     removeFilter = (key, value) => {
         let filter = this.state[key];
         const valuesToUncheck = [value];
-        for (const valueToUncheck of valuesToUncheck){
+        for (const valueToUncheck of valuesToUncheck) {
             filter = filter.filter(item => item !== valueToUncheck);
         }
         this.setStatePromise({ [key]: filter, page_data_source: 1, })
@@ -269,7 +259,7 @@ class SearchPage extends React.Component {
     addFilter = (key, value) => {
         let filter = this.state[key];
 
-        if(!filter.includes(value)){
+        if (!filter.includes(value)) {
             filter = [...filter, value];
         }
         this.setStatePromise({ [key]: filter, page_data_source: 1, })
@@ -317,8 +307,8 @@ class SearchPage extends React.Component {
         }
         const treeData = this.state[filters[key].listKey];
         const [treeDataWithCount, _] = this.enrichTreeWithNodeCount(
-          treeData,
-          this.state.filtersCount[filters[key].attributeKey],
+            treeData,
+            this.state.filtersCount[filters[key].attributeKey],
         );
         return this.sortTree(treeDataWithCount);
     };
@@ -342,7 +332,7 @@ class SearchPage extends React.Component {
 
     renderLoading = () => {
         return (
-            <div style={{marginRight: "10px"}}>
+            <div style={{ marginRight: "10px" }}>
                 <Skeleton loading={true} active />
                 <Skeleton loading={true} active />
                 <Skeleton loading={true} active />
@@ -386,10 +376,10 @@ class SearchPage extends React.Component {
                         </span>
                         <div className="download-search">
                             <Button
-                              onClick={this.export}
-                              type="secondary"
-                              icon={<DownloadOutlined />}
-                              disabled={!this.state.dataSources.length}
+                                onClick={this.export}
+                                type="secondary"
+                                icon={<DownloadOutlined />}
+                                disabled={!this.state.dataSources.length}
                             >
                                 Télécharger les résultats
                             </Button>
@@ -415,7 +405,7 @@ class SearchPage extends React.Component {
                     <div>
                         {this.props.homepageContent ? this.props.homepageContent["welcome_text"] : default_wildcards["text"]}
                     </div>
-                    <br/>
+                    <br />
                     <a>
                         {this.props.homepageContent ? this.props.homepageContent["email"] : default_wildcards["email"]}
                     </a>
@@ -424,11 +414,11 @@ class SearchPage extends React.Component {
         }
         else {
             return <Results dataSources={this.state.dataSources}
-                            page_data_source={this.state.page_data_source}
-                            count_data_source={this.state.count_data_source}
-                            total_count_data_source={this.state.total_count_data_source}
-                            onChangePageDataSource={this.onChangePageDataSource}
-                            addFilter={this.addFilter}
+                page_data_source={this.state.page_data_source}
+                count_data_source={this.state.count_data_source}
+                total_count_data_source={this.state.total_count_data_source}
+                onChangePageDataSource={this.onChangePageDataSource}
+                addFilter={this.addFilter}
             />;
         }
     }
@@ -457,13 +447,13 @@ class SearchPage extends React.Component {
 
     findOrganization(organizations, fullPath) {
         let label = null;
-        for(let organization of organizations) {
+        for (let organization of organizations) {
             if (organization.full_path === fullPath) {
                 label = organization.label
             } else if (organization.children && organization.children.length > 0) {
                 label = this.findOrganization(organization.children, fullPath)
             }
-            if(label != null) {
+            if (label != null) {
                 return label
             }
         }
@@ -475,11 +465,11 @@ class SearchPage extends React.Component {
             <div className="Tags">
                 {
                     Object.keys(filters)
-                      .map((key) => this.renderTagList(
-                        filters[key].selectedKey,
-                        filters[key].color,
-                      ))
-                      .filter((tagList) => tagList !== null)
+                        .map((key) => this.renderTagList(
+                            filters[key].selectedKey,
+                            filters[key].color,
+                        ))
+                        .filter((tagList) => tagList !== null)
                 }
             </div>
         );
@@ -493,11 +483,11 @@ class SearchPage extends React.Component {
     }
 
     onRuleChange = (e) => {
-        this.setStatePromise({ strictness:e.target.value, page_data_source: 1, }).then(() => this.onSearch());
+        this.setStatePromise({ strictness: e.target.value, page_data_source: 1, }).then(() => this.onSearch());
     }
 
     onExcludeChange = (e) => {
-        this.setStatePromise({ toExclude:e.target.value, page_data_source: 1, }).then(() => this.onSearch());
+        this.setStatePromise({ toExclude: e.target.value, page_data_source: 1, }).then(() => this.onSearch());
     }
 
     export = () => {
@@ -535,10 +525,10 @@ class SearchPage extends React.Component {
                                 Règle sur la recherche :
                             </label>
                             <Radio.Group
-                              id="search-type"
-                              onChange={this.onRuleChange}
-                              value={this.state.strictness}
-                              defaultValue={ANY_WORDS}
+                                id="search-type"
+                                onChange={this.onRuleChange}
+                                value={this.state.strictness}
+                                defaultValue={ANY_WORDS}
                             >
                                 <Radio value={ANY_WORDS}>N'importe quel mot</Radio>
                                 <Radio value={ALL_WORDS}>Tous les mots</Radio>
@@ -549,16 +539,16 @@ class SearchPage extends React.Component {
                                 Mots à exclure :
                             </label>
                             <Input
-                              id="search-exclusion"
-                              placeholder="Mots à exclure de la recherche"
-                              defaultValue={this.state.toExclude}
-                              onBlur={this.onExcludeChange}
-                              onPressEnter={this.onExcludeChange}
+                                id="search-exclusion"
+                                placeholder="Mots à exclure de la recherche"
+                                defaultValue={this.state.toExclude}
+                                onBlur={this.onExcludeChange}
+                                onPressEnter={this.onExcludeChange}
                             />
                         </Col>
                     </Row>
                 </div>
-                <Divider style={{ marginTop: 0 }}/>
+                <Divider style={{ marginTop: 0 }} />
                 {this.renderDataSourcesResults()}
             </div>
         );
