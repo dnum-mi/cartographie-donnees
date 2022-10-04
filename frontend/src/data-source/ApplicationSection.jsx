@@ -91,7 +91,6 @@ class ApplicationSection extends React.Component {
           ) : 
           undefined
         }
-        {this.props.application.id !== null && this.renderApplicationEdit()}
         {(this.props.currentUser.user.is_admin || this.props.application.id !== null) && this.renderApplicationEdit()}
       </div>
     );
