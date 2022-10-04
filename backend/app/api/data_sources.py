@@ -448,8 +448,6 @@ def count_data_sources_by_enumeration():
 
         parameters:
             - searchQuery
-            - pageDataSrc
-            - countDataSrc
             - family
             - type
             - organization
