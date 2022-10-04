@@ -3,5 +3,5 @@ from app.models import EnumerationMixin
 
 
 class Origin(EnumerationMixin):
-    data_sources = db.relationship('DataSource', backref='origin', lazy='dynamic')
+    data_sources = db.relationship('DataSource', backref=db.backref('origin', lazy='joined'), lazy='select')
 

@@ -3,4 +3,4 @@ from app.models import EnumerationMixin
 
 
 class Type(EnumerationMixin):
-    data_sources = db.relationship('DataSource', backref='type', lazy='dynamic')
+    data_sources = db.relationship('DataSource', backref=db.backref('type', lazy='joined'), lazy='select')
