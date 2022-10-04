@@ -32,6 +32,38 @@ def load_user_from_request(request):
 
 @api.route('/api/login', methods=['POST'])
 def login():
+    """Se connecter
+    ---
+    post:
+        summary: Se connecter
+        tags:
+          - Authentification
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    email:
+                        type: string
+                    password:
+                        type: string
+
+
+        responses:
+            200:
+              content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                token:
+                                    type: string
+            401:
+                description: L'utilisateur n'existe pas ou mot de passe est incorrect
+
+    """
     req = request.get_json(force=True)
     email = req.get('email', None)
     password = req.get('password', None)
@@ -50,12 +82,54 @@ def login():
 
 @api.route('/api/logout', methods=['POST'])
 def logout():
+    """Se déconnecter
+    ---
+    post:
+        summary: Se déconnecter
+        tags:
+          - Authentification
+        responses:
+            200:
+              content:
+                    text/plain:
+                        schema:
+                            type: string
+                            example: ok
+                            description: "ok"
+    """
     logout_user()
     return 'ok'
 
 
 @api.route('/api/auth/forgot-password', methods=['POST'])
 def forgot_password():
+    """Mot de passe oublié
+    ---
+    post:
+        tags:
+          - Authentification
+        summary: Mot de passe oublié
+        description: Envoi un email à l'adresse courriel avec un lien de réinitialisation de mot de passe.
+
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    email:
+                        type: string
+
+        responses:
+            200:
+              content:
+                    text/plain:
+                        schema:
+                            type: string
+                            example: ok
+                            description: "ok"
+    """
     host = current_app.config['FRONTEND_HOST'] or request.host_url
     url = host + 'reset-password/'
     body = request.get_json()
@@ -77,6 +151,38 @@ def forgot_password():
 
 @api.route('/api/auth/reset-password', methods=['POST'])
 def reset_password():
+    """Réinitialisation du mot de passe
+    ---
+    post:
+        tags:
+          - Authentification
+        summary: Réinitialisation du mot de passe
+        description: Lien obtenu par courriel pour réinitialiser son mot de passe.
+
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    password:
+                        type: string
+                        description: Doit avoir au moins 8 charactères.
+                    token:
+                        type: string
+
+        responses:
+            200:
+              content:
+                    text/plain:
+                        schema:
+                            type: string
+                            example: ok
+                            description: "ok"
+            400:
+                description: Le token est invalide
+    """
     body = request.get_json()
     password = body.get('password')
     token = body.get('token')

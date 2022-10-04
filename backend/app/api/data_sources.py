@@ -20,6 +20,33 @@ from . import api
 @api.route('/api/data-sources', methods=['GET'])
 @login_required
 def fetch_data_sources():
+    """Obtenir des données
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir des données
+        description: Endpoint retournant une liste paginée de données. L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les données donc l'application appartenant à l'utilisateur.
+        parameters:
+            - pageDataSrc
+            - countDataSrc
+
+        responses:
+            '200':
+              description: Les données correspondante incluant l'application associées à la donnée.
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/DataSource"
+                            total_count:
+                                type: integer
+
+    """
     page = int(request.args.get('page', 1, type=int))
     count = int(request.args.get('count', 10, type=int))
     base_query = DataSource.query
@@ -51,6 +78,31 @@ def get_origin_applications(origin_applications):
 @api.route('/api/data-sources', methods=['POST'])
 @login_required
 def create_data_source():
+    """Créer une donnée
+    ---
+    post:
+        tags:
+            - Donnees
+        summary: Créer une donnée
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut créer des données que pour des applications dont il est propriétaire.
+
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataSource"
+
+
+        responses:
+            '200':
+              description: La donnée créé.
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/DataSource"
+
+    """
     try:
         json = request.get_json()
         json["application_id"] = get_application_by_name(json.get("application").get("name"))
@@ -76,6 +128,37 @@ def create_data_source():
 
 @api.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
+    """Exporter les données de recherche
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Exporter les données de recherche
+        description: Export de toutes les données (limite 10 000) en format CSV.
+        parameters:
+            - searchQuery
+            - family
+            - type
+            - organization
+            - application
+            - referentiel
+            - sensibility
+            - open_data
+            - exposition
+            - origin
+            - tag
+            - strictness
+            - toExclude
+
+        responses:
+            '200':
+              description: Donnée exportée.
+              content:
+                application/csv:
+                    schema:
+                        $ref: "#/components/schemas/DataSourceCSV"
+
+    """
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
     data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness,1, 10000, exclusions)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
@@ -85,6 +168,25 @@ def export_data_source_request():
 @login_required
 @admin_or_owner_required
 def export_data_source_of_application(application_id):
+    """Exporter les données d'une application
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Exporter les données d'une application
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut exporter des données que pour des applications dont il est propriétaire.
+        parameters:
+            - pathApplicationId
+
+        responses:
+            '200':
+              description: Données exportées.
+              content:
+                application/csv:
+                    schema:
+                        $ref: "#/components/schemas/DataSourceCSV"
+
+    """
     application = Application.query.get(application_id)
     return export_resource(DataSource, f"data_sources_of_{application.name}.csv", application.data_sources)
 
@@ -93,6 +195,23 @@ def export_data_source_of_application(application_id):
 @login_required
 @admin_required
 def export_data_sources():
+    """Exporter toutes les données
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Exporter toutes les données
+        description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+        responses:
+            '200':
+              description: Données exportées.
+              content:
+                application/csv:
+                    schema:
+                        $ref: "#/components/schemas/DataSourceCSV"
+
+    """
     return export_resource(DataSource, "data_sources.csv")
 
 
@@ -100,6 +219,53 @@ def export_data_sources():
 @login_required
 @admin_or_owner_required
 def import_data_sources_by_application(application_id):
+    """Importer les données d'une application
+    ---
+    post:
+        tags:
+            - Donnees
+        summary: Importer les données d'une application
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut créer des données que pour des applications dont il est propriétaire.
+
+        parameters:
+            - pathApplicationId
+        requestBody:
+          description: Le CSV des données
+          required: true
+          content:
+            application/csv:
+              schema:
+                $ref: "#/components/schemas/DataSourceCSV"
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+
+    put:
+        tags:
+            - Filtres
+        summary: Remplacer les données d'une application
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut modifier des données que pour des applications dont il est propriétaire.
+
+        parameters:
+            - pathApplicationId
+        requestBody:
+          description: Le CSV des données
+          required: true
+          content:
+            application/csv:
+              schema:
+                $ref: "#/components/schemas/DataSourceCSV"
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+
+    """
     application_id = int(application_id)
     application = Application.query.get(application_id)
     mandatory_fields = {"application_name": application.name}
@@ -115,6 +281,29 @@ def import_data_sources_by_application(application_id):
 @login_required
 @admin_required
 def import_data_sources():
+    """Importer toutes les données
+    ---
+    post:
+        tags:
+            - Donnees
+        summary: Importer toutes les données
+        description: Toutes les données actuelles sont remplacées par cet import. L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+        requestBody:
+          description: Le CSV des données
+          required: true
+          content:
+            application/csv:
+              schema:
+                $ref: "#/components/schemas/DataSourceCSV"
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+
+    """
     try:
         import_resource(DataSource)
     except CSVFormatError as e:
@@ -124,6 +313,20 @@ def import_data_sources():
 
 @api.route('/api/data-sources/reindex')
 def reindex_data_sources():
+    """Réindexer les données
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Réindexer les données
+      description: Synchronisation de l'index elasticsearch correspondant aux données avec la base de données.
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+    """
     DataSource.reindex()
     return jsonify(dict(description='OK', code=200))
 
@@ -182,6 +385,47 @@ def get_request_args_data_source(request):
 
 @api.route('/api/data-sources/search', methods=['GET'])
 def search_data_sources():
+    """Obtenir des données avec recherche limitée
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir des données avec recherche limitée
+        description: Endpoint retournant une liste paginée de données basée sur une recherche.
+
+        parameters:
+            - searchQuery
+            - pageDataSrc
+            - countDataSrc
+            - family
+            - type
+            - organization
+            - application
+            - referentiel
+            - sensibility
+            - open_data
+            - exposition
+            - origin
+            - tag
+            - strictness
+            - toExclude
+
+        responses:
+            '200':
+              description: Les données correspondante incluant l'application associées à la donnée.
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/DataSource"
+                            total_count:
+                                type: integer
+
+    """
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
@@ -195,6 +439,43 @@ def search_data_sources():
 
 @api.route('/api/data-sources/count_by_enumeration', methods=['GET'])
 def count_data_sources_by_enumeration():
+    """Obtenir le décompte de données par énumération
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir le décompte de données par énumération
+
+        parameters:
+            - searchQuery
+            - pageDataSrc
+            - countDataSrc
+            - family
+            - type
+            - organization
+            - application
+            - referentiel
+            - sensibility
+            - open_data
+            - exposition
+            - origin
+            - tag
+            - strictness
+            - toExclude
+
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                $ref: "#/components/schemas/EnumCount"
+                            total_count:
+                                type: integer
+
+    """
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
     count_dict, total_count = DataSource.query_count(query, request_args, strictness, exclusions)
     return jsonify(dict(
@@ -206,6 +487,21 @@ def count_data_sources_by_enumeration():
 @api.route('/api/data-sources/count', methods=['GET'])
 @login_required
 def count_data_sources():
+    """Nombre de données
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Nombre de données
+      description: Recevoir le nombre total de données existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les donnnées dont l'utilisateur est propriétaire de l'application.
+
+      responses:
+        200:
+          content:
+            text/plain:
+                schema:
+                    type: integer
+    """
     base_query = DataSource.query
     if not current_user.is_admin:
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
@@ -214,16 +510,59 @@ def count_data_sources():
 
 @api.route('/api/data-sources/families', methods=['GET'])
 def fetch_data_source_families():
+    """Obtenir les éléments de l'arbre des familles
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des familles
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Family.get_tree_dict())
 
 
 @api.route('/api/data-sources/types', methods=['GET'])
 def fetch_data_source_types():
+    """Obtenir les éléments de l'arbre des types
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des types
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Type.get_tree_dict())
 
 
 @api.route('/api/data-sources/applications', methods=['GET'])
 def fetch_data_source_applications():
+    """Obtenir les éléments de l'arbre d'applications
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre d'applications
+      description: Les applications ne peuvent pas avoir de children.
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/ApplicationTreeElems"
+    """
     return jsonify([
         {
             'id': application.id,
@@ -238,46 +577,174 @@ def fetch_data_source_applications():
 
 @api.route('/api/data-sources/organizations', methods=['GET'])
 def fetch_data_source_organizations():
+    """Obtenir les éléments de l'arbre des organisations
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des organisations
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Organization.get_tree_dict())
 
 
 @api.route('/api/data-sources/referentiels', methods=['GET'])
 def fetch_data_source_referentiels():
+    """Obtenir les éléments de l'arbre des référentiels
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des référentiels
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Family.get_tree_dict())
 
 
 @api.route('/api/data-sources/sensibilities', methods=['GET'])
 def fetch_data_source_sensibilities():
+    """Obtenir les éléments de l'arbre des sensibilités
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des sensibilités
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Sensibility.get_tree_dict())
 
 
 @api.route('/api/data-sources/open-data', methods=['GET'])
 def fetch_data_source_open_data():
+    """Obtenir les éléments de l'arbre des open data
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des open data
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(OpenData.get_tree_dict())
 
 
 @api.route('/api/data-sources/expositions', methods=['GET'])
 def fetch_data_source_expositions():
+    """Obtenir les éléments de l'arbre des expositions
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des expositions
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Exposition.get_tree_dict())
 
 
 @api.route('/api/data-sources/origins', methods=['GET'])
 def fetch_data_source_origins():
+    """Obtenir les éléments de l'arbre des origines
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des origines
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Origin.get_tree_dict())
 
 
 @api.route('/api/data-sources/classifications', methods=['GET'])
 def fetch_data_source_classifications():
+    """Obtenir les éléments de l'arbre des axes d'analyse
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des axes d'analyse
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Family.get_tree_dict())
 
 
 @api.route('/api/data-sources/tags', methods=['GET'])
 def fetch_data_source_tags():
+    """Obtenir les éléments de l'arbre des tags
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des tags
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
     return jsonify(Tag.get_tree_dict())
 
 
 @api.route('/api/data-sources/<data_source_id>', methods=['GET'])
 def read_data_source(data_source_id):
+    """Obtenir une donnée
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir une donnée
+      parameters:
+      - dataSourceId
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/DataSource"
+    """
     data_source = get_data_source(data_source_id)
     return jsonify(data_source.to_dict())
 
@@ -286,6 +753,31 @@ def read_data_source(data_source_id):
 @login_required
 @admin_or_owner_required
 def update_data_source(data_source_id):
+    """Modifier une donnée
+    ---
+    put:
+      tags:
+        - Donnees
+      summary: Modifier une donnée
+      description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de modifier les données donc l'application appartenant à l'utilisateur.
+
+      parameters:
+      - dataSourceId
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataSource"
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/DataSource"
+    """
     try:
         data_source = get_data_source(data_source_id)
         json = request.get_json()
@@ -314,6 +806,24 @@ def update_data_source(data_source_id):
 @login_required
 @admin_or_owner_required
 def delete_data_source(data_source_id):
+    """Supprimer une donnée
+    ---
+    delete:
+      tags:
+        - Donnees
+      summary: Supprimer une donnée
+      description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de supprimer les données donc l'application appartenant à l'utilisateur.
+
+      parameters:
+      - dataSourceId
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+    """
     data_source = get_data_source(data_source_id)
     data_source.delete()
     db.session.commit()
