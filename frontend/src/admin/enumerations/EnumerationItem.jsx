@@ -1,12 +1,12 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import {Button, Divider, Modal} from 'antd';
-import {DeleteOutlined, ExclamationCircleOutlined} from '@ant-design/icons';
+import { Button, Divider, Modal } from 'antd';
+import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 
 import { updateEnumeration } from "../../api";
 import './EnumerationItem.css';
 
-const {confirm} = Modal;
+const { confirm } = Modal;
 
 class EnumerationItem extends React.Component {
 
@@ -53,18 +53,18 @@ class EnumerationItem extends React.Component {
 
     handleDoubleClick = (e) => {
         this.setState({
-          edit: true,
-          value: e.target.textContent
+            edit: true,
+            value: e.target.textContent
         });
     }
     handleBlur = (e) => {
         this.setState({
-          edit: false,
-          value: this.props.item.value
+            edit: false,
+            value: this.props.item.value
         });
     }
 
-    handleEnter = (e) =>{
+    handleEnter = (e) => {
         if (e.code === "Enter" || e.charCode === 13 || e.which === 13) {
             this.updateEnumerationFromApi()
             this.setState({
@@ -74,10 +74,17 @@ class EnumerationItem extends React.Component {
     }
 
     handleDoubleClickLong = (e) => {
-        this.setState({
-            editLong: true,
-            valueLong: e.target.textContent
-        });
+        if (this.props.item.category != "Organisation") {
+            this.setState({
+                editLong: true,
+                valueLong: e.target.textContent
+            });
+        } else {
+            this.setState({
+                editLong: true,
+                valueLong: !!this.props.item.label ? e.target.textContent : ""
+            });
+        }
     }
     handleBlurLong = (e) => {
         this.setState({
@@ -86,7 +93,7 @@ class EnumerationItem extends React.Component {
         });
     }
 
-    handleEnterLong = (e) =>{
+    handleEnterLong = (e) => {
         if (e.code === "Enter" || e.charCode === 13 || e.which === 13) {
             this.updateEnumerationFromApi()
             this.setState({
@@ -126,16 +133,16 @@ class EnumerationItem extends React.Component {
                     })}
                     type="text"
                 />
-              )
+            )
         } else {
             balise = (
-              <span onClick={this.handleDoubleClick}>
-                  {this.props.item.full_path}
-              </span>
+                <span onClick={this.handleDoubleClick}>
+                    {this.props.item.full_path}
+                </span>
             );
         }
         let baliseLong;
-        if (this.state.editLong && this.props.item.label) {
+        if (this.state.editLong) {
             baliseLong = (
                 <input
                     value={this.state.valueLong}
@@ -145,15 +152,18 @@ class EnumerationItem extends React.Component {
                         valueLong: e.target.value,
                     })}
                     type="text"
-                    style={{"width": "500px"}}
+                    style={{ "width": "500px" }}
                 />
             )
         } else {
-            baliseLong = (
-                <span onClick={this.handleDoubleClickLong}>
-                  {this.props.item.label}
-              </span>
-            );
+            baliseLong = !!this.props.item.label ?
+                (
+                    <span onClick={this.handleDoubleClickLong}>
+                        {this.props.item.label}
+                    </span>
+                ) :
+                <a onClick={this.handleDoubleClickLong}>Ajouter un nom long</a>
+
         }
 
         return (
@@ -162,13 +172,13 @@ class EnumerationItem extends React.Component {
                     <Button
                         type="link"
                         title={"Supprimer le filtre \"" + this.state.value + "\""}
-                        icon={<DeleteOutlined/>}
+                        icon={<DeleteOutlined />}
                         loading={this.state.loading}
                         onClick={this.showConfirmationDelete}
                     />
                     {balise}
-                    <Divider type="vertical"/>
-                    {baliseLong}
+                    <Divider type="vertical" />
+                    {this.props.item.category == "Organisation" ? baliseLong : null}
                 </div>
             </div>
         );

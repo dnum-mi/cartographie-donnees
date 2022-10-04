@@ -4,6 +4,7 @@ from typing import List, Dict
 from flask import current_app
 
 from app.search.enums import Strictness
+from itertools import accumulate
 
 
 def create_filter_value_query(field: str, value: str):
@@ -192,32 +193,51 @@ def query_count(
         strictness,
         exclusions,
         searchable_fields,
-        filters,
+        enumerations,
 ):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return {}, 0
 
     body = create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields)
-    body["aggs"] = {
-        filter_name: {
-            'terms': {
-                'field': filter_name + ".keyword",
-                "size": 500,  # Max number of distinct filter values
-            }
-        }
-        for filter_name in filters
-    }
-    # Do not retrieve all the resutls, just the aggregated counts
-    body["size"] = 0
     body["track_total_hits"] = True
+    body["size"] = 10000 #Beware, 10000 is the limit
+
+    current_app.logger.info(f"Query: \n{json.dumps(body)}")
     search = current_app.elasticsearch.search(
         index=index,
         body=body
     )
-    return {
-       filter_name: {
-           bucket['key']: bucket['doc_count']
-           for bucket in search['aggregations'][filter_name]['buckets']
-       }
-       for filter_name in filters
-   }, search['hits']['total']
+
+    current_app.logger.info(f'Number of results : {search["hits"]["total"]}')
+
+    # Count occurences of each enum value
+    datasource_gen = [element["_source"] for element in search["hits"]["hits"]]
+    count_dict = {enumeration:{} for enumeration in enumerations}
+    break_char = " > "
+
+    for datasource in datasource_gen:
+        for enumeration in enumerations:
+            if isinstance(datasource[enumeration], list):
+                if len(datasource[enumeration])>0:
+                    # Create a set of unique values that are associated to this datasource for this enum type (multiple values allowed) 
+                    enum_name_set = set()
+                    for raw_enum_name in datasource[enumeration]:
+                        splitted = raw_enum_name.split(break_char)
+                        # cumulative split list "materiel > voiture" ->["materiel", "materiel > voiture"]
+                        cum_split = list(accumulate(splitted, lambda x, y: break_char.join([x, y])))
+                        enum_name_set.update(cum_split)
+                    # Add 1 to associated values for this enum type
+                    for enum_name in enum_name_set:
+                        count_dict[enumeration][enum_name]=count_dict[enumeration].get(enum_name,0)+1
+            else:
+                # Same with single value
+                raw_enum_name = datasource[enumeration]
+                if raw_enum_name is not None:
+                    splitted = raw_enum_name.split(break_char) 
+                    cum_split = list(accumulate(splitted, lambda x, y: break_char.join([x, y]))) 
+                    for enum_name in cum_split:
+                        count_dict[enumeration][enum_name]=count_dict[enumeration].get(enum_name,0)+1
+            
+    return count_dict, search['hits']['total']
+
+   

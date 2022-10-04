@@ -1,7 +1,7 @@
 import React from 'react';
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
-import { Input, Tag, Pagination, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
+import { Input, Tag, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
@@ -213,8 +213,8 @@ class SearchPage extends React.Component {
         .then((response) => this.setStatePromise({ tags: response.data }));
 
 
-
-    onSearch = () => {
+    //Modify url based on state, then componentDidUpdate will be called to actually do the search
+    onSearch = () => { 
         const search = this.getQuery(this.state.query);
         this.props.history.push({
             search: search
@@ -276,18 +276,14 @@ class SearchPage extends React.Component {
 
     enrichTreeWithNodeCount = (treeData, countObject) => {
         const result = JSON.parse(JSON.stringify(treeData));
-        let sum = 0;
         for (let node of result) {
-            let sumOfChildren = 0;
             const count = countObject[node.full_path] || 0;
             node.count = count
-            sum += count;
             if (node.children) {
-                [node.children, sumOfChildren] = this.enrichTreeWithNodeCount(node.children, countObject);
+                node.children = this.enrichTreeWithNodeCount(node.children, countObject);
             }
-            node.count += sumOfChildren;
         }
-        return [result, sum];
+        return result;
     };
 
     sortTree = (treeData) => {
@@ -306,7 +302,7 @@ class SearchPage extends React.Component {
             return null;
         }
         const treeData = this.state[filters[key].listKey];
-        const [treeDataWithCount, _] = this.enrichTreeWithNodeCount(
+        const treeDataWithCount = this.enrichTreeWithNodeCount(
             treeData,
             this.state.filtersCount[filters[key].attributeKey],
         );
