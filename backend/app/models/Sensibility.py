@@ -3,4 +3,4 @@ from app.models import EnumerationMixin
 
 
 class Sensibility(EnumerationMixin):
-    data_sources = db.relationship('DataSource', backref='sensibility', lazy='dynamic')
+    data_sources = db.relationship('DataSource', backref=db.backref('sensibility', lazy='joined'), lazy='select')

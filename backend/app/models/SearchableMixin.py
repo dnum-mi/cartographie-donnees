@@ -27,7 +27,7 @@ class SearchableMixin(object):
         for i in range(len(ids)):
             when.append((ids[i], i))
         return cls.query.filter(cls.id.in_(ids)).order_by(
-            db.case(when, value=cls.id)), total_count
+            db.case(when, value=cls.id)).all(), total_count
 
     @classmethod
     def query_count(cls, query, filters_dict, strictness, exclusions):

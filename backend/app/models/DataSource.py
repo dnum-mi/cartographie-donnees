@@ -73,9 +73,6 @@ class DataSource(SearchableMixin, BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, server_default="", nullable=False)
     description = db.Column(db.Text)
-    families = db.relationship("Family",
-                               secondary=association_family_table,
-                               backref="data_sources", cascade="all, delete")
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
     example = db.Column(db.Text)
     is_reference = db.Column(db.Boolean)
@@ -93,23 +90,53 @@ class DataSource(SearchableMixin, BaseModel):
     update_frequency_id = db.Column(
         db.Integer, db.ForeignKey('update_frequency.id'))
     conservation = db.Column(db.String)
-    classifications = db.relationship("Family",
-                                      secondary=association_classification_table, cascade="all, delete")
+    families = db.relationship(
+        "Family",
+        secondary=association_family_table,
+        lazy="joined",
+        backref="data_sources",
+        cascade="all, delete",
+    )
+    classifications = db.relationship(
+        "Family",
+        lazy="joined",
+        secondary=association_classification_table,
+        cascade="all, delete",
+    )
     origin_id = db.Column(db.Integer, db.ForeignKey('origin.id'))
-    expositions = db.relationship("Exposition",
-                                  secondary=association_exposition_table, cascade="all, delete")
-    reutilizations = db.relationship("Application",
-                                     secondary=association_reutilization_table,
-                                     backref="data_source_reutilizations", cascade="all, delete")
-    tags = db.relationship("Tag",
-                           secondary=association_tag_table,
-                           backref="data_sources", cascade="all, delete")
-    origin_applications = db.relationship("Application",
-                           secondary=origin_application_table,
-                           backref="origin_data_sources", cascade="all, delete")
+    expositions = db.relationship(
+        "Exposition",
+        lazy="joined",
+        secondary=association_exposition_table,
+        cascade="all, delete",
+    )
+    reutilizations = db.relationship(
+        "Application",
+        lazy="joined",
+        secondary=association_reutilization_table,
+        backref="data_source_reutilizations",
+        cascade="all, delete",
+    )
+    tags = db.relationship(
+        "Tag",
+        lazy="joined",
+        secondary=association_tag_table,
+        backref="data_sources",
+        cascade="all, delete",
+    )
+    origin_applications = db.relationship(
+        "Application",
+        lazy="joined",
+        secondary=origin_application_table,
+        backref="origin_data_sources",
+        cascade="all, delete",
+    )
 
-    application_id = db.Column(db.Integer, db.ForeignKey(
-        'application.id'), nullable=False)
+    application_id = db.Column(
+        db.Integer,
+        db.ForeignKey('application.id'),
+        nullable=False,
+    )
     owners = association_proxy('application', 'owners')
 
     @property
@@ -129,9 +156,8 @@ class DataSource(SearchableMixin, BaseModel):
         truthy_count = 0
         for key in DATASOURCE_ID_NO_COMMENT:
             if getattr(self, key) is not None and getattr(self, key) != []:
-                truthy_count+=1
+                truthy_count += 1
         return truthy_count/len(DATASOURCE_ID_NO_COMMENT)
-
 
     def get_enumeration_single(self, enumeration_id):
         return getattr(self, enumeration_id).full_path if getattr(self, enumeration_id) else None
@@ -326,7 +352,7 @@ class DataSource(SearchableMixin, BaseModel):
     def application_context_email(self):
         return self.application.context_email
 
-    def to_dict(self):
+    def to_dict(self, populate_statistics=False):
         return {
             'id': self.id,
             'name': self.name,
@@ -359,7 +385,7 @@ class DataSource(SearchableMixin, BaseModel):
             'nb_referentiels': self.nb_referentiels,
             'exposition_name': self.exposition_name,
             'origin_name': self.origin_name,
-            'application': self.application.to_dict(),
+            'application': self.application.to_dict(populate_statistics=populate_statistics),
             'organization_name': self.application.organization_name,
             'origin_applications': [application.to_dict() for application in self.origin_applications],
             'origin_application_name': self.origin_application_name,

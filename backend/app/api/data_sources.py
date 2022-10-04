@@ -744,7 +744,7 @@ def read_data_source(data_source_id):
                     $ref: "#/components/schemas/DataSource"
     """
     data_source = get_data_source(data_source_id)
-    return jsonify(data_source.to_dict())
+    return jsonify(data_source.to_dict(populate_statistics=True))
 
 
 @api.route('/api/data-sources/<data_source_id>', methods=['PUT'])

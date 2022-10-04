@@ -30,7 +30,7 @@ class EnumerationMixin(BaseModel):
     def children(cls):
         return db.relationship(
             cls.__name__,
-            backref=db.backref('parent', remote_side=f'{cls.__name__}.id'),
+            backref=db.backref('parent', remote_side=f'{cls.__name__}.id', lazy='joined'),
         )
 
     @property
