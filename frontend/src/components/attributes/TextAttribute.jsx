@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Typography, Form } from "antd";
+import {Input, Typography, Form, Skeleton, Spin} from "antd";
 import { commonPropTypes, textPropTypes } from "./attributePropTypes";
 import { commonDefaultProps, textDefaultProps } from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
@@ -103,32 +103,35 @@ class TextAttribute extends React.Component {
 
   writeElement() {
     let input;
-    const mustAwaitApplicationSelection = this.props.textEditDisabledIfApplicationNotSelected && !this.props.currentUser.user.is_admin && !this.props.applicationIsSelected;
+    const mustAwaitApplicationSelection = !!this.props.textEditDisabledIfApplicationNotSelected &&
+        (
+          this.props.currentUser?.user?.is_admin
+            ? !(this.props.applicationIsSelected || this.props.applicationCreationMode)
+            : !this.props.applicationIsSelected
+        )
+    const spinning = !!this.props.textEditDisabledIfApplicationNotSelected && !!this.props.applicationSimulatedLoading
     if (this.props.isTextArea) {
       input = (
-        <TextArea
-          id={this.props.attributeId}
-          placeholder={
-            mustAwaitApplicationSelection
-              ? "Veuillez sélectionner une application"
-              : this.props.editionPlaceholder
-          }
-          className={this.attributeInputClassName()}
-          disabled={mustAwaitApplicationSelection}
-        />
+        <Spin spinning={spinning}>
+          <TextArea
+            id={this.props.attributeId}
+            placeholder={
+              mustAwaitApplicationSelection
+                ? "Veuillez sélectionner une application"
+                : this.props.editionPlaceholder
+            }
+            className={this.attributeInputClassName()}
+            disabled={mustAwaitApplicationSelection}
+          />
+        </Spin>
       );
     } else {
       input = (
         <Input
           id={this.props.attributeId}
           type={this.props.inputType}
-          placeholder={
-            mustAwaitApplicationSelection
-                ? "Veuillez sélectionner une application"
-                : this.props.editionPlaceholder
-          }
+          placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
-          disabled={mustAwaitApplicationSelection}
         />
       );
     }
