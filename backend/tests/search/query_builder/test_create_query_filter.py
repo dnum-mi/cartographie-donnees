@@ -19,9 +19,9 @@ def test_query_with_filters_and_text(sample_organizations: List[Organization]):
         'query': {
             'bool': {
                 "must": [{
-                    'multi_match': {
-                        'query': 'test',
-                        'operator': 'and',
+                    'query_string': {
+                        'query': '*test*',
+                        'default_operator': 'AND',
                         'fields': ['name', 'description'],
                     },
                 }, {
@@ -61,9 +61,9 @@ def test_query_only_with_text(sample_organizations: List[Organization]):
         'query': {
             'bool': {
                 "must": [{
-                    'multi_match': {
-                        'query': 'test',
-                        'operator': 'and',
+                    'query_string': {
+                        'query': '*test*',
+                        'default_operator': 'AND',
                         'fields': ['name', 'description'],
                     },
                 }],
