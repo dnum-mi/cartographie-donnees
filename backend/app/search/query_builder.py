@@ -84,18 +84,11 @@ def create_filters_query(filters_dict: Dict[str, List[str]]):
 
 
 def create_text_query(query: str, searchable_fields: List[str], strictness: Strictness):
-    if strictness == Strictness.ALL_WORDS:
-        return {
-            'multi_match': {
-                'query': query,
-                'operator': 'and',
-                'fields': searchable_fields,
-            },
-        }
     return {
-        'multi_match': {
-            'query': query,
+        'query_string': {
+            'query': f'*{query}*',
             'fields': searchable_fields,
+            'default_operator': 'AND' if strictness == Strictness.ALL_WORDS else 'OR'
         },
     }
 
@@ -219,7 +212,7 @@ def query_count(
         for enumeration in enumerations:
             if isinstance(datasource[enumeration], list):
                 if len(datasource[enumeration])>0:
-                    # Create a set of unique values that are associated to this datasource for this enum type (multiple values allowed) 
+                    # Create a set of unique values that are associated to this datasource for this enum type (multiple values allowed)
                     enum_name_set = set()
                     for raw_enum_name in datasource[enumeration]:
                         splitted = raw_enum_name.split(break_char)
@@ -233,11 +226,11 @@ def query_count(
                 # Same with single value
                 raw_enum_name = datasource[enumeration]
                 if raw_enum_name is not None:
-                    splitted = raw_enum_name.split(break_char) 
-                    cum_split = list(accumulate(splitted, lambda x, y: break_char.join([x, y]))) 
+                    splitted = raw_enum_name.split(break_char)
+                    cum_split = list(accumulate(splitted, lambda x, y: break_char.join([x, y])))
                     for enum_name in cum_split:
                         count_dict[enumeration][enum_name]=count_dict[enumeration].get(enum_name,0)+1
-            
+
     return count_dict, search['hits']['total']
 
-   
+

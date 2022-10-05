@@ -30,14 +30,6 @@ def get_french_analyzer_payload():
                     "type":       "stop",
                     "stopwords":  "_french_"
                 },
-                "french_keywords": {
-                    "type":       "keyword_marker",
-                    "keywords":   []
-                },
-                "french_stemmer": {
-                    "type":       "stemmer",
-                    "language":   "light_french"
-                }
             },
             "analyzer": {
                 "default": {
@@ -45,9 +37,7 @@ def get_french_analyzer_payload():
                     "filter": [
                         "french_elision",
                         "lowercase",
-                        "french_stop",
-                        "french_keywords",
-                        "french_stemmer"
+                        "french_stop"
                     ]
                 }
             }
