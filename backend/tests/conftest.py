@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import pytest
 
-from app.models import User, Organization
+from app.models import User, Organization, Application
 from app import db, create_app
 from tests.constants import ADMIN_INFO, ADMIN_CREDENTIALS, USER_INFO, USER_CREDENTIALS
 
@@ -90,4 +90,24 @@ def sample_organizations(testing_app) -> List[Organization]:
     db.session.refresh(org3)
     db.session.refresh(org4)
     yield [org1, org2, org3, org4]
+
+
+@pytest.fixture()
+def sample_applications(testing_app, sample_organizations) -> List[Application]:
+    app1 = Application.from_dict({
+        'name': 'App 1',
+        'goals': "Finalité de l'app 1",
+        'organization_id': sample_organizations[0].id
+    })
+    app2 = Application.from_dict({
+        'name': 'App 2',
+        'goals': "Finalité de l'app 2",
+        'organization_id': sample_organizations[1].id
+    })
+    db.session.add(app1)
+    db.session.add(app2)
+    db.session.commit()
+    db.session.refresh(app1)
+    db.session.refresh(app2)
+    yield [app1, app2]
 
