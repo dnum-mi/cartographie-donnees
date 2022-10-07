@@ -7,10 +7,12 @@ import attributes from "./attributes";
 import ApplicationSelect from "./ApplicationSelect";
 import {Link} from "react-router-dom";
 import withCurrentUser from "../hoc/user/withCurrentUser";
-import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Divider } from "antd";
+import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
+import {Divider, Button, Space, Row, Col, Badge, Skeleton} from "antd";
+import ApplicationAdd from "./ApplicationAdd";
 
 class ApplicationSection extends React.Component {
+
 
   getAttributeElement(attributeKey, title_key=null) {
     const config = attributes.application[attributeKey];
@@ -49,14 +51,27 @@ class ApplicationSection extends React.Component {
     );
   }
 
-  onSelectChange = (newChoice) => {
+  onApplicationChange = (newChoice) => {
       this.props.onChange({ application: newChoice})
   }
 
   renderApplicationEdit = () => {
-    return (
+    if(this.props.simulatedLoading) {
+      return (<Skeleton active/>)
+    }
+    else {
+      return (
         <>
-          {this.getAttributeElement('name')}
+          { this.props.editMode
+              ? <Badge.Ribbon
+                  text={this.props.applicationCreationMode ? "Création d'application" : "Modification de l'application"}
+                  color={this.props.applicationCreationMode ? "green" : "blue"}>
+                    {this.getAttributeElement('name')}
+                </Badge.Ribbon>
+              : this.getAttributeElement('name')
+
+          }
+
           {this.getAttributeElement('long_name')}
           {this.getAttributeElement('access_url')}
           {this.getAttributeElement('organization_name', 'organization_long_name')}
@@ -68,14 +83,33 @@ class ApplicationSection extends React.Component {
           {this.getAttributeElement('historic')}
           {this.getAttributeElement('validation_date')}
         </>
-    )
+      )
+    }
+  }
+
+  onAddApplicationClick = () => {
+    this.props.onEditModeChange()
+    let application = this.props.application;
+    Object.keys(application).forEach(attr => {
+      application[attr] = null;
+    })
+    this.onApplicationChange(application)
+    this.props.onApplicationCreationModeUpdate(true)
+  }
+
+  onApplicationSelectionChange = (change) => {
+    this.props.onEditModeChange()
+    this.onApplicationChange(change)
+    this.props.onApplicationCreationModeUpdate(false)
   }
 
   render() {
+    const applicationEditMode = (this.props.currentUser?.user?.is_admin && this.props.applicationCreationMode) || this.props.application.id !== null;
     return (
       <div className="application-section">
         {
-          this.props.editMode && this.props.allowAppSelection ? 
+          // applicationEditMode != data source editMode
+          this.props.editMode && this.props.allowAppSelection ?
           (
             <div className="attribute">
               <label className="attribute-label">
@@ -84,14 +118,29 @@ class ApplicationSection extends React.Component {
                       className="attribute-tooltip"
                       title="xxxx"
                   />
-              <ApplicationSelect onChange={this.onSelectChange} value={this.props.application}/> 
+                <div>
+                  <Row>
+                    <Col flex="auto" style={{ marginRight: '16px' }}>
+                      <ApplicationSelect onChange={this.onApplicationSelectionChange} value={this.props.application} applicationCreationMode={this.props.applicationCreationMode}/>
+                    </Col>
+                    {
+                      this.props.currentUser?.user?.is_admin &&
+                        <Col flex="30px">
+                          <ApplicationAdd applicationCreationMode={this.props.applicationCreationMode} onAddApplicationClick={this.onAddApplicationClick}/>
+                        </Col>
+                    }
+
+                  </Row>
+                </div>
+
+
               </label>
-              <Divider />
+              {applicationEditMode && <Divider />}
             </div>
-          ) : 
+          ) :
           undefined
         }
-        {(this.props.currentUser.user.is_admin || this.props.application.id !== null) && this.renderApplicationEdit()}
+        {applicationEditMode && this.renderApplicationEdit()}
       </div>
     );
   }

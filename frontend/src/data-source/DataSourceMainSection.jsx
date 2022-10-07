@@ -10,6 +10,13 @@ import attributes from "./attributes";
 import './DataSourceMainSection.css';
 
 class DataSourceMainSection extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      applicationCreationMode: !this.props.allowAppSelection && !this.props.dataSource.application.id,
+      applicationEditModeChangeSimulatedLoading: false
+    }
+  }
 
   updateApplication = (application) => {
     this.props.onChange({ application })
@@ -27,9 +34,22 @@ class DataSourceMainSection extends React.Component {
         editMode={this.props.editMode}
         noRules={this.props.noRules && !fromApplication}
         applicationIsSelected={!!this.props.dataSource.application.id}
+        applicationCreationMode={this.state.applicationCreationMode}
+        applicationSimulatedLoading={this.state.applicationEditModeChangeSimulatedLoading}
         {...config}
       />
     );
+  }
+
+  onApplicationCreationModeUpdate = (creationMode) => {
+    this.setState({applicationCreationMode: creationMode})
+  }
+
+  onApplicationEditModeChange = () => {
+    this.setState({applicationEditModeChangeSimulatedLoading: true})
+    setTimeout(() => {
+      this.setState({applicationEditModeChangeSimulatedLoading: false})
+    }, 1000);
   }
 
   render() {
@@ -89,6 +109,10 @@ class DataSourceMainSection extends React.Component {
                 application={this.props.dataSource.application}
                 editMode={this.props.editMode}
                 onChange={this.props.onChange}
+                applicationCreationMode={this.state.applicationCreationMode}
+                onApplicationCreationModeUpdate={this.onApplicationCreationModeUpdate}
+                simulatedLoading={this.state.applicationEditModeChangeSimulatedLoading}
+                onEditModeChange={this.onApplicationEditModeChange}
               />
             </Col>
           </Row>
