@@ -53,8 +53,11 @@ def fetch_wild_cards_by_namespace(namespace):
 
     # Transform to {namespace: {key:value}} format
     wild_cards_dict = defaultdict(dict)
-    for wc in wild_cards_list:
-        wild_cards_dict[wc['namespace']][wc['key']] = wc['value']
+    if len(wild_cards_list)>0:
+        for wc in wild_cards_list:
+            wild_cards_dict[wc['namespace']][wc['key']] = wc['value']
+    else:
+        wild_cards_dict[namespace] = {}
 
     return jsonify(wild_cards_dict)
 

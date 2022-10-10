@@ -50,7 +50,7 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
         resource_class.delete_all()
     else:
         for item in item_to_delete:
-            item.delete()
+            db.session.delete(item)
 
     # Get the CSV file
     file = request.files["file"]
