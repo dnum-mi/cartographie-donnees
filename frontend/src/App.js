@@ -1,5 +1,5 @@
 import React from 'react';
-import {Layout} from 'antd';
+import { Layout } from 'antd';
 
 import Router from './navigation/Router';
 import './App.css';
@@ -8,6 +8,7 @@ import { readMe, fetchWildCards } from './api';
 import Loading from "./components/Loading";
 import Error from "./components/Error";
 import { UserProvider } from "./hoc/user/UserProvider"
+import { TooltipsProvider } from "./hoc/tooltips/TooltipsProvider"
 
 const { Content, Footer } = Layout;
 
@@ -17,56 +18,64 @@ class App extends React.Component {
     this.state = {
       user: null,
       homepageContent: {},
+      fetched_tooltips: {},
       loading: true,
       error: null,
     };
   }
 
   componentDidMount() {
-    this.fetchHomepageContent()
+    this.refreshWildcards();
     this.refreshUser();
   }
 
   setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
 
-  fetchHomepageContent = () => {
-
-    this.setState({
-        loading: true,
-        error: null,
-    });
-
-    fetchWildCards("homepage")
+  refreshWildcards = () => {
+    this.setStatePromise({
+      loading: true,
+      error: null,
+    }).then(() => {
+      fetchWildCards("tooltip")
         .then((response) => {
-            return this.setStatePromise({homepageContent: response.data.homepage})
+          this.setState({
+            fetched_tooltips: response.data.tooltip,
+          });
         })
-        // .then(() => this.setStatePromise({ loading: false, error: null })) TODO Why does it make it bug
-        .catch((error) => {
-            this.setState({
-                loading: false,
-                error,
-            });
+    }).then(() => {
+      fetchWildCards("homepage")
+        .then((response) => {
+          this.setState({
+            homepageContent: response.data.homepage,
+            loading: false,
+            error: null
+          });
+        })
+    }).catch((error) => {
+        this.setState({
+          loading: false,
+          error,
         });
-    };
-
+      });
+  };
 
   refreshUser = () => {
     readMe()
-        .then((r) => this.setStatePromise({
-          loading: false,
-          error: null,
-          user: r.data,
-        }))
-        .catch((error) => this.setStatePromise({
-          loading: false,
-          // If the user is not authenticated, we receive a 404
-          error: error.response && error.response.status === 404 ? null : error,
-          user: null,
-        }));
+      .then((r) => this.setStatePromise({
+        loading: false,
+        error: null,
+        user: r.data,
+      }))
+      .catch((error) => this.setStatePromise({
+        loading: false,
+        // If the user is not authenticated, we receive a 404
+        error: error.response && error.response.status === 404 ? null : error,
+        user: null,
+      }));
   };
 
-  refreshHomepage = (value, key=null) => {
-    if(key === null){
+  refreshHomepage = (value, key = null) => {
+    if (key === null) {
       this.setState({
         homepageContent: value
       })
@@ -74,8 +83,8 @@ class App extends React.Component {
       this.setState({
         homepageContent: {
           ...this.state.homepageContent,
-          [key]:value
-        } 
+          [key]: value
+        }
       })
     }
   }
@@ -87,19 +96,21 @@ class App extends React.Component {
     return (
       <div className="App">
         <UserProvider user={this.state.user}>
-          <Layout className="layout">
-            <Content className="page-content">
-              <Router
+          <TooltipsProvider tooltips={this.state.fetched_tooltips}>
+            <Layout className="layout">
+              <Content className="page-content">
+                <Router
                   user={this.state.user}
                   onLogin={this.refreshUser}
                   homepageContent={this.state.homepageContent}
-                  refreshHomepage = {this.refreshHomepage}
-              />
-            </Content>
-            <Footer className="footer">
-              Designed by Artelys ©2021
-            </Footer>
-          </Layout>
+                  refreshHomepage={this.refreshHomepage}
+                />
+              </Content>
+              <Footer className="footer">
+                Designed by Artelys ©2021
+              </Footer>
+            </Layout>
+          </TooltipsProvider>
         </UserProvider>
       </div>
     );
