@@ -47,7 +47,9 @@ class User(UserMixin, BaseModel):
             'is_admin': self.is_admin,
         }
         if populate_applications:
-            result['applications'] = [application.to_dict() for application in self.applications]
+            temp_applications = [application.to_dict() for application in self.applications]
+            temp_applications = sorted(temp_applications, key=lambda appli: str.lower(appli.get("name","")))
+            result['applications'] = temp_applications
         return result
 
     def to_export(self):
