@@ -34,7 +34,7 @@
 
 .DataSourceResult .paragraph {
     margin-bottom: 5px;
-    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
 .DataSourceResult .paragraph .attribute-value {
