@@ -112,7 +112,6 @@ class TextAttribute extends React.Component {
     const spinning = !!this.props.textEditDisabledIfApplicationNotSelected && !!this.props.applicationSimulatedLoading
     if (this.props.isTextArea) {
       input = (
-        <Spin spinning={spinning}>
           <TextArea
             id={this.props.attributeId}
             placeholder={
@@ -123,7 +122,6 @@ class TextAttribute extends React.Component {
             className={this.attributeInputClassName()}
             disabled={mustAwaitApplicationSelection}
           />
-        </Spin>
       );
     } else {
       input = (
@@ -137,10 +135,12 @@ class TextAttribute extends React.Component {
     }
     return (
       <div className="attribute-input-container">
-        <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
-          {input}
-        </Form.Item>
-        {this.props.hasSuffixValue ? this.suffixInput() : null}
+        <Spin spinning={spinning}>
+          <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
+            {input}
+          </Form.Item>
+          {this.props.hasSuffixValue ? this.suffixInput() : null}
+        </Spin>
       </div>
     )
   }
