@@ -12,12 +12,9 @@ import {
     searchReferentiels, searchSensibilities, searchOpenData, searchExpositions, searchOrigins, searchClassifications,
     searchTags, exportSearchDataSources, countDataSourcesByEnumeration
 } from "../api";
-import Loading from "../components/Loading";
 import Error from "../components/Error";
 import filters from "../filters";
 import Results from "./Results";
-
-import default_wildcards from './default_wildcards.json'
 
 const { Search } = Input;
 
@@ -214,7 +211,7 @@ class SearchPage extends React.Component {
 
 
     //Modify url based on state, then componentDidUpdate will be called to actually do the search
-    onSearch = () => { 
+    onSearch = () => {
         const search = this.getQuery(this.state.query);
         this.props.history.push({
             search: search
@@ -396,14 +393,14 @@ class SearchPage extends React.Component {
             return (
                 <div className="home-description">
                     <h3>
-                        {this.props.homepageContent ? this.props.homepageContent["welcome_title"] : default_wildcards["title"]}
+                        {this.props.homepageContent["welcome_title"]}
                     </h3>
                     <div>
-                        {this.props.homepageContent ? this.props.homepageContent["welcome_text"] : default_wildcards["text"]}
+                        {this.props.homepageContent["welcome_text"]}
                     </div>
                     <br />
                     <a>
-                        {this.props.homepageContent ? this.props.homepageContent["email"] : default_wildcards["email"]}
+                        {this.props.homepageContent["email"]}
                     </a>
                 </div>
             );
