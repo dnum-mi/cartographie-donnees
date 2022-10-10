@@ -44,7 +44,7 @@ class ApplicationSection extends React.Component {
       <Attribute
         id='data_source_count'
         value={this.props.application.data_source_count}
-        suffixValue={this.linkToDataSources()}
+        suffixValue={this.props.application.data_source_count ? this.linkToDataSources(): null}
         editMode={this.props.editMode}
         {...config}
       />
