@@ -54,8 +54,8 @@ def fetch_data_sources():
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     datasources = base_query.all()
     total_count = base_query.count()
-    datasources = datasources[(page - 1) * count:page * count]
     datasources = sorted(datasources, key=lambda ds: str.lower(ds.name))
+    datasources = datasources[(page - 1) * count:page * count]
     return jsonify(dict(
         total_count=total_count,
         results=[datasource.to_dict() for datasource in datasources]

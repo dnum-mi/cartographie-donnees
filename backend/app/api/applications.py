@@ -73,8 +73,8 @@ def fetch_applications():
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     applications = base_query.all()
     total_count = base_query.count()
-    applications = applications[(page - 1) * count:page * count]
     applications = sorted(applications, key=lambda appli: str.lower(appli.name))
+    applications = applications[(page - 1) * count:page * count]
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
