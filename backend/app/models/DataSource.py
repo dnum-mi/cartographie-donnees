@@ -1,6 +1,5 @@
 from sqlalchemy.inspection import inspect
-from sqlalchemy import select
-from sqlalchemy.orm import validates, relationship
+from sqlalchemy.orm import validates
 from sqlalchemy.ext.associationproxy import association_proxy
 from app import db
 from app.models import SearchableMixin, BaseModel, Type, Application, OpenData, Family, UpdateFrequency, Origin, Exposition, Sensibility, Tag
@@ -62,6 +61,7 @@ origin_application_table = db.Table(
     db.UniqueConstraint('data_source_id', 'application_id')
 )
 
+
 class DataSource(SearchableMixin, BaseModel):
     __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
                       'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
@@ -95,41 +95,35 @@ class DataSource(SearchableMixin, BaseModel):
         secondary=association_family_table,
         lazy="joined",
         backref="data_sources",
-        cascade="all, delete",
     )
     classifications = db.relationship(
         "Family",
         lazy="joined",
         secondary=association_classification_table,
-        cascade="all, delete",
     )
     origin_id = db.Column(db.Integer, db.ForeignKey('origin.id'))
     expositions = db.relationship(
         "Exposition",
         lazy="joined",
         secondary=association_exposition_table,
-        cascade="all, delete",
     )
     reutilizations = db.relationship(
         "Application",
         lazy="joined",
         secondary=association_reutilization_table,
         backref="data_source_reutilizations",
-        cascade="all, delete",
     )
     tags = db.relationship(
         "Tag",
         lazy="joined",
         secondary=association_tag_table,
         backref="data_sources",
-        cascade="all, delete",
     )
     origin_applications = db.relationship(
         "Application",
         lazy="joined",
         secondary=origin_application_table,
         backref="origin_data_sources",
-        cascade="all, delete",
     )
 
     application_id = db.Column(
@@ -565,19 +559,6 @@ class DataSource(SearchableMixin, BaseModel):
             if name_enum.lower() in str(column.foreign_keys):
                 return column
         return None
-
-    def delete(self):
-        db.session.execute(
-            "DELETE FROM association_family WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_classification WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_exposition WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_reutilization WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_tag WHERE data_source_id={}".format(self.id))
-        db.session.delete(self)
 
     @classmethod
     def delete_all(cls):

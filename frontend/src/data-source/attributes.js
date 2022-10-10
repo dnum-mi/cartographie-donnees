@@ -29,6 +29,7 @@ export default {
     tagCategory: 'Famille',
     tagMode: 'multiple',
     tagColor: 'blue',
+    tagDisplayMode: 'tag',
     required: true
   },
   classification_name: {
@@ -39,6 +40,7 @@ export default {
     tagMode: 'multiple',
     tagCategory: "Axes d'analyse",
     tagColor: 'purple',
+    tagDisplayMode: 'tag',
   },
   type_name: {
     attributeId: 'type_name',
@@ -48,6 +50,7 @@ export default {
     tagMode: 'simple',
     tagCategory: 'Type',
     tagColor: 'red',
+    tagDisplayMode: 'tag',
     required: true
   },
   is_reference: {
@@ -64,6 +67,7 @@ export default {
     tagMode: 'simple',
     tagCategory: 'Origine',
     tagColor: 'geekblue',
+    tagDisplayMode: 'tag',
   },
   origin_applications: {
     attributeId: 'origin_applications',
@@ -80,6 +84,7 @@ export default {
     tagMode: 'simple',
     tagCategory: 'OpenData',
     tagColor: 'green',
+    tagDisplayMode: 'tag',
   },
   exposition_name: {
     attributeId: 'exposition_name',
@@ -89,6 +94,7 @@ export default {
     tagMode: 'multiple',
     tagCategory: 'Exposition',
     tagColor: 'gold',
+    tagDisplayMode: 'tag',
   },
   sensibility_name: {
     attributeId: 'sensibility_name',
@@ -98,6 +104,7 @@ export default {
     tagMode: 'simple',
     tagCategory: 'Sensibilité',
     tagColor: 'lime',
+    tagDisplayMode: 'tag',
   },
   tag_name: {
     attributeId: 'tag_name',
@@ -106,6 +113,7 @@ export default {
     tooltip: "Tags de la donnée",
     tagMode: 'multiple',
     tagCategory: 'Tag',
+    tagDisplayMode: 'tag',
   },
   volumetry: {
     attributeId: 'volumetry',
@@ -132,6 +140,7 @@ export default {
     tooltip: "Fréquence des mises à jour de la donnée",
     tagMode: 'simple',
     tagCategory: 'Mise à jour',
+    tagDisplayMode: 'text'
   },
   conservation: {
     attributeId: 'conservation',
@@ -213,6 +222,7 @@ export default {
       tooltip: 'MOA propriétaire de l\'application',
       tagCategory: 'Organisation',
       tagColor: 'volcano',
+      tagDisplayMode: 'tag',
       required: true
       // hasSuffixValue: true,
       // suffixAttributeId: 'organization_long_name',

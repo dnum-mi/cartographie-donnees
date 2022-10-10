@@ -209,6 +209,14 @@ class AdminPage extends React.Component {
                         <li>Importer les applications</li>
                         <li>Importer les données</li>
                     </ol>
+
+                    <h3>
+                        Documentation de l'API
+                    </h3>
+                    <p>
+                        La documentation de l'API est disponible
+                        via <a href="/docs" target="_blank">ce lien.</a>
+                    </p>
                 </Route>
             </Switch>
         );
