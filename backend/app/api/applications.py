@@ -527,7 +527,7 @@ def update_application(application_id):
 
 @api.route('/api/applications/<application_id>', methods=['DELETE'])
 @login_required
-@admin_or_owner_required
+@admin_required
 def delete_application(application_id):
     """Supprimer une application
     ---
@@ -535,7 +535,7 @@ def delete_application(application_id):
         tags:
             - Applications
         summary: Supprimer une application
-        description: L'authentification est requise. L'utilisateur doit être propriétaire d'application.
+        description: L'authentification est requise. L'utilisateur doit être administrateur général.
         parameters:
             - name: application_id
               in: path
