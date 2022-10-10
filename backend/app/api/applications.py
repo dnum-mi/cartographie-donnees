@@ -465,7 +465,11 @@ def read_application(application_id):
 
     """
     application = get_application(application_id)
-    return jsonify(application.to_dict(populate_data_sources=True))
+    return jsonify(application.to_dict(
+        populate_data_sources=True,
+        populate_statistics=True,
+        populate_owners=True,
+    ))
 
 
 @api.route('/api/applications/<application_id>', methods=['PUT'])
