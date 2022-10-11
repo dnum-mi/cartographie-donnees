@@ -1,6 +1,6 @@
 #!/bin/sh
 
-([[ -z "${RESET_DB}" ]] || flask cli reset-db)
+[[ -n $RESET_DB ]] && flask cli reset-db
 
 flask db upgrade
 
