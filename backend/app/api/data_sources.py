@@ -823,7 +823,7 @@ def delete_data_source(data_source_id):
                     $ref: "#/components/schemas/JsonResponse200"
     """
     data_source = get_data_source(data_source_id)
-    data_source.delete()
+    db.session.delete(data_source)
     db.session.commit()
     DataSource.remove_from_index(data_source)
     return jsonify(dict(description='OK', code=200))

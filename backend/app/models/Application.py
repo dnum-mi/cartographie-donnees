@@ -1,13 +1,15 @@
 from statistics import mean
 
 from sqlalchemy import select, distinct
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, object_session
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import count
 
 from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
 import datetime
+
+from app.models.DataSource import association_reutilization_table
 
 ownerships = db.Table(
     'ownerships',
@@ -74,9 +76,12 @@ class Application(SearchableMixin, BaseModel):
     @hybrid_property
     def reutilization_count(self):
         from app.models.DataSource import DataSource
-        return select(count(distinct('association_reutilization.application_id'))) \
-            .join(DataSource.reutilizations) \
-            .where(DataSource.application_id == self.id)
+        return object_session(self) \
+            .query(association_reutilization_table) \
+            .distinct(association_reutilization_table.c.application_id) \
+            .join(DataSource) \
+            .filter(DataSource.application_id == self.id) \
+            .count()
 
     @hybrid_property
     def application_description_level(self):

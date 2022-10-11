@@ -1,5 +1,0 @@
-{
-    "title": "Bienvenue dans l’outil de cartographie des données du ministère de l’intérieur !",
-    "text": "Cet outil permet d’explorer les caractéristiques des données actuellement recensées au\nsein du ministère de l’intérieur afin de faciliter leur réutilisation au sein des différents\nservices. Comme pour un moteur de recherche classique, il est possible de combiner une recherche\ntextuelle (barre supérieure) à des filtres (présents à la droite de votre écran) pour identifier\nles données potentiellement pertinentes à votre cas d’usage.\n\nChaque donnée possède une fiche présentant ses caractéristiques ainsi qu’un ensemble d’indicateurs\nchiffrés visant à établir sa fiabilité et sa réutilisabilité. Outre le résultat de la recherche,\nil est possible de naviguer d’une donnée à l’autre par le biais des applications. En effet, chaque\ndonnée est hébergée par une application existante au sein du ministère qui détaille la liste des\ndonnées qui lui sont associées.\n\n",
-    "email": "dnum-cartographie-data@interieur.gouv.fr"
-}

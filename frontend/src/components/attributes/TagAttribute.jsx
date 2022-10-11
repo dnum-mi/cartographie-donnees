@@ -8,27 +8,43 @@ import EnumSelect from "../EnumSelect";
 class TagAttribute extends React.Component {
 
   readElement() {
-    if (!this.props.value || !this.props.value.length) {
+    const {value, tagMode, tagColor, title, tagDisplayMode} = this.props;
+    if (!value || !value.length) {
       return '-'
     }
-    if (this.props.tagMode === 'multiple') {
+    if (tagMode === 'multiple') {
+      if (tagDisplayMode === 'text') {
+        let returnStr = value[0];
+        if (value.length > 1) {
+          for (let i = 1; i < value.length; i++) {
+            returnStr += ", " + value[i];
+          }
+        }
+        return returnStr;
+      }
       return (
         <>
-          {this.props.value.map((value) => (
-              <Tag key={value} color={this.props.tagColor} style={{ marginBottom: 8 }}
-                   title={this.props.title}>
+          {value.map((value) => (
+              <Tag key={value} color={tagColor} style={{ marginBottom: 8 }}
+                   title={title}>
                 {value}
               </Tag>
           ))}
         </>
       );
     }
-    return (
-        <Tag color={this.props.tagColor}
-                title={this.props.title}>
-          {this.props.value}
-        </Tag>
-    )
+    else {
+      if (tagDisplayMode === 'text') {
+        return value;
+      }
+      return (
+          <Tag color={tagColor}
+               title={title}>
+            {value}
+          </Tag>
+      )
+    }
+
   }
 
   rules = () => {

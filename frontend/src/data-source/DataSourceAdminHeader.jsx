@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Col, Row, Button, Form } from "antd";
 
 import './DataSourceAdminHeader.css';
+import withCurrentUser from "../hoc/user/withCurrentUser";
 
 
 class DataSourceAdminHeader extends React.Component {
@@ -14,16 +15,20 @@ class DataSourceAdminHeader extends React.Component {
             Modifier la fiche
           </Button>
         </Col>
-        <Col className="datasource-admin-header-link">
-          <Button type="link" onClick={(e) => this.props.onDuplicate(e)}>
-              Dupliquer la fiche
-          </Button>
-        </Col>
-        <Col className="datasource-admin-header-link">
-          <Button type="link" danger onClick={(e) => this.props.onDelete(e)}>
-            Supprimer la fiche
-          </Button>
-        </Col>
+          {this.props.currentUser?.userHasAdminRightsToDatasource(this.props.dataSource) &&
+          <Col className="datasource-admin-header-link">
+              <Button type="link" onClick={(e) => this.props.onDuplicate(e)}>
+                  Dupliquer la fiche
+              </Button>
+          </Col>
+          }
+          {this.props.currentUser?.userHasAdminRightsToDatasource(this.props.dataSource) &&
+            <Col className="datasource-admin-header-link">
+              <Button type="link" danger onClick={(e) => this.props.onDelete(e)}>
+                Supprimer la fiche
+              </Button>
+            </Col>
+          }
       </Row>
     )
   }
@@ -66,4 +71,4 @@ DataSourceAdminHeader.propTypes = {
   onCancelEdition: PropTypes.func,
 };
 
-export default DataSourceAdminHeader;
+export default withCurrentUser(DataSourceAdminHeader);

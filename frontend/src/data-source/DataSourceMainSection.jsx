@@ -45,11 +45,14 @@ class DataSourceMainSection extends React.Component {
     this.setState({applicationCreationMode: creationMode})
   }
 
+  /*
+  Fake loading to reflesh the UI and give feedback to user
+   */
   onApplicationEditModeChange = () => {
     this.setState({applicationEditModeChangeSimulatedLoading: true})
     setTimeout(() => {
       this.setState({applicationEditModeChangeSimulatedLoading: false})
-    }, 1000);
+    }, 500);
   }
 
   render() {
