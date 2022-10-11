@@ -8,6 +8,9 @@ import withCurrentUser from "../hoc/user/withCurrentUser";
 
 class DataSourceAdminHeader extends React.Component {
   readModeRow() {
+      let canDupe = this.props.currentUser?.userIsAdmin() ||
+          (this.props.currentUser?.userHasAdminRightsToDatasource(this.props.dataSource)
+              && !this.props.fromAppModification)
     return (
       <Row>
         <Col className="datasource-admin-header-link">
@@ -15,14 +18,14 @@ class DataSourceAdminHeader extends React.Component {
             Modifier la fiche
           </Button>
         </Col>
-          {this.props.currentUser?.userHasAdminRightsToDatasource(this.props.dataSource) &&
+          {canDupe &&
           <Col className="datasource-admin-header-link">
               <Button type="link" onClick={(e) => this.props.onDuplicate(e)}>
                   Dupliquer la fiche
               </Button>
           </Col>
           }
-          {this.props.currentUser?.userHasAdminRightsToDatasource(this.props.dataSource) &&
+          {canDupe &&
             <Col className="datasource-admin-header-link">
               <Button type="link" danger onClick={(e) => this.props.onDelete(e)}>
                 Supprimer la fiche
