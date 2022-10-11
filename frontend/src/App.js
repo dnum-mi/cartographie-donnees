@@ -35,23 +35,22 @@ class App extends React.Component {
     this.setStatePromise({
       loading: true,
       error: null,
-    }).then(() => {
-      fetchWildCards("tooltip")
-        .then((response) => {
-          this.setState({
-            fetched_tooltips: response.data.tooltip,
-          });
-        })
-    }).then(() => {
-      fetchWildCards("homepage")
-        .then((response) => {
-          this.setState({
-            homepageContent: response.data.homepage,
-            loading: false,
-            error: null
-          });
-        })
-    }).catch((error) => {
+    }).then(() => fetchWildCards("tooltip"))
+      .then((response) => {
+        this.setState({
+          fetched_tooltips: response.data.tooltip,
+        });
+      })
+      .then(() =>
+        fetchWildCards("homepage"))
+      .then((response) => {
+        this.setState({
+          homepageContent: response.data.homepage,
+          loading: false,
+          error: null
+        });
+      })
+      .catch((error) => {
         this.setState({
           loading: false,
           error,
@@ -74,7 +73,7 @@ class App extends React.Component {
       }));
   };
 
-  refreshHomepage = (value, key = null) => {
+  updateHomepage = (value, key = null) => {
     if (key === null) {
       this.setState({
         homepageContent: value
@@ -103,7 +102,7 @@ class App extends React.Component {
                   user={this.state.user}
                   onLogin={this.refreshUser}
                   homepageContent={this.state.homepageContent}
-                  refreshHomepage={this.refreshHomepage}
+                  updateHomepage={this.updateHomepage}
                 />
               </Content>
               <Footer className="footer">

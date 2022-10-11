@@ -15,7 +15,7 @@ export default class Tooltips {
     }
 
     update = (newTooltips) => {
-        this.tooltips = { ...this.tooltips, ...newTooltips }
+        this.tooltips = { ...this.tooltips, ...(_.pick(newTooltips, _.keys(this.tooltips))) }
     }
 
 }
