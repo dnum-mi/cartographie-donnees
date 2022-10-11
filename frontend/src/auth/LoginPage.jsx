@@ -7,6 +7,7 @@ import { login as doLogin } from '../auth/index';
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 import EmailField from "../components/EmailField";
+import withTooltips from '../hoc/tooltips/withTooltips';
 
 const layout = {
     labelCol: { span: 8 },
@@ -58,7 +59,7 @@ class LoginPage extends React.Component {
                     onFinishFailed={() => {}}
                     data-test="login-form"
                 >
-                <EmailField tooltip="L'email de l'administrateur" required={true} name="email"/>
+                <EmailField tooltip={this.props.tooltips.get("email")} required={true} name="email"/>
 
                     <Form.Item
                         label="Mot de passe"
@@ -94,4 +95,4 @@ class LoginPage extends React.Component {
     }
 }
 
-export default withRouter(LoginPage);
+export default withRouter(withTooltips(LoginPage));
