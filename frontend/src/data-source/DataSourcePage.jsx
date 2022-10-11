@@ -169,6 +169,7 @@ class DataSourcePage extends React.Component {
                       onDuplicate={(e) => this.handleDuplication(e)}
                       fromCreation={this.props.fromAppCreation || this.props.fromDataSourceCreation}
                       fromAppModification={this.props.fromAppModification}
+                      dataSource={this.props.dataSource}
                     />
                 )}
                 <DataSourceMainSection
