@@ -9,8 +9,6 @@ from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
 import datetime
 
-from app.models.DataSource import association_reutilization_table
-
 ownerships = db.Table(
     'ownerships',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -75,7 +73,7 @@ class Application(SearchableMixin, BaseModel):
 
     @hybrid_property
     def reutilization_count(self):
-        from app.models.DataSource import DataSource
+        from app.models.DataSource import DataSource, association_reutilization_table
         return object_session(self) \
             .query(association_reutilization_table) \
             .distinct(association_reutilization_table.c.application_id) \
