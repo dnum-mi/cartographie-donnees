@@ -1,26 +1,47 @@
 import attributes from "../../data-source/attributes"
 const _ = require('lodash');
 
-const tooltipKeys = [
-    // Datasources tooltips
-    ..._.map(_.omit(attributes, "application"), (item) => item.attributeId),
-    // Applications tooltips
-    ..._.map(attributes.application, (item) => item.attributeId),
-    // Other tooltips
-    "first_name",
-    "last_name",
-    "email",
-    "is_admin"
-]
+let defaultTooltips = {};
+let defaultLabels = {}
 
-const defaultTooltips = _.reduce(
-    tooltipKeys,
-    (tooltips, key) => {
-        tooltips[key] = "";
-        return tooltips;
-    },
-    {});
+// Datasources tooltips
+for (let value of Object.values(_.omit(attributes, "application"))) {
+    defaultTooltips[value.attributeId] = "";
+    defaultLabels[value.attributeId] = value.label;
+}
 
+// Datasources tooltips
+for (let value of Object.values(attributes.application)) {
+    defaultTooltips[value.attributeId] = "";
+    defaultLabels[value.attributeId] = value.label;
+}
+
+// Other tooltips
+_.assign(defaultTooltips, {
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_admin": ""
+})
+
+_.assign(defaultLabels, {
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "Email",
+    "is_admin": "Administrateur ?"
+})
+
+defaultLabels = Object.fromEntries(Object.entries(defaultLabels).sort(
+    (a, b) => {
+        if (!!a[1] && !!b[1]) {
+            return a[1].localeCompare(b[1])
+        } else {
+            return false
+        }
+    }
+))
+
+export { defaultLabels }
 export default defaultTooltips
 
 

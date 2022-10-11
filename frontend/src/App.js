@@ -35,10 +35,10 @@ class App extends React.Component {
     this.setStatePromise({
       loading: true,
       error: null,
-    }).then(() => fetchWildCards("tooltip"))
+    }).then(() => fetchWildCards("tooltips"))
       .then((response) => {
         this.setState({
-          fetched_tooltips: response.data.tooltip,
+          fetched_tooltips: response.data.tooltips,
         });
       })
       .then(() =>

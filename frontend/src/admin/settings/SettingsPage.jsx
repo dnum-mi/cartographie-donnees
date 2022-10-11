@@ -6,6 +6,7 @@ import { Form, Modal, Skeleton } from "antd";
 import { updateWildCards, exportWildCardsUrl, exportModel, importWildCards, fetchWildCards } from "../../api";
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import withTooltips from '../../hoc/tooltips/withTooltips.jsx';
+import SettingsTooltipsSection from './SettingsTooltipsSection.jsx';
 
 const { confirm } = Modal;
 
@@ -17,19 +18,8 @@ class SettingsPage extends React.Component {
     this.state = {
       editMode: false,
       to_submit: {},
-      original_data: {},
-      data: {},
       loading: true,
       error: null,
-      colors: {
-        "Famille": "blue",
-        "Organisation": "volcano",
-        "Type": "red",
-        "Sensibilité": "lime",
-        "OpenData": "green",
-        "Exposition": "gold",
-        "Origine": "geekblue"
-      }
     }
   }
 
@@ -37,17 +27,17 @@ class SettingsPage extends React.Component {
   componentDidMount() {
     this.refreshSettings();
   }
-  
-  setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
 
+  setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
 
   refreshSettings = () => {
     this.setStatePromise({
       loading: true,
       error: null,
-    }).then(() => fetchWildCards("tooltip"))
+    }).then(() => fetchWildCards("tooltips"))
       .then((response) => {
-        this.props.tooltips.update(response.data.tooltip)
+        this.props.tooltips.update(response.data.tooltips)
+        this.refreshForm(response.data.tooltips, "tooltips")
       })
       .then(() => fetchWildCards("homepage"))
       .then((response) => {
@@ -130,7 +120,7 @@ class SettingsPage extends React.Component {
         importWildCards(formData)
           .then(() => {
             onSuccess(null, file);
-            this.fetchHomepageFromApi();
+            this.refreshSettings();
           })
           .catch((error) => {
             this.setState({
@@ -148,18 +138,15 @@ class SettingsPage extends React.Component {
 
   activateEdition = (event) => {
     this.setState({ editMode: true });
-    this.setState({ original_data: { ...this.state.data } });
   };
 
   onCancelEdition = (event) => {
     this.setState({ editMode: false });
-    this.setState({ data: { ...this.state.original_data } });
     this.formRef.current.resetFields();
   };
 
 
   submit = (values) => {
-
     let payload = []
     // Flatten wildcards nested dict to list of dict
     for (const [namespace, dict] of Object.entries(this.state.to_submit)) {
@@ -174,19 +161,21 @@ class SettingsPage extends React.Component {
     // update state
     for (const item of payload) {
       this.refreshForm(item.value, item.namespace, item.key)
-      this.props.updateHomepage(item.value, item.key) //update app view
+      if (item.namespace === "homepage") {
+        this.props.updateHomepage(item.value, item.key) //update app view
+      }
+      if (item.namespace === "tooltips") {
+        this.props.tooltips.update({ [item.key]: item.value }) // update 
+      }
     }
 
     this.setState({
       editMode: false,
       to_submit: {}
     })
-  }
+}
 
   //#endregion
-
-
-
 
   render() {
     const validateMessages = {
@@ -233,11 +222,10 @@ class SettingsPage extends React.Component {
                   editMode={this.state.editMode}
                   homepageContent={this.props.homepageContent}
                 />
-
-                {/* <SettingsTooltipsSection
-                    editMode={this.state.editMode}
-                    dataSource={this.state.dataSource}
-                  /> */}
+                <SettingsTooltipsSection
+                  editMode={this.state.editMode}
+                  tooltips={this.props.tooltips}
+                />
               </div>
           }
         </Form>
