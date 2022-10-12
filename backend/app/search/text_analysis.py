@@ -37,7 +37,8 @@ def get_french_analyzer_payload():
                     "filter": [
                         "french_elision",
                         "lowercase",
-                        "french_stop"
+                        "asciifolding",
+                        "french_stop",
                     ]
                 }
             }
