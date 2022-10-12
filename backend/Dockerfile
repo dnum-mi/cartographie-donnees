@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.8-alpine
 ARG http_proxy
 ARG https_proxy
 ARG no_proxy
@@ -48,6 +48,7 @@ RUN set -ex && [ -z "$PYPI_URL" ] || pip_args=" --index-url $PYPI_URL " ; \
     [ -z "$PYPI_HOST" ] || pip_args="$pip_args --trusted-host $PYPI_HOST " ; \
     echo "$no_proxy" |tr ',' '\n' | sort -u |grep "^$PYPI_HOST$" || \
     [ -z "$http_proxy" ] || pip_args="$pip_args --proxy $http_proxy " ; \
+    venv/bin/pip install $pip_args --upgrade pip && \
     venv/bin/pip install $pip_args -r requirements.txt && \
     venv/bin/pip install $pip_args gunicorn
 

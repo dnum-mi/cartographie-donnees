@@ -17,6 +17,8 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    environment:
+      - "discovery.type=single-node"
     restart: always
     healthcheck:
       test: "curl http://elasticsearch:9200"
