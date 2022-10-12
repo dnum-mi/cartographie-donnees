@@ -13,16 +13,11 @@ services:
       - "5432:5432"
     restart: always
   elasticsearch:
-    build: elasticsearch/
-    volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    image: elasticsearch:6.8.21
     ports:
       - "9200:9200"
       - "9300:9300"
     restart: always
-    environment:
-      - "cluster.name=elasticsearch"
-      - "XPACK_SECURITY_ENABLED=false"
     healthcheck:
       test: "curl http://elasticsearch:9200"
       interval: "1s"
