@@ -4,11 +4,9 @@ from flask import jsonify, request, abort
 from flask_login import login_required, current_user
 
 from app import db
-from app.models import User, Application
 from app.decorators import admin_required
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
-from app.search import remove_accent
 from app.models.WildCard import WildCard
 
 from . import api
@@ -25,14 +23,14 @@ def create_update_wildcards():
         data = json.get("data",[])
         wild_cards = []
 
-        for item in data:            
+        for item in data:
             wild_card = WildCard.query.filter_by(namespace=item["namespace"], key=item["key"]).one_or_none()
             if wild_card is None:
                 wild_card = WildCard.from_dict(item)
                 db.session.add(wild_card)
             else:
                 wild_card.update_from_dict(item)
-            
+
             wild_cards.append(wild_card)
 
         db.session.commit()

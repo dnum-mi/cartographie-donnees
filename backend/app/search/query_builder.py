@@ -1,10 +1,10 @@
 import json
 from typing import List, Dict
+from itertools import accumulate
 
 from flask import current_app
 
-from app.search.enums import Strictness
-from itertools import accumulate
+from .enums import Strictness
 
 
 def create_filter_value_query(field: str, value: str):
