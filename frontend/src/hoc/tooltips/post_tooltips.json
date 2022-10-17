@@ -204,6 +204,31 @@
             "namespace": "tooltips",
             "key": "is_admin",
             "value": "L'utilisateur est-il administrateur général ?"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "volumetry_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "monthly_volumetry_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "operator_count_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "user_count_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "monthly_connection_count_comment",
+            "value": "Commentaire sur cette valeur"
         }
     ]
 }

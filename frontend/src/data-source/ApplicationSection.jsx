@@ -10,6 +10,7 @@ import withCurrentUser from "../hoc/user/withCurrentUser";
 import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import {Divider, Button, Space, Row, Col, Badge, Skeleton} from "antd";
 import ApplicationAdd from "./ApplicationAdd";
+import withTooltips from '../hoc/tooltips/withTooltips';
 
 class ApplicationSection extends React.Component {
 
@@ -116,7 +117,7 @@ class ApplicationSection extends React.Component {
                   Choix d'Application
                   <QuestionCircleOutlined
                       className="attribute-tooltip"
-                      title="xxxx"
+                      title={this.props.tooltips.get("application_select")}
                   />
                 <div>
                   <Row>
@@ -151,4 +152,4 @@ ApplicationSection.propTypes = {
   editMode: PropTypes.bool,
 };
 
-export default withCurrentUser(ApplicationSection);
+export default withCurrentUser(withTooltips(ApplicationSection));

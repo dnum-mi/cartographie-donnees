@@ -1,4 +1,4 @@
-import defaultTooltips from "./defaultTooltips"
+import defaultTooltips from "./tooltipsConstants"
 const _ = require('lodash');
 
 export default class Tooltips {

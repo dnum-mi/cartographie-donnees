@@ -1,6 +1,6 @@
 import React from 'react';
 import { Col, Row, Button, Form, Input } from "antd";
-import { defaultLabels } from '../../hoc/tooltips/defaultTooltips';
+import { defaultLabels } from '../../hoc/tooltips/tooltipsConstants';
 
 import './SettingsTooltipsSection.css';
 
@@ -11,7 +11,6 @@ class SettingsTooltipsSection extends React.Component {
     constructor(props) {
         super(props);
     }
-
 
     createTextArea = (key, label) => {
         return (

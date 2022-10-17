@@ -1,47 +1,87 @@
 import attributes from "../../data-source/attributes"
+import filters from "../../filters";
 const _ = require('lodash');
 
 let defaultTooltips = {};
-let defaultLabels = {}
+let defaultLabels = {};
+let filterKeys = [];
+let datasourceKeys = [];
+let applicationKeys = [];
+let otherKeys = [];
+
+// Filters tooltips
+for (let value of Object.values(filters)) {
+    defaultTooltips[value.attributeKey] = "";
+    defaultLabels[value.attributeKey] = value.categoryName;
+    filterKeys.push(value.attributeKey)
+}
 
 // Datasources tooltips
 for (let value of Object.values(_.omit(attributes, "application"))) {
     defaultTooltips[value.attributeId] = "";
     defaultLabels[value.attributeId] = value.label;
+    datasourceKeys.push(value.attributeId)
+
+    if (value.hasSuffixValue) {
+        defaultTooltips[value.suffixAttributeId] = "";
+        defaultLabels[value.suffixAttributeId] = value.suffixAttributeLabel;
+        datasourceKeys.push(value.suffixAttributeId)
+    }
 }
 
-// Datasources tooltips
+// Application tooltips
 for (let value of Object.values(attributes.application)) {
     defaultTooltips[value.attributeId] = "";
     defaultLabels[value.attributeId] = value.label;
+    applicationKeys.push(value.attributeId)
+
+    if (value.hasSuffixValue) {
+        defaultTooltips[value.suffixAttributeId] = "";
+        defaultLabels[value.suffixAttributeId] = value.suffixAttributeLabel;
+        applicationKeys.push(value.suffixAttributeId)
+    }
 }
 
 // Other tooltips
+otherKeys = [
+    "first_name",
+    "last_name",
+    "email",
+    "is_admin",
+    "application_select"
+]
+
 _.assign(defaultTooltips, {
     "first_name": "",
     "last_name": "",
     "email": "",
-    "is_admin": ""
+    "is_admin": "",
+    "application_select": ""
 })
 
 _.assign(defaultLabels, {
     "first_name": "Prénom",
     "last_name": "Nom",
     "email": "Email",
-    "is_admin": "Administrateur ?"
+    "is_admin": "Administrateur ?",
+    "application_select": "Choix d'Application",
 })
 
-defaultLabels = Object.fromEntries(Object.entries(defaultLabels).sort(
-    (a, b) => {
-        if (!!a[1] && !!b[1]) {
-            return a[1].localeCompare(b[1])
-        } else {
-            return false
-        }
+// sort keys
+function alphabetical_sort(a, b) {
+    if (!!a[1] && !!b[1]) {
+        return a[1].localeCompare(b[1])
+    } else {
+        return false
     }
-))
+}
 
-export { defaultLabels }
+filterKeys = filterKeys.sort(alphabetical_sort)
+datasourceKeys = datasourceKeys.sort(alphabetical_sort)
+applicationKeys = applicationKeys.sort(alphabetical_sort)
+otherKeys = otherKeys.sort(alphabetical_sort)
+
+export { defaultLabels, filterKeys, datasourceKeys, applicationKeys, otherKeys }
 export default defaultTooltips
 
 
