@@ -107,7 +107,6 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
             db.session.add(item)
         except (ValueError, AssertionError) as e:
             errors.append(dict(row=row_index + 2, error=e))
-    print("doublons", duplicates)
 
     if errors:
         db.session.rollback()
@@ -147,7 +146,6 @@ def check_for_datasource_duplicates(item_dict, row_index, applications_dict, dup
 
 
 def check_for_application_duplicates(item_dict, row_index, applications_list, duplicates):
-    print(item_dict)
     application_obj = {
         'name': item_dict['name'],
         'long_name': item_dict['long_name'],
