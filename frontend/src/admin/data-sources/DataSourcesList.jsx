@@ -8,6 +8,7 @@ import Loading from "../../components/Loading";
 import Error from "../../components/Error";
 import './DataSourcesList.css';
 import DataSourceResult from "../../search/results/DataSourceResult";
+import Warning from "../../components/Warning";
 
 const { confirm } = Modal;
 
@@ -76,12 +77,25 @@ class DataSourcesList extends React.Component {
         if (this.state.error) {
             return <Error error={this.state.error} />;
         }
-        return this.state.dataSources.map((dataSource) => (
-            <DataSourceResult
-              key={dataSource.id}
-              dataSource={dataSource}
-            />
-        ));
+        return (
+            <>
+                {
+                    this.state.warning && <Warning description={this.state.warning.description}
+                                                   message={this.state.warning.message}
+                                                   warningType={this.state.warning.warningType}
+                                                   inputType={"data_source"}/>
+                }
+                {
+                    this.state.dataSources.map((dataSource) => (
+                        <DataSourceResult
+                            key={dataSource.id}
+                            dataSource={dataSource}
+                        />
+                    ))
+                }
+            </>
+
+        )
     }
 
     renderPagination() {
@@ -111,7 +125,8 @@ class DataSourcesList extends React.Component {
                     const formData = new FormData();
                     formData.append("file", file);
                     importDataSource(formData)
-                    .then(() => {
+                    .then((r) => {
+                        this.checkForWarningMessage(r)
                         onSuccess(null, file);
                         this.props.count();
                         this.fetchDataSourcesFromApi();
@@ -132,6 +147,19 @@ class DataSourcesList extends React.Component {
 
     export = () => {
        exportModel(exportDataSourceUrl, 'Donnees.csv');
+    }
+
+    checkForWarningMessage = (r) => {
+        if(r.data.warning_type){
+            this.setState({
+                warning:
+                    {
+                        description: r.data.description,
+                        message: r.data.message,
+                        warningType: r.data.warning_type
+                    }
+            })
+        }
     }
 
     render() {

@@ -4,11 +4,13 @@ from io import TextIOWrapper, BytesIO
 import csv
 import os
 from sqlalchemy.exc import StatementError
+from difflib import SequenceMatcher
 
 from app import db
 from app.models import SearchableMixin
 from app.constants import field_french_to_english_dic, field_english_to_french_dic
 from app.exceptions import CSVFormatError
+from app.models import Application, DataSource
 
 
 def typed_value_from_string(value):
@@ -74,6 +76,10 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
         except ValueError as e:
             errors.append(dict(row=0, error=e))
 
+    duplicates = {}
+    applications_dict = {}
+    applications_list = []
+
     for row_index, row in enumerate(csv_reader):
         # Each row is converted into a dictionary containing the file headers as keys
         item_dict = {}
@@ -86,24 +92,94 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
                 if key not in item_dict:
                     raise ValueError("L'en-tête " + key + "est absente. Vérifier les en-têtes du fichiers")
                 if item_dict[key] != value:
-                    raise ValueError("Ligne %s : Le champ %s de valeur %s est incorrect (la valeur attendue est %s)" % (i, key, item_dict[key], value))
+                    raise ValueError("Ligne %s : Le champ %s de valeur %s est incorrect (la valeur attendue est %s)" % (
+                        i, key, item_dict[key], value))
             # Each row is converted into SQLAlchemy model instances
+
+            # Check for duplicate rows
+            if resource_class is DataSource:
+                check_for_datasource_duplicates(item_dict, row_index, applications_dict, duplicates)
+            elif resource_class is Application:
+                check_for_application_duplicates(item_dict, row_index, applications_list, duplicates)
+
+            # set warning message here
             item = resource_class(**item_dict)
             db.session.add(item)
         except (ValueError, AssertionError) as e:
             errors.append(dict(row=row_index + 2, error=e))
+    print("doublons", duplicates)
+
     if errors:
         db.session.rollback()
         raise CSVFormatError(errors)
     else:
         try:
             db.session.commit()
+            if duplicates:
+                return generate_duplicate_warning_string_msg(duplicates)
         except StatementError as e:
             db.session.rollback()
             raise CSVFormatError([dict(row='inconnue', error=e)])
         # TODO: test it
         if issubclass(resource_class, SearchableMixin):
             resource_class.reindex()
+
+
+def check_for_datasource_duplicates(item_dict, row_index, applications_dict, duplicates):
+    app_name = item_dict['application_name']
+    data_source_obj = {
+        'data_source_name': item_dict['name'],
+        'line': row_index + 2
+    }
+    if app_name in applications_dict:
+        # we check all already imported data sources that have the same application is their names are similar
+        for data_source in applications_dict[app_name]:
+            match_ratio = SequenceMatcher(None, data_source['data_source_name'], item_dict['name']).ratio()
+            if match_ratio > 0.85:
+                if data_source['data_source_name'] in duplicates:
+                    duplicates[data_source['data_source_name']].append(data_source_obj['line'])
+                    break
+                else:
+                    duplicates[data_source['data_source_name']] = [data_source['line'], data_source_obj['line']]
+        applications_dict[app_name].append(data_source_obj)
+    else:
+        applications_dict[app_name] = [data_source_obj]
+
+
+def check_for_application_duplicates(item_dict, row_index, applications_list, duplicates):
+    print(item_dict)
+    application_obj = {
+        'name': item_dict['name'],
+        'long_name': item_dict['long_name'],
+        'line': row_index + 2
+    }
+    for application in applications_list:
+        name_match_ratio = SequenceMatcher(None, application['name'], application_obj['name']).ratio()
+        long_name_match_ratio = 0 if (application['long_name'] is None or application_obj['long_name'] is None) \
+            else SequenceMatcher(None, application['long_name'], application_obj['long_name']).ratio()
+
+        if name_match_ratio > 0.85 or long_name_match_ratio > 0.85:
+            if application['name'] in duplicates:
+                duplicates[application['name']]['lines'].append(application_obj['line'])
+            else:
+                duplicates[application['name']] = dict(
+                    name=application['name'],
+                    long_name=application['long_name'],
+                    lines=[application['line'], application_obj['line']]
+                )
+    applications_list.append(application_obj)
+
+
+def generate_duplicate_warning_string_msg(duplicates):
+    return dict(
+        message="Doublons repérés dans l'import",
+        description=dict(
+            header="Les lignes suivantes ont été indiquées comme en doublon dans l'import. Merci de les supprimer "
+                   "manuellement et de réimporter le fichier:",
+            list=duplicates
+        ),
+        warning_type="duplicates"
+    )
 
 
 def export_resource(resource_class, filename, items=None):

@@ -1,6 +1,6 @@
 import { Alert } from "antd";
 import React from "react";
-import './Error.css';
+import './Alert.css';
 
 export default function Error({ error }) {
     if (error.response) {
