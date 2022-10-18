@@ -8,9 +8,8 @@ export class TooltipsProvider extends Component {
     }
 
     render () {
-        const tooltips = new Tooltips(this.props.tooltips);
         return (
-            <tooltipsContext.Provider value={tooltips}>
+            <tooltipsContext.Provider value={this.props.tooltips}>
                 {this.props.children}
             </tooltipsContext.Provider>
         )

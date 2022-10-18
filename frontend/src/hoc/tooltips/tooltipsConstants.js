@@ -43,14 +43,14 @@ for (let value of Object.values(attributes.application)) {
         applicationKeys.push(value.suffixAttributeId)
     }
 }
+applicationKeys.push("application_select")
 
 // Other tooltips
 otherKeys = [
     "first_name",
     "last_name",
     "email",
-    "is_admin",
-    "application_select"
+    "is_admin"
 ]
 
 _.assign(defaultTooltips, {

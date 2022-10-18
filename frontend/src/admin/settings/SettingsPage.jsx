@@ -24,81 +24,28 @@ class SettingsPage extends React.Component {
     }
   }
 
+  setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
+
   //#region Init
   componentDidMount() {
     this.refreshSettings();
   }
 
-  // refreshTooltips = (tp) => {
-  //   for (const [id,value] of Object.entries(tp)){
-  //     this.props.tooltips.update({ [id]: value }) // update 
-  //   }
-  // }
+  componentDidUpdate(prevProps) {
+    if (this.props.tooltips !== prevProps.tooltips || this.props.homepageContent !== prevProps.homepageContent) {
+      this.formRef.current.resetFields()
+    }
+  }
 
   refreshSettings = () => {
-    this.setState({
-      loading: true,
-    });
-
-    fetchWildCards("tooltips")
-      .then((response) => {
-        this.props.tooltips.refresh(response.data.tooltips)
-        this.refreshForm(response.data.tooltips, "tooltips")
-      })
-      .then(() => fetchWildCards("homepage"))
-      .then((response) => {
-        this.props.updateHomepage(response.data.homepage);
-        this.refreshForm(this.props.homepageContent, "homepage")
-      })
-      .then(this.setState({
-        loading: false,
-        error: null,
-      }))
-      .catch((error) => {
-        this.setState({
-          loading: false,
-          error,
-        });
-      });
+    this.setStatePromise({ loading: true })
+      .then(() => this.props.tooltips.refreshWildcards())
+      .then(() => this.setState({ loading: false }))
   };
 
   //#endregion
 
   //#region Toolbox 
-
-  // Update current form values with new incoming values
-  updateForm = (item, namespace, key = null) => {
-    if (key === null) {
-      for (const [id, value] of Object.entries(item)) {
-        this.formRef.current.setFieldsValue({
-          [`${namespace}/${id}`]: value
-        });
-      }
-
-    } else {
-      this.formRef.current.setFieldsValue({
-        [`${namespace}/${key}`]: item
-      });
-    }
-  }
-
-  // Refresh entire form with new values
-  refreshForm = (item, namespace) => {
-    if (namespace == "homepage") {
-      for (const id of ["app_title", "welcome_title", "welcome_text", "email"]) {
-        this.formRef.current.setFieldsValue({
-          [`homepage/${id}`]: item[id] ? item[id] : ""
-        });
-      }
-    }
-    if (namespace == "tooltips") {
-      for (const id of Object.keys(defaultLabels)) {
-        this.formRef.current.setFieldsValue({
-          [`tooltips/${id}`]: item[id] ? item[id] : ""
-        });
-      }
-    }
-  }
 
   handleFormValuesChange = (changed_values, allValues) => {
     const [id, value] = Object.entries(changed_values)[0]
@@ -184,16 +131,7 @@ class SettingsPage extends React.Component {
     // POST
     updateWildCards(payload);
 
-    // update state with returned values
-    for (const item of payload) {
-      this.updateForm(item.value, item.namespace, item.key)
-      if (item.namespace === "homepage") {
-        this.props.updateHomepage(item.value, item.key) //update app view
-      }
-      if (item.namespace === "tooltips") {
-        this.props.tooltips.update({ [item.key]: item.value }) // update 
-      }
-    }
+    this.refreshSettings()
 
     this.setState({
       editMode: false,

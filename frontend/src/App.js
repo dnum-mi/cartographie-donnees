@@ -9,6 +9,7 @@ import Loading from "./components/Loading";
 import Error from "./components/Error";
 import { UserProvider } from "./hoc/user/UserProvider"
 import { TooltipsProvider } from "./hoc/tooltips/TooltipsProvider"
+import Tooltips from './hoc/tooltips/Tooltips';
 
 const { Content, Footer } = Layout;
 
@@ -18,7 +19,7 @@ class App extends React.Component {
     this.state = {
       user: null,
       homepageContent: {},
-      fetched_tooltips: {},
+      tooltips_object: new Tooltips({}, () => Promise.resolve()),
       loading: true,
       error: null,
     };
@@ -32,23 +33,17 @@ class App extends React.Component {
   setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
 
   refreshWildcards = () => {
-    this.setStatePromise({
+    return this.setStatePromise({
       loading: true,
       error: null,
-    }).then(() => fetchWildCards("tooltips"))
-      .then((response) => {
+    }).then(() => Promise.all([fetchWildCards("tooltips"), fetchWildCards("homepage")]))
+      .then(([res_tooltips, res_homepage]) => {
         this.setState({
-          fetched_tooltips: response.data.tooltips,
-        });
-      })
-      .then(() =>
-        fetchWildCards("homepage"))
-      .then((response) => {
-        this.setState({
-          homepageContent: response.data.homepage,
+          tooltips_object: new Tooltips(res_tooltips.data.tooltips, this.refreshWildcards),
+          homepageContent: res_homepage.data.homepage,
           loading: false,
           error: null
-        });
+        })
       })
       .catch((error) => {
         this.setState({
@@ -95,7 +90,7 @@ class App extends React.Component {
     return (
       <div className="App">
         <UserProvider user={this.state.user}>
-          <TooltipsProvider tooltips={this.state.fetched_tooltips}>
+          <TooltipsProvider tooltips={this.state.tooltips_object}>
             <Layout className="layout">
               <Content className="page-content">
                 <Router
