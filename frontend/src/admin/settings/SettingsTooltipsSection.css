@@ -12,6 +12,7 @@
 }
 
 .SettingsTooltipsSection label{
+    overflow-wrap: break-word;
     font-weight: bold;
 }
 
@@ -27,4 +28,9 @@
     background: white;
     border: 0;
     color: rgba(0, 0, 0, 0.85);
+}
+
+.SettingsTooltipsSection .ant-collapse-header{
+    font-size: medium;
+    font-weight: bold;
 }

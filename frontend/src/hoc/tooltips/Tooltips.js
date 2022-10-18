@@ -15,7 +15,19 @@ export default class Tooltips {
     }
 
     update = (newTooltips) => {
+        // Enrich old tooltips with new values or overwrite old ones
         this.tooltips = { ...this.tooltips, ...(_.pick(newTooltips, _.keys(this.tooltips))) }
     }
+
+    refresh = (newTooltips) => {
+        // replace whole old tooltips with new tooltips
+        let temp_tooltips = _.cloneDeep(defaultTooltips)
+        temp_tooltips = {
+            ...temp_tooltips,
+            ...(_.pick(newTooltips, _.keys(temp_tooltips))) // Only update existing keys
+        }
+        this.tooltips = {...this.tooltips, ...temp_tooltips}
+    }
+
 
 }

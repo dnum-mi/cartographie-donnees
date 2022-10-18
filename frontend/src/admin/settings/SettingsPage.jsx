@@ -7,6 +7,7 @@ import { updateWildCards, exportWildCardsUrl, exportModel, importWildCards, fetc
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import withTooltips from '../../hoc/tooltips/withTooltips.jsx';
 import SettingsTooltipsSection from './SettingsTooltipsSection.jsx';
+import { defaultLabels } from '../../hoc/tooltips/tooltipsConstants.js';
 
 const { confirm } = Modal;
 
@@ -28,26 +29,31 @@ class SettingsPage extends React.Component {
     this.refreshSettings();
   }
 
-  setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
+  // refreshTooltips = (tp) => {
+  //   for (const [id,value] of Object.entries(tp)){
+  //     this.props.tooltips.update({ [id]: value }) // update 
+  //   }
+  // }
 
   refreshSettings = () => {
-    this.setStatePromise({
+    this.setState({
       loading: true,
-      error: null,
-    }).then(() => fetchWildCards("tooltips"))
+    });
+
+    fetchWildCards("tooltips")
       .then((response) => {
-        this.props.tooltips.update(response.data.tooltips)
+        this.props.tooltips.refresh(response.data.tooltips)
         this.refreshForm(response.data.tooltips, "tooltips")
       })
       .then(() => fetchWildCards("homepage"))
       .then((response) => {
         this.props.updateHomepage(response.data.homepage);
         this.refreshForm(this.props.homepageContent, "homepage")
-        this.setState({
-          loading: false,
-          error: null,
-        });
       })
+      .then(this.setState({
+        loading: false,
+        error: null,
+      }))
       .catch((error) => {
         this.setState({
           loading: false,
@@ -60,8 +66,8 @@ class SettingsPage extends React.Component {
 
   //#region Toolbox 
 
-  // Use updateHomepage when we get new homepage data or import data
-  refreshForm = (item, namespace, key = null) => {
+  // Update current form values with new incoming values
+  updateForm = (item, namespace, key = null) => {
     if (key === null) {
       for (const [id, value] of Object.entries(item)) {
         this.formRef.current.setFieldsValue({
@@ -76,9 +82,29 @@ class SettingsPage extends React.Component {
     }
   }
 
+  // Refresh entire form with new values
+  refreshForm = (item, namespace) => {
+    if (namespace == "homepage") {
+      for (const id of ["app_title", "welcome_title", "welcome_text", "email"]) {
+        this.formRef.current.setFieldsValue({
+          [`homepage/${id}`]: item[id] ? item[id] : ""
+        });
+      }
+    }
+    if (namespace == "tooltips") {
+      for (const id of Object.keys(defaultLabels)) {
+        this.formRef.current.setFieldsValue({
+          [`tooltips/${id}`]: item[id] ? item[id] : ""
+        });
+      }
+    }
+  }
+
   handleFormValuesChange = (changed_values, allValues) => {
     const [id, value] = Object.entries(changed_values)[0]
-    const [namespace, key] = id.split("/")
+    const splitted = id.split("/")
+    const namespace = splitted[0]
+    const key = splitted[1]
     this.addChangeToSubmit(value, namespace, key)
   }
 
@@ -158,9 +184,9 @@ class SettingsPage extends React.Component {
     // POST
     updateWildCards(payload);
 
-    // update state
+    // update state with returned values
     for (const item of payload) {
-      this.refreshForm(item.value, item.namespace, item.key)
+      this.updateForm(item.value, item.namespace, item.key)
       if (item.namespace === "homepage") {
         this.props.updateHomepage(item.value, item.key) //update app view
       }
@@ -173,7 +199,7 @@ class SettingsPage extends React.Component {
       editMode: false,
       to_submit: {}
     })
-}
+  }
 
   //#endregion
 
@@ -197,10 +223,11 @@ class SettingsPage extends React.Component {
           onFinish={this.submit}
           ref={this.formRef}
           validateMessages={validateMessages}
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
+          labelCol={{ span: 12 }}
+          wrapperCol={{ span: 12 }}
           autoComplete="off"
           onValuesChange={this.handleFormValuesChange}
+          labelWrap
         // layout="vertical" 
         >
 

@@ -17,7 +17,7 @@ class SettingsHomepageSection extends React.Component {
         return (
         <Form.Item 
             name ={`homepage/${key}`} 
-            initialValue={this.props.homepageContent[key]} 
+            initialValue={this.props.homepageContent[key] || ""} 
             label={label}>
                 <TextArea
                 disabled={!this.props.editMode} 

@@ -4,7 +4,6 @@ const _ = require('lodash');
 
 let defaultTooltips = {};
 let defaultLabels = {};
-let filterKeys = [];
 let datasourceKeys = [];
 let applicationKeys = [];
 let otherKeys = [];
@@ -13,7 +12,9 @@ let otherKeys = [];
 for (let value of Object.values(filters)) {
     defaultTooltips[value.attributeKey] = "";
     defaultLabels[value.attributeKey] = value.categoryName;
-    filterKeys.push(value.attributeKey)
+    if (value.attributeKey != "application_name") {
+        datasourceKeys.push(value.attributeKey)
+    }
 }
 
 // Datasources tooltips
@@ -28,6 +29,7 @@ for (let value of Object.values(_.omit(attributes, "application"))) {
         datasourceKeys.push(value.suffixAttributeId)
     }
 }
+datasourceKeys = _.uniq(datasourceKeys)
 
 // Application tooltips
 for (let value of Object.values(attributes.application)) {
@@ -67,21 +69,7 @@ _.assign(defaultLabels, {
     "application_select": "Choix d'Application",
 })
 
-// sort keys
-function alphabetical_sort(a, b) {
-    if (!!a[1] && !!b[1]) {
-        return a[1].localeCompare(b[1])
-    } else {
-        return false
-    }
-}
-
-filterKeys = filterKeys.sort(alphabetical_sort)
-datasourceKeys = datasourceKeys.sort(alphabetical_sort)
-applicationKeys = applicationKeys.sort(alphabetical_sort)
-otherKeys = otherKeys.sort(alphabetical_sort)
-
-export { defaultLabels, filterKeys, datasourceKeys, applicationKeys, otherKeys }
+export { defaultLabels, datasourceKeys, applicationKeys, otherKeys }
 export default defaultTooltips
 
 
