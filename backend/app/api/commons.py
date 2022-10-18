@@ -135,7 +135,7 @@ def check_for_datasource_duplicates(item_dict, row_index, applications_dict, dup
         # we check all already imported data sources that have the same application is their names are similar
         for data_source in applications_dict[app_name]:
             match_ratio = SequenceMatcher(None, data_source['data_source_name'], item_dict['name']).ratio()
-            if match_ratio > 0.85:
+            if match_ratio > 0.95:
                 if data_source['data_source_name'] in duplicates:
                     duplicates[data_source['data_source_name']].append(data_source_obj['line'])
                     break
@@ -158,7 +158,7 @@ def check_for_application_duplicates(item_dict, row_index, applications_list, du
         long_name_match_ratio = 0 if (application['long_name'] is None or application_obj['long_name'] is None) \
             else SequenceMatcher(None, application['long_name'], application_obj['long_name']).ratio()
 
-        if name_match_ratio > 0.85 or long_name_match_ratio > 0.85:
+        if name_match_ratio > 0.95 or long_name_match_ratio > 0.95:
             if application['name'] in duplicates:
                 duplicates[application['name']]['lines'].append(application_obj['line'])
             else:
