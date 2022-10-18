@@ -96,6 +96,12 @@ class EnumerationMixin(BaseModel):
         return matches[0]
 
     @classmethod
+    def find_if_exists_by_full_path(cls, full_path):
+        all_records = cls.query.all()
+        matches = [record for record in all_records if record.full_path == full_path]
+        return bool(len(matches))
+
+    @classmethod
     def get_tree_dict(cls):
         """Fetch all records from db and return a tree of the results"""
         record_list = cls.query.filter_by(parent_id=None).all()
@@ -128,7 +134,13 @@ class EnumerationMixin(BaseModel):
     @classmethod
     def from_dict(cls, data):
         value, parent = cls.get_value_and_parent_from_full_path(data['full_path'])
-        new_enumeration = cls(value=value, label=data.get('label'))
+        already_exists = cls.find_if_exists_by_full_path(data['full_path'])
+        if already_exists:
+            already_existing_cls = cls.find_by_full_path(data['full_path'])
+            already_existing_cls.update_from_dict(dict(value=value, label=data.get('label'), full_path=data['full_path']))
+            new_enumeration = already_existing_cls
+        else:
+            new_enumeration = cls(value=value, label=data.get('label'))
         if parent:
             parent.children.append(new_enumeration)
         return new_enumeration
