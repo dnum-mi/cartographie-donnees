@@ -59,10 +59,10 @@ def create_filter_query(filter_key: str, values: List[str]):
 def create_exclusion(exclusions: str, searchable_fields: List[str]):
     if len(exclusions) > 0:
         return {
-            'multi_match': {
-                'query': exclusions,
+            'query_string': {
+                'query': f'*{exclusions}*',
                 'fields': searchable_fields,
-            }
+            },
         }
     else:
         return None
