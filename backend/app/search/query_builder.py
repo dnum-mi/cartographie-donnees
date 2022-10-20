@@ -92,7 +92,7 @@ def create_text_query(query: str, searchable_fields: List[str], strictness: Stri
         'query_string': {
             'query': create_query_string(query),
             'fields': searchable_fields,
-            'default_operator': 'AND' if strictness == Strictness.ALL_WORDS.value else 'OR'
+            'default_operator': 'AND' if strictness == Strictness.ALL_WORDS else 'OR'
         },
     }
 
