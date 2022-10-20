@@ -39,8 +39,8 @@ def test_query_with_filters_and_text(sample_organizations: List[Organization]):
                     }
                 }],
                 "must_not": {
-                    'multi_match': {
-                        'query': 'mots à exclure',
+                    'query_string': {
+                        'query': '*mots* *à* *exclure*',
                         'fields': ['name', 'description'],
                     }
                 }
@@ -68,8 +68,8 @@ def test_query_only_with_text(sample_organizations: List[Organization]):
                     },
                 }],
                 "must_not": {
-                    'multi_match': {
-                        'query': 'mots à exclure',
+                    'query_string': {
+                        'query': '*mots* *à* *exclure*',
                         'fields': ['name', 'description'],
                     }
                 }
@@ -104,8 +104,8 @@ def test_query_only_with_filters(sample_organizations: List[Organization]):
                     }
                 }],
                 "must_not": {
-                    'multi_match': {
-                        'query': 'mots à exclure',
+                    'query_string': {
+                        'query': '*mots* *à* *exclure*',
                         'fields': ['name', 'description'],
                     }
                 }
