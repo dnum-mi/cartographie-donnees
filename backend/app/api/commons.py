@@ -95,15 +95,12 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
                     raise ValueError("Ligne %s : Le champ %s de valeur %s est incorrect (la valeur attendue est %s)" % (
                         i, key, item_dict[key], value))
             # Each row is converted into SQLAlchemy model instances
-
+            item = resource_class(**item_dict)
             # Check for duplicate rows
             if resource_class is DataSource:
-                check_for_datasource_duplicates(item_dict, row_index, applications_dict, duplicates)
+                check_for_datasource_duplicates(item_dict, item, row_index, applications_dict, duplicates)
             elif resource_class is Application:
-                check_for_application_duplicates(item_dict, row_index, applications_list, duplicates)
-
-            # set warning message here
-            item = resource_class(**item_dict)
+                check_for_application_duplicates(item_dict, item, row_index, applications_list, duplicates)
             db.session.add(item)
         except (ValueError, AssertionError) as e:
             errors.append(dict(row=row_index + 2, error=e))
@@ -115,6 +112,8 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
         try:
             db.session.commit()
             if duplicates:
+                # Must wait until objects are committed in db before obtaining their IDs
+                set_duplicate_items_ids(duplicates, resource_class)
                 return generate_duplicate_warning_string_msg(duplicates)
         except StatementError as e:
             db.session.rollback()
@@ -124,11 +123,12 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
             resource_class.reindex()
 
 
-def check_for_datasource_duplicates(item_dict, row_index, applications_dict, duplicates):
+def check_for_datasource_duplicates(item_dict, item, row_index, applications_dict, duplicates):
     app_name = item_dict['application_name']
     data_source_obj = {
         'data_source_name': item_dict['name'],
-        'line': row_index + 2
+        'line': row_index + 2,
+        'object': item
     }
     if app_name in applications_dict:
         # we check all already imported data sources that have the same application is their names are similar
@@ -136,20 +136,26 @@ def check_for_datasource_duplicates(item_dict, row_index, applications_dict, dup
             match_ratio = SequenceMatcher(None, data_source['data_source_name'], item_dict['name']).ratio()
             if match_ratio > 0.95:
                 if data_source['data_source_name'] in duplicates:
-                    duplicates[data_source['data_source_name']].append(data_source_obj['line'])
+                    duplicates[data_source['data_source_name']].append(
+                        create_duplicate_item(data_source_obj['line'], data_source_obj['object'])
+                    )
                     break
                 else:
-                    duplicates[data_source['data_source_name']] = [data_source['line'], data_source_obj['line']]
+                    duplicates[data_source['data_source_name']] = [
+                        create_duplicate_item(data_source['line'], data_source['object']),
+                        create_duplicate_item(data_source_obj['line'], data_source_obj['object'])
+                    ]
         applications_dict[app_name].append(data_source_obj)
     else:
         applications_dict[app_name] = [data_source_obj]
 
 
-def check_for_application_duplicates(item_dict, row_index, applications_list, duplicates):
+def check_for_application_duplicates(item_dict, item, row_index, applications_list, duplicates):
     application_obj = {
         'name': item_dict['name'],
         'long_name': item_dict['long_name'],
-        'line': row_index + 2
+        'line': row_index + 2,
+        'item_object': item
     }
     for application in applications_list:
         name_match_ratio = SequenceMatcher(None, application['name'], application_obj['name']).ratio()
@@ -158,14 +164,39 @@ def check_for_application_duplicates(item_dict, row_index, applications_list, du
 
         if name_match_ratio > 0.95 or long_name_match_ratio > 0.95:
             if application['name'] in duplicates:
-                duplicates[application['name']]['lines'].append(application_obj['line'])
+                duplicates[application['name']]['items'].append(
+                    create_duplicate_item(application_obj['line'], application_obj['item_object'])
+                )
             else:
                 duplicates[application['name']] = dict(
                     name=application['name'],
                     long_name=application['long_name'],
-                    lines=[application['line'], application_obj['line']]
+                    items=[
+                        create_duplicate_item(application['line'], application['item_object']),
+                        create_duplicate_item(application_obj['line'], application_obj['item_object']),
+                    ]
                 )
     applications_list.append(application_obj)
+
+
+def create_duplicate_item(line, obj):
+    return dict(
+        line=line,
+        object=obj
+    )
+
+
+def set_duplicate_items_ids(duplicates, resource_class):
+    for duplicate in duplicates:
+        items = []
+        if resource_class is DataSource:
+            items = duplicates[duplicate]
+        elif resource_class is Application:
+            items = duplicates[duplicate]['items']
+
+        for item in items:
+            item['id'] = item['object'].id
+            del item['object']
 
 
 def generate_duplicate_warning_string_msg(duplicates):

@@ -1,6 +1,7 @@
 import { Alert } from "antd";
 import React from "react";
 import './Alert.css';
+import {Link} from "react-router-dom";
 
 export default function Warning({ description, message, warningType="", inputType="" }) {
     return (
@@ -26,7 +27,14 @@ const parseWarningDescription = (description, warningType, inputType) => {
                 <ul>
                     {
                         Object.keys(warnings_list).map((name) => {
-                            return <li>"{name}" lignes {warnings_list[name].join(', ')}</li>
+                            return <li>"{name}" lignes {warnings_list[name].map((item, i) => (
+                                <span key={i}>
+                                    {i > 0 && ", "}
+                                    <Link to={'/data-source/' + item.id} target="_blank">
+                                    {item.line}
+                                    </Link>
+                                </span>
+                            ))}</li>
                         })
                     }
                 </ul>
@@ -39,7 +47,15 @@ const parseWarningDescription = (description, warningType, inputType) => {
                 <ul>
                     {
                         Object.keys(warnings_list).map((name) => {
-                            return <li>"{name}"{warnings_list[name]['long_name'] && ', "'+warnings_list[name]['long_name']+'"'} lignes {warnings_list[name]['lines'].join(', ')}</li>
+                            return <li>"{name}"{warnings_list[name]['long_name'] && ', "'+warnings_list[name]['long_name']+'"'} lignes {warnings_list[name]['items'].map((item, i) => (
+                                <span key={i}>
+                                    {i > 0 && ", "}
+                                    <Link to={'/application/' + item.id} target="_blank">
+                                    {item.line}
+                                    </Link>
+                                </span>
+                                ))}
+                            </li>
                         })
                     }
                 </ul>
