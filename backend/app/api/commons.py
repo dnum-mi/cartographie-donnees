@@ -172,7 +172,7 @@ def generate_duplicate_warning_string_msg(duplicates):
     return dict(
         message="Doublons repérés dans l'import",
         description=dict(
-            header="Les lignes suivantes ont été indiquées comme en doublon dans l'import. Merci de les supprimer "
+            header="Les lignes suivantes ont été indiquées comme en doublon dans l'import. \n Ils ont tout de même été importés, si ce n'était pas intentionnel merci de les supprimer "
                    "manuellement et de réimporter le fichier:",
             list=duplicates
         ),
