@@ -1,6 +1,6 @@
 const filters = {
   family: {
-    categoryName: "Familles",
+    categoryName: "Famille",
     selectedKey: "selectedFamily",
     listKey: 'families',
     attributeKey: 'family_name',
@@ -9,7 +9,7 @@ const filters = {
     multiple: true,
   },
   organization: {
-    categoryName: "Organisations",
+    categoryName: "Organisation",
     selectedKey: "selectedOrganization",
     listKey: 'organizations',
     titleKey: 'organization_long_name',
@@ -22,7 +22,7 @@ const filters = {
     focus: true
   },
   application: {
-    categoryName: "Applications",
+    categoryName: "Application",
     selectedKey: "selectedApplication",
     listKey: 'applications',
     attributeKey: 'application_name',
@@ -31,7 +31,7 @@ const filters = {
     multiple: false,
   },
   type: {
-    categoryName: "Types",
+    categoryName: "Type",
     selectedKey: "selectedType",
     listKey: 'types',
     attributeKey: 'type_name',
@@ -40,7 +40,7 @@ const filters = {
     multiple: false,
   },
   referentiel: {
-    categoryName: "Référentiels",
+    categoryName: "Référentiel",
     selectedKey: "selectedReferentiel",
     listKey: 'referentiels',
     attributeKey: 'referentiel_name',
@@ -49,7 +49,7 @@ const filters = {
     multiple: false,
   },
   sensibility: {
-    categoryName: "Sensibilités",
+    categoryName: "Sensibilité",
     selectedKey: "selectedSensibility",
     listKey: 'sensibilities',
     attributeKey: 'sensibility_name',
@@ -58,7 +58,7 @@ const filters = {
     multiple: false,
   },
   open_data: {
-    categoryName: "Open Data",
+    categoryName: "OpenData",
     selectedKey: "selectedOpenData",
     listKey: 'open_data',
     attributeKey: 'open_data_name',
@@ -67,7 +67,7 @@ const filters = {
     multiple: false,
   },
   exposition: {
-    categoryName: "Expositions",
+    categoryName: "Exposition",
     selectedKey: "selectedExposition",
     listKey: 'expositions',
     attributeKey: 'exposition_name',
@@ -76,7 +76,7 @@ const filters = {
     multiple: true,
   },
   origin: {
-    categoryName: "Origines",
+    categoryName: "Origine",
     selectedKey: "selectedOrigin",
     listKey: 'origins',
     attributeKey: 'origin_name',
@@ -94,7 +94,7 @@ const filters = {
     multiple: true,
   },
   tag: {
-    categoryName: "Tags",
+    categoryName: "Tag",
     selectedKey: "selectedTag",
     listKey: 'tags',
     attributeKey: 'tag_name',

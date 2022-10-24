@@ -6,6 +6,7 @@ import { forgotPassword } from '../api';
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 import EmailField from "../components/EmailField";
+import withTooltips from "../hoc/tooltips/withTooltips"
 
 const layout = {
     labelCol: { span: 12 },
@@ -47,6 +48,9 @@ class ForgotPasswordPage extends React.Component {
         if (this.state.loading) {
             return <Loading />
         }
+
+        console.log(this.props.tooltips)
+
         return (
             <div className="ForgotPasswordPage">
                 <h1>
@@ -58,7 +62,7 @@ class ForgotPasswordPage extends React.Component {
                     onFinish={this.onFinish}
                     onFinishFailed={() => {}}
                 >
-                <EmailField tooltip="L'email de l'administrateur" required={true} name="email"/>
+                <EmailField tooltip={this.props.tooltips.get("email")} required={true} name="email"/>
 
                     <Form.Item {...tailLayout}>
                         <Button type="primary" htmlType="submit">
@@ -83,4 +87,4 @@ class ForgotPasswordPage extends React.Component {
     }
 }
 
-export default withRouter(ForgotPasswordPage);
+export default withRouter(withTooltips(ForgotPasswordPage));
