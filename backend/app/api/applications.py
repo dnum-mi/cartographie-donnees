@@ -428,7 +428,7 @@ def fetch_application_organizations():
     """
     page = request.args.get('page', 1, type=int)
     query = request.args.get('q', '', type=str)
-    applications, _ = Application.search_with_filter(query, {}, "ANY_WORDS", page, 500)
+    applications, _ = Application.search_with_filter(query, {}, Strictness.ANY_WORDS, page, 500)
     organizations = [application.organization_name for application in applications]
     organization_dict = {}
     for organization in organizations:

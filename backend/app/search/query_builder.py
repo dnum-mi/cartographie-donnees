@@ -59,10 +59,10 @@ def create_filter_query(filter_key: str, values: List[str]):
 def create_exclusion(exclusions: str, searchable_fields: List[str]):
     if len(exclusions) > 0:
         return {
-            'multi_match': {
-                'query': exclusions,
+            'query_string': {
+                'query': create_query_string(exclusions),
                 'fields': searchable_fields,
-            }
+            },
         }
     else:
         return None
@@ -83,10 +83,14 @@ def create_filters_query(filters_dict: Dict[str, List[str]]):
     return result
 
 
+def create_query_string(query: str):
+    return ' '.join([f'*{word}*' for word in query.split()])
+
+
 def create_text_query(query: str, searchable_fields: List[str], strictness: Strictness):
     return {
         'query_string': {
-            'query': f'*{query}*',
+            'query': create_query_string(query),
             'fields': searchable_fields,
             'default_operator': 'AND' if strictness == Strictness.ALL_WORDS else 'OR'
         },

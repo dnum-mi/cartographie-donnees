@@ -14,7 +14,7 @@ from app.api.commons import import_resource, export_resource
 from app.exceptions import CSVFormatError
 
 from . import api
-
+from ..search.enums import Strictness
 
 
 @api.route('/api/data-sources', methods=['GET'])
@@ -376,6 +376,7 @@ def get_request_args_data_source(request):
 
     query = request.args.get('q', '', type=str)
     strictness = request.args.get('strictness', '', type=str)
+    strictness = Strictness(strictness)
     exclusions = request.args.get('toExclude', '', type=str)
     to_return = {}
     for filter in filters_list:
