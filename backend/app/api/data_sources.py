@@ -1,4 +1,6 @@
 import copy
+
+import unidecode
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
@@ -7,7 +9,7 @@ from app.models import DataSource, Application, Type, Family, Organization, Expo
     get_enumeration_model_by_name, Origin, Tag
 from app.decorators import admin_required, admin_or_owner_required
 from app.api.enumerations import get_type_by_name, get_family_by_name, get_classification_by_name, \
-    get_exposition_by_name, get_referentiel_by_name, get_sensibily_by_name, get_open_data_by_name, \
+    get_exposition_by_name, get_sensibily_by_name, get_open_data_by_name, \
     get_update_frequency_by_name, get_origin_by_name, get_tag_by_name
 from app.api.applications import get_application_by_name
 from app.api.commons import import_resource, export_resource
@@ -54,7 +56,7 @@ def fetch_data_sources():
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     datasources = base_query.all()
     total_count = base_query.count()
-    datasources = sorted(datasources, key=lambda ds: str.lower(ds.name))
+    datasources = sorted(datasources, key=lambda ds: str.lower(unidecode.unidecode(ds.name)))
     datasources = datasources[(page - 1) * count:page * count]
     return jsonify(dict(
         total_count=total_count,

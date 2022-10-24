@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import unidecode
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
@@ -73,7 +74,7 @@ def fetch_applications():
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     applications = base_query.all()
     total_count = base_query.count()
-    applications = sorted(applications, key=lambda appli: str.lower(appli.name))
+    applications = sorted(applications, key=lambda appli: str.lower(unidecode.unidecode(appli.name)))
     applications = applications[(page - 1) * count:page * count]
     return jsonify(dict(
         total_count=total_count,
