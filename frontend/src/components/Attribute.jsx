@@ -8,6 +8,7 @@ import TagAttribute from './attributes/TagAttribute';
 import { commonDefaultProps } from "./attributes/attributeDefaultProps";
 import { commonPropTypes } from "./attributes/attributePropTypes";
 import ApplicationAttribute from "./attributes/ApplicationAttribute";
+import withTooltips from "../hoc/tooltips/withTooltips";
 
 class Attribute extends React.Component {
 
@@ -37,7 +38,7 @@ class Attribute extends React.Component {
           {this.props.required ? "*" : undefined}
           <QuestionCircleOutlined
             className="attribute-tooltip"
-            title={this.props.tooltip}
+            title={this.props.tooltips.get(this.props.attributeId)}
           />
         </label>
         {this.attributeValue()}
@@ -54,4 +55,4 @@ Attribute.propTypes = {
   ...commonPropTypes,
 };
 
-export default Attribute;
+export default withTooltips(Attribute);

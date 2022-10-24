@@ -16,6 +16,8 @@ import Error from "../components/Error";
 import filters from "../filters";
 import Results from "./Results";
 
+import withTooltips from '../hoc/tooltips/withTooltips';
+
 const { Search } = Input;
 
 const ANY_WORDS = "ANY_WORDS"
@@ -342,7 +344,7 @@ class SearchPage extends React.Component {
                         loading={this.state.loading}
                         filterCategoryName={filters[key].categoryName}
                         treeData={this.getFilterData(key)}
-                        tooltip={filters[key].tooltip}
+                        tooltip={this.props.tooltips.get(filters[key].attributeKey)}
                         color={filters[key].color}
                         multiple={filters[key].multiple}
                         expandedKeys={filters[key].expandedKeys}
@@ -548,4 +550,4 @@ class SearchPage extends React.Component {
     }
 }
 
-export default withRouter(SearchPage);
+export default withRouter(withTooltips(SearchPage));

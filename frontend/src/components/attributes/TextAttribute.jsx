@@ -4,6 +4,7 @@ import { commonPropTypes, textPropTypes } from "./attributePropTypes";
 import { commonDefaultProps, textDefaultProps } from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import withCurrentUser from "../../hoc/user/withCurrentUser";
+import withTooltips from "../../hoc/tooltips/withTooltips";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -29,7 +30,7 @@ class TextAttribute extends React.Component {
           {this.props.suffixAttributeLabel}
           <QuestionCircleOutlined
             className="attribute-tooltip"
-            title="Commentaire sur cette valeur"
+            title={this.props.tooltips.get(this.props.suffixAttributeId)}
           />
         </label>
         <Form.Item name={this.props.suffixAttributeId} initialValue={this.props.suffixValue} rules={this.rules()}>
@@ -168,4 +169,4 @@ TextAttribute.propTypes = {
   ...textPropTypes,
 };
 
-export default withCurrentUser(TextAttribute);
+export default withCurrentUser(withTooltips(TextAttribute));

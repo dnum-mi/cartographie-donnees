@@ -21,15 +21,6 @@ const onLogoutClick = () => {
 
 function Navigation({ user, homepageContent, location }) {
 
-  // TODO app title not updating unless I recharge the page
-  // State goes up to app but does not go down to
-  // const [appTitle, setAppTitle] = useState(homepageContent["app_title"]);
-
-  // useEffect(() => {
-  //   setAppTitle(homepageContent["app_title"]);
-  //   console.log(homepageContent["app_title"]);
-  // }, [homepageContent]);
-
   const loginButton = user ? (
       <Button type="link" onClick={onLogoutClick}>
         Se déconnecter

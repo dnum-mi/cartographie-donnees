@@ -8,6 +8,9 @@ import Error from "../../components/Error";
 import './EnumerationsList.css';
 import EnumerationCategory from "./EnumerationCategory";
 import {QuestionCircleOutlined} from '@ant-design/icons';
+import withTooltips from "../../hoc/tooltips/withTooltips"
+import filters from '../../filters';
+import attributes from '../../data-source/attributes';
 
 const {confirm} = Modal;
 const {Panel} = Collapse;
@@ -87,8 +90,13 @@ class EnumerationsList extends React.Component {
     return this.state.colors[category];
   }
 
+  getAttributeKeyFromCategory = (category) =>{
+    return !!Object.values(filters).find((item)=>item.categoryName == category)
+    ? Object.values(filters).find((item)=>item.categoryName == category).attributeKey 
+    : Object.values(attributes).find((item)=>item.tagCategory == category).attributeId
+  }
   getTooltip = (category) => {
-    return this.state.tooltips[category];
+    return this.props.tooltips.get(this.getAttributeKeyFromCategory(category));
   }
 
   renderCategoryHeader = (categoryName) => (
@@ -203,4 +211,4 @@ class EnumerationsList extends React.Component {
   }
 }
 
-export default withRouter(EnumerationsList);
+export default withRouter(withTooltips(EnumerationsList));

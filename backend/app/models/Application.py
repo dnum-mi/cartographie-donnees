@@ -9,6 +9,8 @@ from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
 import datetime
 
+from app.models.DataSource import association_reutilization_table
+
 ownerships = db.Table(
     'ownerships',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
