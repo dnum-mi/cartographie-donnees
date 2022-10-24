@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Row, Button, Form, Input, Collapse } from "antd";
+import { Form, Input, Collapse } from "antd";
 import { defaultLabels, applicationKeys, datasourceKeys, otherKeys } from '../../hoc/tooltips/tooltipsConstants';
 
 import './SettingsTooltipsSection.css';
@@ -42,7 +42,7 @@ class SettingsTooltipsSection extends React.Component {
         for (const key of key_list) {
             if (!!defaultLabels[key]) {
                 inputList.push(this.createTextArea(key, defaultLabels[key]))
-            };
+            }
         }
         return inputList;
     }
@@ -52,13 +52,13 @@ class SettingsTooltipsSection extends React.Component {
             <div className="SettingsTooltipsSection">
                 <h2>Tooltips</h2>
                 <Collapse ghost>
-                    <Panel header="Applications" key="Panel_Applications">
+                    <Panel header="Application" key="Panel_Applications">
                         {this.tooltipsInput(applicationKeys)}
                     </Panel>
-                    <Panel header="Datasources" key="Panel_Datasources">
+                    <Panel header="Donnée" key="Panel_Datasources">
                         {this.tooltipsInput(datasourceKeys)}
                     </Panel>
-                    <Panel header="Other" key="Panel_Other">
+                    <Panel header="Autre" key="Panel_Other">
                         {this.tooltipsInput(otherKeys)}
                     </Panel>
                 </Collapse>
