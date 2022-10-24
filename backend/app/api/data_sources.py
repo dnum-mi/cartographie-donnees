@@ -305,9 +305,11 @@ def import_data_sources():
 
     """
     try:
-        import_resource(DataSource)
+        warning = import_resource(DataSource)
     except CSVFormatError as e:
         raise BadRequest(e.message)
+    if warning:
+        return jsonify({'code':200, **warning})
     return jsonify(dict(description='OK', code=200))
 
 

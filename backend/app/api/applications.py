@@ -196,9 +196,11 @@ def import_applications():
                         $ref: "#/components/schemas/JsonResponse200"
     """
     try:
-        import_resource(Application)
+        warning = import_resource(Application)
     except CSVFormatError as e:
         raise BadRequest(e.message)
+    if warning:
+        return jsonify({'code':200, **warning})
     return jsonify(dict(description='OK', code=200))
 
 

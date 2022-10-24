@@ -327,8 +327,12 @@ def import_enumerations():
         for row in csv_reader:
             dic = {headers[i]: row[i] for i in range(len(headers))}
             enum_cls = get_enumeration_model_by_name(enumeration_french_to_english[dic["category"]])
-            enumeration = enum_cls.from_dict(dic)
-            db.session.add(enumeration)
+            if enum_cls.find_if_exists_by_full_path(dic['full_path']):
+                enum = enum_cls.find_by_full_path(dic['full_path'])
+                enum.update_from_dict(dic)
+            else:
+                enumeration = enum_cls.from_dict(dic)
+                db.session.add(enumeration)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
