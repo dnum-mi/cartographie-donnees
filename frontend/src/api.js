@@ -73,6 +73,9 @@ export const updateWildCards = (wild_card_list) => axios.post(wildCardEndpoint, 
 export const importWildCards = (file) => axios.post(wildCardEndpoint + '/import', file, { "headers": { 'Content-Type': 'multipart/form-data' } });
 export const exportWildCardsUrl = wildCardEndpoint + '/export';
 
+/* KPI API */
+export const updateRoutingKPI = (user, location) => axios.post(API_HOST + '/routing-kpi', {"user":user, "location":location});
+
 
 /** Auth API */
 export const login = (email, password) => axios.post(API_HOST + '/login', { email, password });
