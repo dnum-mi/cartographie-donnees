@@ -1,15 +1,12 @@
 from statistics import mean
 
-from sqlalchemy import select, distinct
 from sqlalchemy.orm import validates, object_session
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql.functions import count
 
 from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
 import datetime
 
-from app.models.DataSource import association_reutilization_table
 
 ownerships = db.Table(
     'ownerships',
