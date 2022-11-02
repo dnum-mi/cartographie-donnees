@@ -112,4 +112,4 @@ Vous pouvez tester ce frontend compilé en créant un lien symbolique entre ce b
 
 Le backend servira le frontend minifié à l'adresse ``http://localhost:5000``.
 
-v1.0
+v1.1
