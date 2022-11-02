@@ -1,8 +1,8 @@
 """browsing kpi
 
-Revision ID: d623e4e52138
+Revision ID: 5f95f134356d
 Revises: d7982c8b8229
-Create Date: 2022-10-25 13:44:55.807711
+Create Date: 2022-11-02 12:03:37.349794
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd623e4e52138'
+revision = '5f95f134356d'
 down_revision = 'd7982c8b8229'
 branch_labels = None
 depends_on = None
@@ -21,6 +21,7 @@ def upgrade():
     op.create_table('routingKPI',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('pathname', sa.String(), nullable=False),
+    sa.Column('subpath', sa.String(), nullable=False),
     sa.Column('search', sa.String(), nullable=False),
     sa.Column('is_general_admin', sa.Boolean(), nullable=False),
     sa.Column('is_simple_admin', sa.Boolean(), nullable=False),

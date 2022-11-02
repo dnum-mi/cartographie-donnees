@@ -5,6 +5,7 @@ from app.models import BaseModel
 class RoutingKPI(BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     pathname = db.Column(db.String, nullable=False)
+    subpath = db.Column(db.String, nullable=False)
     search = db.Column(db.String, nullable=False)
     is_general_admin = db.Column(db.Boolean, nullable=False)
     is_simple_admin = db.Column(db.Boolean, nullable=False)
@@ -16,6 +17,7 @@ class RoutingKPI(BaseModel):
         routing_kpi = RoutingKPI(
             id=data.get("id"),
             pathname=data.get("pathname"),
+            subpath=data.get("subpath"),
             search=data.get("search"),
             is_general_admin=data.get("is_general_admin"),
             is_simple_admin=data.get("is_simple_admin"),
@@ -27,6 +29,7 @@ class RoutingKPI(BaseModel):
         result = {
             'id': self.id,
             'pathname': self.pathname,
+            'subpath': self.subpath,
             'search': self.search,
             'is_general_admin': self.is_general_admin,
             'is_simple_admin': self.is_simple_admin,
@@ -37,6 +40,7 @@ class RoutingKPI(BaseModel):
     def update_from_dict(self, data):
         self.id = data.get('id')
         self.pathname = data.get('pathname')
+        self.subpath = data.get('subpath')
         self.search = data.get('search')
         self.is_general_admin = data.get('is_general_admin')
         self.is_simple_admin = data.get('is_simple_admin')
