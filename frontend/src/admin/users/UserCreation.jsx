@@ -41,7 +41,7 @@ class UserCreation extends React.Component {
                     </h1>
                     {this.state.error && <Error error={this.state.error} />}
                     <div>
-                        <UserForm withPassword onSubmit={this.submitForm} tooltips={this.props.tooltips}/>
+                        <UserForm withPassword onSubmit={this.submitForm}/>
                     </div>
                 </div>
             </Spin>

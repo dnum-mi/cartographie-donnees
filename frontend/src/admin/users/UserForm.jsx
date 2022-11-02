@@ -1,5 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
+import withTooltips from "../../hoc/tooltips/withTooltips";
 import {
     Form,
     Input,
@@ -43,7 +44,7 @@ const tailFormItemLayout = {
     },
 };
 
-const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications , tooltips}) => {
+const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications, tooltips}) => {
     const [form] = Form.useForm();
     return (
         <Form
@@ -109,4 +110,4 @@ UserForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
 }
 
-export default UserForm;
+export default withTooltips(UserForm);
