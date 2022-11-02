@@ -5,8 +5,8 @@ from app.models import BaseModel
 class RoutingKPI(BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     pathname = db.Column(db.String, nullable=False)
-    subpath = db.Column(db.String, nullable=False)
-    search = db.Column(db.String, nullable=False)
+    subpath = db.Column(db.String, nullable=True)
+    search = db.Column(db.String, nullable=True)
     is_general_admin = db.Column(db.Boolean, nullable=False)
     is_simple_admin = db.Column(db.Boolean, nullable=False)
     date = db.Column(db.DateTime, nullable=False)

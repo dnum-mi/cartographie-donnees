@@ -1,7 +1,7 @@
 import datetime
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 from app import db
 from app.models.RoutingKPI import RoutingKPI
@@ -40,16 +40,57 @@ def row_to_dict(rowList):
 @api.route('/api/routing-kpi', methods=['GET'])
 def get_routing_kpi():
     try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        filter_by_date = db.session.query(RoutingKPI.id). \
+            filter(RoutingKPI.date >= start_date). \
+            filter(RoutingKPI.date < end_date).subquery()
+
+        # Count number of visit for each section (login, datasource, admin, search)
+        path_count_visits = row_to_dict(
+            db.session.query(RoutingKPI.pathname, func.count(RoutingKPI.id).label("count")).
+            filter(RoutingKPI.id.in_(filter_by_date)).
+            group_by(RoutingKPI.pathname).
+            order_by(desc("count")).
+            all()
+        )
+
+        # Count number of visit for each datasource
+        datasource_count_visits = row_to_dict(
+            db.session.query(RoutingKPI.subpath, func.count(RoutingKPI.id).label("count")).
+            filter(RoutingKPI.id.in_(filter_by_date)).
+            group_by(RoutingKPI.pathname, RoutingKPI.subpath).
+            having(RoutingKPI.pathname == "data-source").
+            order_by(desc("count")).
+            limit(50).
+            all()
+        )
+
+        return jsonify({"path_count_visits": path_count_visits, "datasource_count_visits": datasource_count_visits})
+
+    except Exception as e:
+        raise BadRequest(str(e))
+
+
+# TODO
+@api.route('/api/search-kpi', methods=['GET'])
+def get_search_kpi():
+    try:
         kpis = {}
         path_count = row_to_dict(
             db.session.query(RoutingKPI.pathname, func.count(RoutingKPI.id).label("count")).
-            group_by(RoutingKPI.pathname).all()
+            group_by(RoutingKPI.pathname).
+            order_by(desc("count")).
+            all()
         )
 
         datasource_views = row_to_dict(
             db.session.query(RoutingKPI.subpath, func.count(RoutingKPI.id).label("count")).
             group_by(RoutingKPI.pathname, RoutingKPI.subpath).
             having(RoutingKPI.pathname == "data-source").
+            order_by(desc("count")).
+            limit(50).
             all()
         )
 
