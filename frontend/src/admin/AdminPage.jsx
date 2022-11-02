@@ -8,6 +8,7 @@ import EnumerationsRouter from "./enumerations/EnumerationsRouter";
 import UsersRouter from "./users/UsersRouter";
 import SettingsRouter from "./settings/SettingsRouter";
 import {countApplication, countDataSource, countUser} from '../api';
+import KPIPage from "./KPIPage";
 
 class AdminPage extends React.Component {
 
@@ -70,9 +71,14 @@ class AdminPage extends React.Component {
                 </Menu.Item>
                 )}
                 {this.props.user.is_admin && (
-                <Menu.Item key="settings">
-                    Paramètres
-                </Menu.Item>
+                    <Menu.Item key="settings">
+                        Paramètres
+                    </Menu.Item>
+                )}
+                {this.props.user.is_admin && (
+                    <Menu.Item key="kpi">
+                        KPI
+                    </Menu.Item>
                 )}
 
             </Menu>
@@ -117,6 +123,14 @@ class AdminPage extends React.Component {
                 >
                     <SettingsRouter updateHomepage = {this.props.updateHomepage} homepageContent= {this.props.homepageContent}/>
                 </Route>
+                )}
+                {this.props.user.is_admin && (
+                    <Route
+                        key="kpi"
+                        path={this.props.match.url + '/kpi'}
+                    >
+                        <KPIPage/>
+                    </Route>
                 )}
 
                 <Route
