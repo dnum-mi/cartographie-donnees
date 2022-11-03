@@ -1,7 +1,7 @@
 import React from 'react';
 import {withRouter} from 'react-router-dom';
 import {Button, Modal, Skeleton} from "antd";
-
+import {fetchRoutingKPI, fetchSearchingKPI} from "../api";
 const {confirm} = Modal;
 
 class KPIPage extends React.Component {
@@ -14,12 +14,15 @@ class KPIPage extends React.Component {
     }
 
     componentDidMount() {
-/*
-        fetchKPI()
-        see SQL LIKE %what we're looking for"%
-        % -> n'importe quel caractère
-        fetchLineCount()
-*/
+        const options = {year: "numeric", month: "numeric", day: "numeric"};
+        const end_date = new Date().toISOString()
+        let start_date = new Date()
+        start_date.setFullYear(start_date.getFullYear() - 1)
+        start_date = start_date.toISOString()
+        console.log(start_date, end_date)
+
+        fetchRoutingKPI(start_date, end_date)
+        fetchSearchingKPI(start_date, end_date)
     }
 
 

@@ -75,7 +75,8 @@ export const exportWildCardsUrl = wildCardEndpoint + '/export';
 
 /* KPI API */
 export const updateRoutingKPI = (user, location) => axios.post(API_HOST + '/routing-kpi', {"user":user, "location":location});
-
+export const fetchRoutingKPI = (start_date, end_date) => axios.get(API_HOST + '/routing-kpi?start_date=' + start_date + '&end_date=' + end_date);
+export const fetchSearchingKPI = (start_date, end_date) => axios.get(API_HOST + '/searching-kpi?start_date=' + start_date + '&end_date=' + end_date);
 
 /** Auth API */
 export const login = (email, password) => axios.post(API_HOST + '/login', { email, password });

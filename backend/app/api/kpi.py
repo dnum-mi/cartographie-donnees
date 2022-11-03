@@ -47,8 +47,8 @@ def get_routing_kpi():
         end_date = request.args.get('end_date')
 
         filter_by_date = db.session.query(RoutingKPI.id). \
-            filter(RoutingKPI.date >= start_date). \
-            filter(RoutingKPI.date < end_date).subquery()
+            filter(RoutingKPI.date > start_date). \
+            filter(RoutingKPI.date <= end_date).subquery()
 
         # Count number of visit for each section (login, datasource, admin, search)
         kpis["path_count_visits"] = row_to_dict(
@@ -84,8 +84,8 @@ def get_search_kpi():
         end_date = request.args.get('end_date')
 
         filter_by_date = db.session.query(SearchingKPI.id). \
-            filter(SearchingKPI.date >= start_date). \
-            filter(SearchingKPI.date < end_date).subquery()
+            filter(SearchingKPI.date > start_date). \
+            filter(SearchingKPI.date <= end_date).subquery()
 
         # get all search queries
         search_list = db.session.query(SearchingKPI.text_query, SearchingKPI.filters_query). \
