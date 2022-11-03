@@ -4,7 +4,8 @@ from flask import jsonify, request
 from sqlalchemy import func, desc
 
 from app import db
-from app.models.RoutingKPI import RoutingKPI
+from app.models import RoutingKPI, SearchingKPI
+import json
 from . import api
 
 
@@ -75,12 +76,46 @@ def get_routing_kpi():
         raise BadRequest(str(e))
 
 
-@api.route('/api/search-kpi', methods=['GET'])
+@api.route('/api/searching-kpi', methods=['GET'])
 def get_search_kpi():
     try:
-        kpis = {}
 
-        return jsonify(kpis)
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        filter_by_date = db.session.query(SearchingKPI.id). \
+            filter(SearchingKPI.date >= start_date). \
+            filter(SearchingKPI.date < end_date).subquery()
+
+        # get all search queries
+        search_list = db.session.query(SearchingKPI.text_query, SearchingKPI.filters_query). \
+            filter(SearchingKPI.id.in_(filter_by_date)). \
+            all()
+
+        # Parse through queries and create KPi
+        text_queries = {}
+        filters_queries = {}
+        text_separator = " "
+
+        for search in search_list:
+
+            # Text search KPI
+            for text in search.text_query.split(text_separator):
+                if text != "":
+                    text_queries[text] = text_queries.get(text, 0) + 1
+
+            # filters search KPI
+            filters_dict = json.loads(search.filters_query)
+            filter_gen = (element for filter_list in filters_dict.values() for element in filter_list)
+            for filt in filter_gen:
+                filters_queries[filt] = filters_queries.get(filt, 0) + 1
+
+        # sort
+        ordered_text_queries = sorted(text_queries.items(), key=lambda item: item[1], reverse=True)[:50]
+        ordered_filters_queries = sorted(filters_queries.items(), key=lambda item: item[1], reverse=True)[:50]
+
+        return jsonify({"text_queries": ordered_text_queries, "filters_queries": ordered_filters_queries})
+        # return jsonify(row_to_dict(search_list))
 
     except Exception as e:
         raise BadRequest(str(e))
