@@ -40,6 +40,8 @@ def row_to_dict(rowList):
 @api.route('/api/routing-kpi', methods=['GET'])
 def get_routing_kpi():
     try:
+
+        kpis = {}
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
 
@@ -48,7 +50,7 @@ def get_routing_kpi():
             filter(RoutingKPI.date < end_date).subquery()
 
         # Count number of visit for each section (login, datasource, admin, search)
-        path_count_visits = row_to_dict(
+        kpis["path_count_visits"] = row_to_dict(
             db.session.query(RoutingKPI.pathname, func.count(RoutingKPI.id).label("count")).
             filter(RoutingKPI.id.in_(filter_by_date)).
             group_by(RoutingKPI.pathname).
@@ -57,7 +59,7 @@ def get_routing_kpi():
         )
 
         # Count number of visit for each datasource
-        datasource_count_visits = row_to_dict(
+        kpis["datasource_count_visits"] = row_to_dict(
             db.session.query(RoutingKPI.subpath, func.count(RoutingKPI.id).label("count")).
             filter(RoutingKPI.id.in_(filter_by_date)).
             group_by(RoutingKPI.pathname, RoutingKPI.subpath).
@@ -67,34 +69,18 @@ def get_routing_kpi():
             all()
         )
 
-        return jsonify({"path_count_visits": path_count_visits, "datasource_count_visits": datasource_count_visits})
+        return jsonify(kpis)
 
     except Exception as e:
         raise BadRequest(str(e))
 
 
-# TODO
 @api.route('/api/search-kpi', methods=['GET'])
 def get_search_kpi():
     try:
         kpis = {}
-        path_count = row_to_dict(
-            db.session.query(RoutingKPI.pathname, func.count(RoutingKPI.id).label("count")).
-            group_by(RoutingKPI.pathname).
-            order_by(desc("count")).
-            all()
-        )
 
-        datasource_views = row_to_dict(
-            db.session.query(RoutingKPI.subpath, func.count(RoutingKPI.id).label("count")).
-            group_by(RoutingKPI.pathname, RoutingKPI.subpath).
-            having(RoutingKPI.pathname == "data-source").
-            order_by(desc("count")).
-            limit(50).
-            all()
-        )
-
-        return jsonify({"path_count": path_count, "datasource_views": datasource_views})
+        return jsonify(kpis)
 
     except Exception as e:
         raise BadRequest(str(e))

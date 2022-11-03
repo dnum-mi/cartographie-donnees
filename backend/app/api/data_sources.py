@@ -4,7 +4,7 @@ import json
 
 import unidecode
 from werkzeug.exceptions import BadRequest
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
@@ -391,9 +391,15 @@ def get_request_args_data_source(request):
     return query, to_return, strictness, exclusions
 
 
-def add_query_to_db(query, request_args, strictness, exclusions):
+def add_query_to_db(index, query, request_args, strictness, exclusions):
+
+    # Get elasticsearch string query tokens after analyzer
+    text_separator = " "
+    raw_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": query})["tokens"]
+    text_query = text_separator.join([element["token"] for element in raw_tokens])
+
     query_parameters = {
-        "text_query": query,
+        "text_query": text_query,
         "text_operator": strictness.value,
         "exclusion": exclusions,
         "filters_query": json.dumps({
@@ -454,7 +460,7 @@ def search_data_sources():
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
 
     # Add query to DB for KPI
-    add_query_to_db(query, request_args, strictness, exclusions)
+    add_query_to_db(DataSource.__tablename__, query, request_args, strictness, exclusions)
 
     # search and return results
     data_sources, total_count = DataSource.search_with_filter(
