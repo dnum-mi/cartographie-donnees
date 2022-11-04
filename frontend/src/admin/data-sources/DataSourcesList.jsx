@@ -23,6 +23,7 @@ class DataSourcesList extends React.Component {
             page: 1,
             count: 50,
             dataSources: [],
+            warning: null
         }
     }
 
@@ -159,6 +160,9 @@ class DataSourcesList extends React.Component {
                         warningType: r.data.warning_type
                     }
             })
+        }
+        else {
+            this.setState({warning: null})
         }
     }
 
