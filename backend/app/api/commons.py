@@ -5,6 +5,7 @@ import csv
 import os
 from sqlalchemy.exc import StatementError
 from difflib import SequenceMatcher
+from url_normalize import url_normalize
 
 from app import db
 from app.models import SearchableMixin
@@ -94,6 +95,9 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
                 if item_dict[key] != value:
                     raise ValueError("Ligne %s : Le champ %s de valeur %s est incorrect (la valeur attendue est %s)" % (
                         i, key, item_dict[key], value))
+
+            if "access_url" in item_dict:
+                item_dict["access_url"] = url_normalize(item_dict["access_url"])
             # Each row is converted into SQLAlchemy model instances
             item = resource_class(**item_dict)
             # Check for duplicate rows
