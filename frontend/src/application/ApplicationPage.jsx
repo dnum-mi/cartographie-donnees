@@ -144,31 +144,60 @@ class ApplicationPage extends React.Component {
             loading: true,
             error: null,
         });
-        updateApplication(
-            dataSource.application.id,
-            dataSource.application,
-        )
-            .then((response) => {
-                if (dataSource.name) {
-                    createDataSource(
-                        dataSource,
-                    ).then((results) => {
-                        this.props.history.push("/data-source/" + results.data.id)
-                    })
-                } else {
+        if (dataSource.application.id) {
+            updateApplication(
+                dataSource.application.id,
+                dataSource.application,
+            )
+                .then((response) => {
+                    if (dataSource.name) {
+                        createDataSource(
+                            dataSource,
+                        ).then((results) => {
+                            this.props.history.push("/data-source/" + results.data.id)
+                        })
+                    } else {
+                        this.setState({
+                            application: response.data,
+                            loading: false,
+                            error: null,
+                        });
+                    }
+                })
+                .catch((error) => {
                     this.setState({
-                        application: response.data,
                         loading: false,
-                        error: null,
+                        error,
                     });
-                }
-            })
-            .catch((error) => {
-                this.setState({
-                    loading: false,
-                    error,
                 });
-            });
+        }
+        else {
+            createApplication(
+                dataSource.application,
+            )
+                .then((response) => {
+                    if (dataSource.name) {
+                        createDataSource(
+                            dataSource,
+                        ).then((results) => {
+                            this.props.history.push("/data-source/" + results.data.id)
+                        })
+                    } else {
+                        this.setState({
+                            application: response.data,
+                            loading: false,
+                            error: null,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
+                });
+        }
+
     };
 
     render() {
