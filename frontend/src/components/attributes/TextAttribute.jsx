@@ -70,7 +70,7 @@ class TextAttribute extends React.Component {
       )
     }
     return (
-      <div style={{"whiteSpace": "pre-line", "wordBreak": "break-all"}}>
+      <div style={{"whiteSpace": "pre-line", "wordBreak": "normal", "overflowWrap": "anywhere"}}>
         {
           isNaN(textValue)
               ? textValue
