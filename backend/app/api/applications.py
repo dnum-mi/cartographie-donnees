@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import unidecode
+from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
@@ -202,6 +203,8 @@ def import_applications():
         warning = import_resource(Application)
     except CSVFormatError as e:
         raise BadRequest(e.message)
+    except IntegrityError as e:
+        raise BadRequest(e.args)
     if warning:
         return jsonify({'code':200, **warning})
     return jsonify(dict(description='OK', code=200))
