@@ -50,7 +50,7 @@ class SettingsTooltipsSection extends React.Component {
     render() {
         return (
             <div className="SettingsTooltipsSection">
-                <h2>Tooltips</h2>
+                <h2>Info-bulles</h2>
                 <Collapse ghost>
                     <Panel header="Application" key="Panel_Applications">
                         {this.tooltipsInput(applicationKeys)}
