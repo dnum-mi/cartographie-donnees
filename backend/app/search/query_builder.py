@@ -83,7 +83,18 @@ def create_filters_query(filters_dict: Dict[str, List[str]]):
     return result
 
 
+def sanitize_query(query: str) -> str:
+    strings_to_delete = [
+        '&&', '||', '!', '[', ']', '?', '+', '-', '"', '\\', '/', '~', '(', ')', 'AND', 'OR',
+        'TO', 'NOT', '.', '{', '}', '=', '<', '>', ':', '^'
+    ]
+    for char in strings_to_delete:
+        query = query.replace(char, "")
+    return query
+
+
 def create_query_string(query: str):
+    query = sanitize_query(query)
     return ' '.join([f'*{word}*' for word in query.split()])
 
 
