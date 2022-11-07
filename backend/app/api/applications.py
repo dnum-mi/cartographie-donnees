@@ -15,6 +15,7 @@ from . import api
 from .. import db
 from ..search.enums import Strictness
 
+from url_normalize import url_normalize
 
 def get_application_by_name(name, line=None, return_id=True):
     value = Application.query.filter_by(name=name).first()
@@ -112,6 +113,7 @@ def create_application():
         if json.get("validation_date"):
             json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
         json["organization_id"] = get_organization_by_name(json["organization_name"])
+        json["access_url"] = url_normalize(json["access_url"])
         application = Application.from_dict(json)
         db.session.add(application)
         db.session.commit()
@@ -514,6 +516,7 @@ def update_application(application_id):
         if json.get("validation_date"):
             json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
         json["organization_id"] = get_organization_by_name(json["organization_name"])
+        json["access_url"] = url_normalize(json["access_url"])
         application.update_from_dict(json)
         db.session.commit()
         db.session.refresh(application)
