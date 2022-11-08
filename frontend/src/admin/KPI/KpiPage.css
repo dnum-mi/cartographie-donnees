@@ -1,0 +1,20 @@
+.KpiPageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.KpiPageHeader Button {
+    margin-left: 10px;
+}
+
+.KpiPageBody{
+    background: white;
+    border-radius: 2px;
+    padding: 10px 20px;
+    color: rgba(0, 0, 0, 0.85);
+    margin-bottom: 20px;
+    border: 1px solid #d9d9d9;
+}
+

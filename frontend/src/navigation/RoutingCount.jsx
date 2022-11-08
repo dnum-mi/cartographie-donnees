@@ -10,9 +10,15 @@ class RoutingCount extends React.Component {
     }
 
     async componentDidMount() {
-        const rawUser = await readMe()
-        const user = rawUser.data
-        if (!user.id) {
+        let user
+        try{
+            const rawUser = await readMe()
+            user = rawUser.data
+        } catch {
+            user = null
+        }
+
+        if (!user) {
             const user_dict = {
                 "is_general_admin": false,
                 "is_simple_admin": false

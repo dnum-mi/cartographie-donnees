@@ -8,7 +8,7 @@ import EnumerationsRouter from "./enumerations/EnumerationsRouter";
 import UsersRouter from "./users/UsersRouter";
 import SettingsRouter from "./settings/SettingsRouter";
 import {countApplication, countDataSource, countUser} from '../api';
-import KPIPage from "./KPIPage";
+import KPIPage from "./KPI/KpiPage";
 
 class AdminPage extends React.Component {
 

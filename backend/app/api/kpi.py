@@ -1,4 +1,6 @@
 import datetime
+
+from flask_login import login_required
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from sqlalchemy import func, desc
@@ -6,10 +8,12 @@ from sqlalchemy import func, desc
 from app import db
 from app.models import RoutingKPI, SearchingKPI
 import json
+
+from decorators import admin_required
 from . import api
 
 
-@api.route('/api/routing-kpi', methods=['POST'])
+@api.route('/api/kpi/routing', methods=['POST'])
 def create_routing_kpi_item():
     try:
         json = request.get_json(force=True)
@@ -38,17 +42,37 @@ def row_to_dict(rowList):
     return [row._asdict() for row in rowList]
 
 
-@api.route('/api/routing-kpi', methods=['GET'])
+def getDatesFromArgs(args):
+    start_date = datetime.datetime.fromisoformat(args.get('start_date')[:-1]).date()
+    end_date = datetime.datetime.fromisoformat(args.get('end_date')[:-1]).date()
+    end_date += +datetime.timedelta(days=1)
+    return start_date, end_date
+
+
+@api.route('/api/kpi/count', methods=['GET'])
+@login_required
+@admin_required
+def get_count_kpi():
+    try:
+        count = db.session.query(RoutingKPI.id).count() + db.session.query(SearchingKPI.id).count()
+        return jsonify({"count": count})
+
+    except Exception as e:
+        raise BadRequest(str(e))
+
+
+@api.route('/api/kpi/routing', methods=['GET'])
+@login_required
+@admin_required
 def get_routing_kpi():
     try:
 
         kpis = {}
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
+        start_date, end_date = getDatesFromArgs(request.args)
 
         filter_by_date = db.session.query(RoutingKPI.id). \
-            filter(RoutingKPI.date > start_date). \
-            filter(RoutingKPI.date <= end_date).subquery()
+            filter(RoutingKPI.date >= start_date). \
+            filter(RoutingKPI.date < end_date)
 
         # Count number of visit for each section (login, datasource, admin, search)
         kpis["path_count_visits"] = row_to_dict(
@@ -76,16 +100,17 @@ def get_routing_kpi():
         raise BadRequest(str(e))
 
 
-@api.route('/api/searching-kpi', methods=['GET'])
+@api.route('/api/kpi/searching', methods=['GET'])
+@login_required
+@admin_required
 def get_search_kpi():
     try:
 
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
+        start_date, end_date = getDatesFromArgs(request.args)
 
         filter_by_date = db.session.query(SearchingKPI.id). \
-            filter(SearchingKPI.date > start_date). \
-            filter(SearchingKPI.date <= end_date).subquery()
+            filter(SearchingKPI.date >= start_date). \
+            filter(SearchingKPI.date < end_date)
 
         # get all search queries
         search_list = db.session.query(SearchingKPI.text_query, SearchingKPI.filters_query). \
@@ -119,3 +144,25 @@ def get_search_kpi():
 
     except Exception as e:
         raise BadRequest(str(e))
+
+
+@api.route('/api/kpi/year', methods=['DELETE'])
+@login_required
+@admin_required
+def delete_kpi_year():
+    current_date = datetime.date.today()
+    start_date = current_date - datetime.timedelta(days=365)
+    delete_searching = db.session.query(SearchingKPI).filter(SearchingKPI.date <= start_date).delete()
+    delete_routing = db.session.query(RoutingKPI).filter(RoutingKPI.date <= start_date).delete()
+    db.session.commit()
+    return jsonify(dict(description=f"OK, {delete_searching+delete_routing} deleted", code=200))
+
+
+# @api.route('/api/kpi/all', methods=['DELETE'])
+# @login_required
+# @admin_required
+# def delete_kpi_all():
+#     delete_searching = db.session.query(SearchingKPI).delete()
+#     delete_routing = db.session.query(RoutingKPI).delete()
+#     db.session.commit()
+#     return jsonify(dict(description=f"OK, {delete_searching+delete_routing} deleted", code=200))

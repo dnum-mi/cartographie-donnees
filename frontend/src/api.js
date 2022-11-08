@@ -74,9 +74,12 @@ export const importWildCards = (file) => axios.post(wildCardEndpoint + '/import'
 export const exportWildCardsUrl = wildCardEndpoint + '/export';
 
 /* KPI API */
-export const updateRoutingKPI = (user, location) => axios.post(API_HOST + '/routing-kpi', {"user":user, "location":location});
-export const fetchRoutingKPI = (start_date, end_date) => axios.get(API_HOST + '/routing-kpi?start_date=' + start_date + '&end_date=' + end_date);
-export const fetchSearchingKPI = (start_date, end_date) => axios.get(API_HOST + '/searching-kpi?start_date=' + start_date + '&end_date=' + end_date);
+export const updateRoutingKPI = (user, location) => axios.post(API_HOST + '/kpi/routing', {"user":user, "location":location});
+export const fetchRoutingKPI = (start_date, end_date) => axios.get(API_HOST + '/kpi/routing?start_date=' + start_date + '&end_date=' + end_date);
+export const fetchSearchingKPI = (start_date, end_date) => axios.get(API_HOST + '/kpi/searching?start_date=' + start_date + '&end_date=' + end_date);
+export const fetchCountKPI = () => axios.get(API_HOST + '/kpi/count');
+export const deleteYearBrowsingKPI = () => axios.delete(API_HOST + '/kpi/year');
+// export const deleteAllBrowsingKPI = () => axios.delete(API_HOST + '/kpi/all');
 
 /** Auth API */
 export const login = (email, password) => axios.post(API_HOST + '/login', { email, password });
