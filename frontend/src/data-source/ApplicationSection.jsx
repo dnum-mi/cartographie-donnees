@@ -7,8 +7,8 @@ import attributes from "./attributes";
 import ApplicationSelect from "./ApplicationSelect";
 import {Link} from "react-router-dom";
 import withCurrentUser from "../hoc/user/withCurrentUser";
-import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
-import {Divider, Button, Space, Row, Col, Badge, Skeleton} from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import {Badge, Col, Divider, Row, Skeleton} from "antd";
 import ApplicationAdd from "./ApplicationAdd";
 import withTooltips from '../hoc/tooltips/withTooltips';
 
@@ -119,8 +119,7 @@ class ApplicationSection extends React.Component {
                       className="attribute-tooltip"
                       title={this.props.tooltips.get("application_select")}
                   />
-                <div>
-                  <Row>
+                  <Row wrap={false}>
                     <Col flex="auto" style={{ marginRight: '16px' }}>
                       <ApplicationSelect onChange={this.onApplicationSelectionChange} value={this.props.application} applicationCreationMode={this.props.applicationCreationMode}/>
                     </Col>
@@ -132,7 +131,6 @@ class ApplicationSection extends React.Component {
                     }
 
                   </Row>
-                </div>
 
 
               </label>
