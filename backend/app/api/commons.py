@@ -115,6 +115,8 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
     else:
         try:
             db.session.commit()
+            if issubclass(resource_class, SearchableMixin):
+                resource_class.reindex()
             if duplicates:
                 # Must wait until objects are committed in db before obtaining their IDs
                 set_duplicate_items_ids(duplicates, resource_class)
@@ -123,8 +125,7 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
             db.session.rollback()
             raise CSVFormatError([dict(row='inconnue', error=e)])
         # TODO: test it
-        if issubclass(resource_class, SearchableMixin):
-            resource_class.reindex()
+
 
 
 def check_for_datasource_duplicates(item_dict, item, row_index, applications_dict, duplicates):
