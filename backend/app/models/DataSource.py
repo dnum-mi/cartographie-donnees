@@ -477,7 +477,8 @@ class DataSource(SearchableMixin, BaseModel):
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
             origin_applications=data.get('origin_applications'),
-            is_reference=data.get('is_reference')
+            is_reference=data.get('is_reference'),
+            tags = data.get('tags')
         )
 
     @classmethod
