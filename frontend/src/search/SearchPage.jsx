@@ -400,7 +400,7 @@ class SearchPage extends React.Component {
                         {this.props.homepageContent["welcome_text"]}
                     </div>
                     <br />
-                    <a>
+                    <a href={"mailto:"+this.props.homepageContent["email"]}>
                         {this.props.homepageContent["email"]}
                     </a>
                 </div>
