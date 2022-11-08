@@ -426,7 +426,7 @@ class SearchPage extends React.Component {
                         closable
                         onClose={(e) => this.removeFilter(key, value)}
                         key={value}
-                        title={this.getTitleFromValue(value)}
+                        title={this.getTitleFromValue(key, value)}
                     >
                         {value}
                     </Tag>
@@ -435,9 +435,14 @@ class SearchPage extends React.Component {
         }
     }
 
-    getTitleFromValue(value) {
-        return this.findOrganization(this.state.organizations, value)
-            || this.findApplication(this.state.applications, value)
+    getTitleFromValue(key, value) {
+        if (key === "selectedApplication"){
+            return this.findApplication(this.state.applications, value)
+        }
+        if (key === "selectedOrganization") {
+            return this.findOrganization(this.state.organizations, value)
+        }
+        return null
     }
 
     findOrganization(organizations, fullPath) {
@@ -472,7 +477,7 @@ class SearchPage extends React.Component {
                     Object.keys(filters)
                         .map((key) => this.renderTagList(
                             filters[key].selectedKey,
-                            filters[key].color,
+                            filters[key].color
                         ))
                         .filter((tagList) => tagList !== null)
                 }
