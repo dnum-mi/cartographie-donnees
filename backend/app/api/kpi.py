@@ -43,8 +43,8 @@ def row_to_dict(rowList):
 
 
 def getDatesFromArgs(args):
-    start_date = datetime.datetime.fromisoformat(args.get('start_date')[:-1]).date()
-    end_date = datetime.datetime.fromisoformat(args.get('end_date')[:-1]).date()
+    start_date = datetime.datetime.fromisoformat(args.get('start_date')[:-1])
+    end_date = datetime.datetime.fromisoformat(args.get('end_date')[:-1])
     end_date += +datetime.timedelta(days=1)
     return start_date, end_date
 

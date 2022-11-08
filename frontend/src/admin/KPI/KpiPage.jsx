@@ -1,12 +1,14 @@
 import React from 'react';
 import {withRouter} from 'react-router-dom';
-import {Button, Modal, Skeleton, Table, Tabs} from "antd";
+import {Button, DatePicker, Modal, Skeleton, Table, Tabs} from "antd";
 import {deleteYearBrowsingKPI, fetchCountKPI, fetchRoutingKPI, fetchSearchingKPI} from "../../api";
 import "./KpiPage.css";
 import tabs_definition from "./kpi_tabs_definition";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import moment from "moment";
 
 const {confirm} = Modal;
+const {RangePicker} = DatePicker;
 
 class KpiPage extends React.Component {
 
@@ -14,14 +16,17 @@ class KpiPage extends React.Component {
         super(props);
         this.state = {
             loading: true,
+            loading_table: false,
             error: null,
             start_date: null,
             end_date: null,
             kpis: {},
             count_kpi: 0,
+            date_changed: false
         }
     }
 
+    setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
 
     async componentDidMount() {
         //Init dates
@@ -29,27 +34,26 @@ class KpiPage extends React.Component {
         let start_date = new Date()
         start_date.setFullYear(start_date.getFullYear() - 1)
         start_date = start_date.toISOString()
-        this.setState({
+
+        this.setStatePromise({
             start_date,
             end_date
         })
-        this.fetchKpis(start_date, end_date)
+            .then(() => this.fetchKpis())
+            .then(() => this.setState({loading: false}))
     }
 
-    fetchKpis = (start_date, end_date) => {
-        this.setState({loading: true})
-
+    fetchKpis = () => {
         //Fetch KPIs
-        Promise.all([
-            fetchRoutingKPI(start_date, end_date),
-            fetchSearchingKPI(start_date, end_date),
+        return Promise.all([
+            fetchRoutingKPI(this.state.start_date, this.state.end_date),
+            fetchSearchingKPI(this.state.start_date, this.state.end_date),
             fetchCountKPI()
         ]).then(([routing_kpi_res, searching_kpi_res, count_kpi_res]) => {
             const kpis = {...routing_kpi_res.data, ...searching_kpi_res.data}
             this.setState({
                 kpis,
                 count_kpi: count_kpi_res.data.count,
-                loading: false
             })
         })
     }
@@ -71,22 +75,20 @@ class KpiPage extends React.Component {
         deletion_date.setFullYear(deletion_date.getFullYear() - 1)
 
         return confirm({
-            title: `Suppression des données de navigation datant d'avant le ${deletion_date.toLocaleDateString()}`,
+            title: `Suppression des données de navigation`,
             icon: <ExclamationCircleOutlined/>,
             content: `Vous êtes sur le point de supprimer les données de navigation de l'outil 
                         datant d'avant le ${deletion_date.toLocaleDateString()}. 
                         Cette action est irréversible !`,
             okType: "danger",
             onOk: () => {
-                this.setState({
+                this.setStatePromise({
                     loading: true,
                     error: null,
-                });
-                deleteYearBrowsingKPI()
-                    .then((r) => {
-                            this.fetchKpis(this.state.start_date, this.state.end_date)
-                        }
-                    )
+                })
+                    .then(() => deleteYearBrowsingKPI())
+                    .then((r) => this.fetchKpis())
+                    .then(() => this.setState({loading: false}))
                     .catch((error) => {
                         console.log(error)
                         this.setState({
@@ -101,6 +103,25 @@ class KpiPage extends React.Component {
         });
     }
 
+    onDateChange = (dates, dateStrings) => {
+        this.setState({
+            start_date: dates[0].toISOString(),
+            end_date: dates[1].toISOString(),
+            date_changed: true
+        })
+    }
+
+    onPickerClosed = (open) => {
+        if (!open && this.state.date_changed) {
+            this.setStatePromise({
+                loading_table: true,
+            })
+                .then(() => this.fetchKpis())
+                .then(() => this.setState({loading_table: false, date_changed: false}))
+
+        }
+    }
+
     render() {
         return (
 
@@ -111,13 +132,20 @@ class KpiPage extends React.Component {
                     <div className="KpiPageHeader">
                         <div>Nombre total de lignes: {this.state.count_kpi}</div>
                         <div>
-                            <Button onClick={this.onDeleteYear}>Supprimer données de plus d'1 an </Button>
+                            <Button onClick={this.onDeleteYear}>Supprimer données de plus d'un an </Button>
                         </div>
                     </div>
                     <div className={"KpiPageBody"}>
-                        <Tabs defaultActiveKey="routing-kpi">
-                            {this.getTabs()}
-                        </Tabs>
+                        <RangePicker className={"DatePicker"}
+                                     value={[moment(this.state.start_date), moment(this.state.end_date)]}
+                                     onChange={this.onDateChange}
+                                     onOpenChange={this.onPickerClosed}
+                                     allowClear={false}/>
+                        {!this.state.loading_table
+                            ? <Tabs defaultActiveKey="routing-kpi">
+                                {this.getTabs()}
+                            </Tabs>
+                            : <Skeleton active/>}
                     </div>
                 </div>
         )
