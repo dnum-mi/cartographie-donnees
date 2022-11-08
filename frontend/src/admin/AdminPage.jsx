@@ -206,7 +206,7 @@ class AdminPage extends React.Component {
                         "import" de la page administration des paramètres. Chaque paramètre est stocké en base de données
                         avec un identifiant composé d'une catégorie et d'une clé prédéfinie.
                         Pour conserver les paramètres et leur identifiant associé, il est conseillé de sauvegarder préalablement
-                        les paramètres de l'outil via le bouton "export" car l'ensemble des paramètres seront écrasé lors de l’import.
+                        les paramètres de l'outil via le bouton "export" car l'ensemble des paramètres sera écrasé lors de l’import.
                         La liste des paramètres étant fixe, si des paramètres ne sont pas importés,
                         ils pourront toujours être modifiés plus tard via le bouton "Modifier les paramètres".
                     </p>
