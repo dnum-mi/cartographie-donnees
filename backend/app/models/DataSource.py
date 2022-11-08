@@ -456,8 +456,9 @@ class DataSource(SearchableMixin, BaseModel):
             name=data.get('name'),
             description=data.get('description'),
             application_id=data.get('application_id'),
-            families=data.get('families'),
-            reutilizations=data.get('reutilizations'),
+            families=data.get('families') if data.get('families') else [],
+            reutilizations=data.get(
+                'reutilizations') if data.get('reutilizations') else [],
             type_id=data.get('type_id'),
             example=data.get('example'),
             sensibility_id=data.get('sensibility_id'),
@@ -473,12 +474,13 @@ class DataSource(SearchableMixin, BaseModel):
             monthly_volumetry_comment=data.get('monthly_volumetry_comment'),
             update_frequency_id=data.get('update_frequency_id'),
             conservation=data.get('conservation'),
-            classifications=data.get('classifications'),
+            classifications=data.get(
+                'classifications') if data.get('classifications') else [],
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
             origin_applications=data.get('origin_applications'),
             is_reference=data.get('is_reference'),
-            tags = data.get('tags')
+            tags = data.get('tags') if data.get('tags') else []
         )
 
     @classmethod
