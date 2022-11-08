@@ -1,13 +1,12 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import {withRouter} from 'react-router-dom';
 import SettingsHeader from "./SettingsHeader.jsx"
 import SettingsHomepageSection from "./SettingsHomepageSection.jsx"
-import { Form, Modal, Skeleton } from "antd";
-import { updateWildCards, exportWildCardsUrl, exportModel, importWildCards, fetchWildCards } from "../../api";
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import {Form, Modal, Skeleton} from "antd";
+import {exportModel, exportWildCardsUrl, importWildCards, updateWildCards} from "../../api";
+import {ExclamationCircleOutlined} from '@ant-design/icons';
 import withTooltips from '../../hoc/tooltips/withTooltips.jsx';
 import SettingsTooltipsSection from './SettingsTooltipsSection.jsx';
-import { defaultLabels } from '../../hoc/tooltips/tooltipsConstants.js';
 
 const { confirm } = Modal;
 
@@ -143,7 +142,7 @@ class SettingsPage extends React.Component {
 
   render() {
     const validateMessages = {
-      required: "'Ce champ est requis!",
+      required: "Ce champ est requis !",
       types: {
         email: "Ce n'est pas un email valide (ie: ____@----.**",
         url: "Ce n'est pas une url valide (ie: http://www.___.**)",
