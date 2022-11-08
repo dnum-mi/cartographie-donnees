@@ -3,7 +3,6 @@ import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
 import { Input, Tag, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
-import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
 import SearchTree from "./SearchTree";
 
@@ -438,6 +437,7 @@ class SearchPage extends React.Component {
 
     getTitleFromValue(value) {
         return this.findOrganization(this.state.organizations, value)
+            || this.findApplication(this.state.applications, value)
     }
 
     findOrganization(organizations, fullPath) {
@@ -453,6 +453,16 @@ class SearchPage extends React.Component {
             }
         }
         return label
+    }
+
+
+    findApplication(applications, fullPath) {
+        for (let application of applications) {
+            if (application.full_path === fullPath) {
+                return application.label
+            }
+        }
+        return null
     }
 
     renderDataSourceSelectedTags = () => {
