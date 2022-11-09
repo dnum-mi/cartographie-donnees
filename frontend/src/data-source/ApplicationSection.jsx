@@ -121,7 +121,7 @@ class ApplicationSection extends React.Component {
                   />
                   <Row wrap={false}>
                     <Col flex="auto" style={{ marginRight: '16px' }}>
-                      <ApplicationSelect onChange={this.onApplicationSelectionChange} value={this.props.application} applicationCreationMode={this.props.applicationCreationMode}/>
+                      <ApplicationSelect limited={true} onChange={this.onApplicationSelectionChange} value={this.props.application} applicationCreationMode={this.props.applicationCreationMode}/>
                     </Col>
                     {
                       this.props.currentUser?.user?.is_admin &&

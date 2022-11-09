@@ -1,10 +1,10 @@
 import React from 'react';
-import {fetchApplications, fetchApplicationsByOwner} from '../../api';
-import PropTypes from "prop-types";
-import {Form, Input, Tag} from "antd";
+import {fetchApplications} from '../../api';
+import {Form} from "antd";
 import Loading from "../../components/Loading";
 import Error from "../../components/Error";
 import ApplicationSelect from "../../data-source/ApplicationSelect";
+
 const _ = require("lodash");
 
 class UserOwnership extends React.Component {
@@ -73,7 +73,7 @@ class UserOwnership extends React.Component {
             initialValue = {applications}
 
         >
-            <ApplicationSelect mode={"multiple"}/>
+            <ApplicationSelect limited={true} mode={"multiple"}/>
         </Form.Item>
     }
 
