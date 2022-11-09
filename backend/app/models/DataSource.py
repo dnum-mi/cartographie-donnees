@@ -447,7 +447,7 @@ class DataSource(SearchableMixin, BaseModel):
         self.expositions = data.get('expositions')
         self.origin_id = data.get('origin_id')
         self.origin_applications = data.get('origin_applications')
-        self.is_reference = data.get('is_reference')
+        self.is_reference = data.get('is_reference') if data.get('is_reference') else False
 
     @staticmethod
     def from_dict(data):
@@ -479,7 +479,7 @@ class DataSource(SearchableMixin, BaseModel):
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
             origin_applications=data.get('origin_applications'),
-            is_reference=data.get('is_reference'),
+            is_reference=data.get('is_reference') if data.get('is_reference') else False,
             tags = data.get('tags') if data.get('tags') else []
         )
 
