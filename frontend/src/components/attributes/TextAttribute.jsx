@@ -74,7 +74,12 @@ class TextAttribute extends React.Component {
         {
           isNaN(textValue)
               ? textValue
-              : new Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(textValue)
+              : new Intl.NumberFormat(
+                  'fr-FR',
+                  {
+                    maximumSignificantDigits: 3,
+                    useGrouping: !(this.props.attributeId === "application_historic")
+                  }).format(textValue)
         }
         {this.props.suffixValue ? this.suffixElement() : null}
       </div>
@@ -132,6 +137,7 @@ class TextAttribute extends React.Component {
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
           min={this.props.inputType === "number" && 0}
+          max={this.props.attributeId === "application_historic" && 2100}
         />
       );
     }
