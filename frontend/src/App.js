@@ -1,14 +1,12 @@
 import React from 'react';
-import { Layout } from 'antd';
+import {Layout} from 'antd';
 
 import Router from './navigation/Router';
 import './App.css';
-import { } from './auth/index';
-import { readMe, fetchWildCards } from './api';
-import Loading from "./components/Loading";
+import {fetchWildCards, readMe} from './api';
 import Error from "./components/Error";
-import { UserProvider } from "./hoc/user/UserProvider"
-import { TooltipsProvider } from "./hoc/tooltips/TooltipsProvider"
+import {UserProvider} from "./hoc/user/UserProvider"
+import {TooltipsProvider} from "./hoc/tooltips/TooltipsProvider"
 import Tooltips from './hoc/tooltips/Tooltips';
 
 const { Content, Footer } = Layout;
@@ -54,7 +52,7 @@ class App extends React.Component {
   };
 
   refreshUser = () => {
-    readMe()
+    return readMe()
       .then((r) => this.setStatePromise({
         loading: false,
         error: null,
