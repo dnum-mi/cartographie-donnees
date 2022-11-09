@@ -1,5 +1,5 @@
-import { homePageShouldLoadWithSuccess } from './home_page.cy'
 import defaultAdmin from '../fixtures/default_admin.json'
+import {adminPageShouldLoadWithSuccess} from "./admin/admin_page.cy";
 
 describe('The login page', () => {
   it('fails without a password', () => {
@@ -20,7 +20,7 @@ describe('The login page', () => {
     cy.visit('/login');
     cy.get('input[data-test=email]').type(defaultAdmin.email)
     cy.get('input[data-test=password]').type(`${defaultAdmin.password}{enter}`)
-    homePageShouldLoadWithSuccess(true);
+    adminPageShouldLoadWithSuccess();
   });
 
   it('successfully logs in after form submission with button click', () => {
@@ -28,6 +28,6 @@ describe('The login page', () => {
     cy.get('input[data-test=email]').type(defaultAdmin.email)
     cy.get('input[data-test=password]').type(defaultAdmin.password)
     cy.get('button[data-test="login-btn"]').click()
-    homePageShouldLoadWithSuccess(true);
+    adminPageShouldLoadWithSuccess();
   });
 });
