@@ -140,7 +140,7 @@ class AdminPage extends React.Component {
                         Le moteur de recherche prend en compte les attributs suivants pour déterminer les données
                         pertinentes: Nom de la donnée, Description, Familles, Axes d'analyse, Type, Référentiel,
                         Sensibilité, Open data, Exposition, Origine, Nom de l’application, Nom long de l'application,
-                        Organisation, Finalités de l’application, Tags.
+                        Organisation, Nom long de l'organisation, Finalités de l’application, Tags.
                     </p>
 
                     <h3>
