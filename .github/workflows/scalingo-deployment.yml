@@ -1,4 +1,4 @@
-name: Cartographie des données MI
+name: Scalingo deployment
 
 on:
   push:
