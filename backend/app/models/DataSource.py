@@ -65,7 +65,8 @@ origin_application_table = db.Table(
 class DataSource(SearchableMixin, BaseModel):
     __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
                       'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
-                      'application_long_name', 'organization_name', 'application_goals', 'tag_name']
+                      'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
+                      'tag_name']
     __search_count__ = ['family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name',
                         'open_data_name', 'exposition_name', 'origin_name', 'application_name',
                         'application_long_name', 'organization_name', 'tag_name']
@@ -321,6 +322,10 @@ class DataSource(SearchableMixin, BaseModel):
     @property
     def organization_name(self):
         return self.application.organization_name
+
+    @property
+    def organization_long_name(self):
+        return self.application.organization_long_name
 
     @property
     def application_goals(self):
