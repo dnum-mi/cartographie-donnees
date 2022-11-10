@@ -19,14 +19,14 @@ class SettingsHeader extends React.Component {
           Modifier les paramètres
         </Button>
 
-        <Button onClick={(e) => this.props.onExport(e)} icon={<DownloadOutlined/>} type="default">Export</Button>
+        <Button onClick={(e) => this.props.onExport(e)} icon={<UploadOutlined/>} type="default">Export</Button>
 
         <Upload
               customRequest={this.props.onUploadfile}
               maxCount={1}
               showUploadList={false}
             >
-              <Button icon={<UploadOutlined/>} type="default">Import</Button>
+              <Button icon={<DownloadOutlined/>} type="default">Import</Button>
         </Upload>
 
       </div>
@@ -42,7 +42,7 @@ class SettingsHeader extends React.Component {
                 Valider les modifications
             </Button>
         </Form.Item>
-      
+
         <Button onClick={(e) => this.props.onCancelEdition(e)} danger icon={<CloseOutlined />}>
           Annuler les modifications
         </Button>

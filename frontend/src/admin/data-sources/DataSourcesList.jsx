@@ -178,13 +178,13 @@ class DataSourcesList extends React.Component {
                             Créer une donnée
                         </Button>
                     </Link>
-                    {this.props.user.is_admin && (<Button onClick={this.export} icon={<DownloadOutlined />} type="default">Export</Button>)}
+                    {this.props.user.is_admin && (<Button onClick={this.export} icon={<UploadOutlined />} type="default">Export</Button>)}
                     {this.props.user.is_admin && (<Upload
                         customRequest={this.uploadfile.bind(this)}
                         maxCount={1}
                         showUploadList={false}
                     >
-                        <Button icon={<UploadOutlined />} type="default">Import</Button>
+                        <Button icon={<DownloadOutlined />} type="default">Import</Button>
                     </Upload>)}
                 </div>
                 {this.renderPagination()}
