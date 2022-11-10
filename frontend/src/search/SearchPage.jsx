@@ -3,7 +3,6 @@ import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
 import { Input, Tag, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
-import DataSourceResult from "./results/DataSourceResult";
 import './SearchPage.css';
 import SearchTree from "./SearchTree";
 
@@ -15,6 +14,8 @@ import {
 import Error from "../components/Error";
 import filters from "../filters";
 import Results from "./Results";
+
+import withTooltips from '../hoc/tooltips/withTooltips';
 
 const { Search } = Input;
 
@@ -342,7 +343,7 @@ class SearchPage extends React.Component {
                         loading={this.state.loading}
                         filterCategoryName={filters[key].categoryName}
                         treeData={this.getFilterData(key)}
-                        tooltip={filters[key].tooltip}
+                        tooltip={this.props.tooltips.get(filters[key].attributeKey)}
                         color={filters[key].color}
                         multiple={filters[key].multiple}
                         expandedKeys={filters[key].expandedKeys}
@@ -399,7 +400,7 @@ class SearchPage extends React.Component {
                         {this.props.homepageContent["welcome_text"]}
                     </div>
                     <br />
-                    <a>
+                    <a href={"mailto:"+this.props.homepageContent["email"]}>
                         {this.props.homepageContent["email"]}
                     </a>
                 </div>
@@ -425,7 +426,7 @@ class SearchPage extends React.Component {
                         closable
                         onClose={(e) => this.removeFilter(key, value)}
                         key={value}
-                        title={this.getTitleFromValue(value)}
+                        title={this.getTitleFromValue(key, value)}
                     >
                         {value}
                     </Tag>
@@ -434,8 +435,14 @@ class SearchPage extends React.Component {
         }
     }
 
-    getTitleFromValue(value) {
-        return this.findOrganization(this.state.organizations, value)
+    getTitleFromValue(key, value) {
+        if (key === "selectedApplication"){
+            return this.findApplication(this.state.applications, value)
+        }
+        if (key === "selectedOrganization") {
+            return this.findOrganization(this.state.organizations, value)
+        }
+        return null
     }
 
     findOrganization(organizations, fullPath) {
@@ -453,6 +460,16 @@ class SearchPage extends React.Component {
         return label
     }
 
+
+    findApplication(applications, fullPath) {
+        for (let application of applications) {
+            if (application.full_path === fullPath) {
+                return application.label
+            }
+        }
+        return null
+    }
+
     renderDataSourceSelectedTags = () => {
         return (
             <div className="Tags">
@@ -460,7 +477,7 @@ class SearchPage extends React.Component {
                     Object.keys(filters)
                         .map((key) => this.renderTagList(
                             filters[key].selectedKey,
-                            filters[key].color,
+                            filters[key].color
                         ))
                         .filter((tagList) => tagList !== null)
                 }
@@ -548,4 +565,4 @@ class SearchPage extends React.Component {
     }
 }
 
-export default withRouter(SearchPage);
+export default withRouter(withTooltips(SearchPage));

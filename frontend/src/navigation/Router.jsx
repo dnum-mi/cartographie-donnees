@@ -18,7 +18,7 @@ import DataSourceFetcher from "../data-source/DataSourceFetcher";
 import DataSourceCreation from "../admin/data-sources/DataSourceCreation";
 import Navigation from "./Navigation";
 
-function Router({ user, onLogin, homepageContent, refreshHomepage }) {
+function Router({ user, onLogin, homepageContent, updateHomepage }) {
   return (
     <BrowserRouter>
       <Navigation user={user} homepageContent={homepageContent}/>
@@ -30,7 +30,7 @@ function Router({ user, onLogin, homepageContent, refreshHomepage }) {
           <SearchPage homepageContent={homepageContent}/>
         </Route>
         <Route path="/login" exact>
-          <LoginPage onLogin={onLogin} />
+          <LoginPage user={user} onLogin={onLogin} />
         </Route>
         <Route path="/forgot-password" exact>
           <ForgotPasswordPage />
@@ -54,7 +54,7 @@ function Router({ user, onLogin, homepageContent, refreshHomepage }) {
         </Route>
         {user && (
           <Route path="/admin">
-            <AdminPage user={user} refreshHomepage = {refreshHomepage} homepageContent= {homepageContent}/>
+            <AdminPage user={user} updateHomepage = {updateHomepage} homepageContent= {homepageContent}/>
           </Route>
         )}
         <Route key="404">

@@ -1,13 +1,12 @@
 from statistics import mean
 
-from sqlalchemy import select, distinct
 from sqlalchemy.orm import validates, object_session
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql.functions import count
 
 from app import db
 from app.models import User, BaseModel, Organization, SearchableMixin
 import datetime
+
 
 ownerships = db.Table(
     'ownerships',
@@ -22,7 +21,7 @@ class Application(SearchableMixin, BaseModel):
     __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False, unique=True)
     long_name = db.Column(db.String)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
     goals = db.Column(db.Text, nullable=False)

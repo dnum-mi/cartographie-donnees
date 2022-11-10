@@ -8,6 +8,7 @@ import Loading from "../../components/Loading";
 import Error from "../../components/Error";
 import './ApplicationsList.css';
 import ApplicationResult from "../../search/results/ApplicationResult";
+import Warning from "../../components/Warning";
 
 const { confirm } = Modal;
 
@@ -22,6 +23,7 @@ class ApplicationsList extends React.Component {
             page: 1,
             count: 50,
             applications: [],
+            warning: null
         }
     }
 
@@ -76,12 +78,24 @@ class ApplicationsList extends React.Component {
         if (this.state.error) {
             return <Error error={this.state.error} />;
         }
-        return this.state.applications.map((application) => (
-            <ApplicationResult
-              key={application.id}
-              application={application}
-            />
-        ));
+        return (
+            <>
+                {
+                    this.state.warning && <Warning description={this.state.warning.description}
+                                                   message={this.state.warning.message}
+                                                   warningType={this.state.warning.warningType}
+                                                   inputType={"application"}/>
+                }
+                {
+                    this.state.applications.map((application) => (
+                        <ApplicationResult
+                            key={application.id}
+                            application={application}
+                        />
+                    ))
+                }
+            </>
+        )
     }
 
     renderPagination() {
@@ -112,7 +126,8 @@ class ApplicationsList extends React.Component {
                     const formData = new FormData();
                     formData.append("file", file);
                     importApplication(formData)
-                    .then(() => {
+                    .then((r) => {
+                        this.checkForWarningMessage(r)
                         onSuccess(null, file);
                         this.props.count();
                         this.fetchApplicationsFromApi();
@@ -133,6 +148,22 @@ class ApplicationsList extends React.Component {
 
     export = () => {
         exportModel(exportApplicationUrl, "Applications.csv");
+    }
+
+    checkForWarningMessage = (r) => {
+        if(r.data.warning_type){
+            this.setState({
+                warning:
+                    {
+                        description: r.data.description,
+                        message: r.data.message,
+                        warningType: r.data.warning_type
+                    }
+            })
+        }
+        else {
+            this.setState({warning: null})
+        }
     }
 
     render() {

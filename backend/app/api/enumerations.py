@@ -257,7 +257,7 @@ def export_enumerations():
     enumeration_json_list = [{field_english_to_french_dic[key]: value for key, value in dic.items()} for dic in enumerations]
     path = 'app/enumerations.csv'
     headers = enumeration_json_list[0].keys()
-    with open(path, 'w', encoding='cp1252', newline='') as output_file:
+    with open(path, 'w', encoding='utf_8_sig', newline='') as output_file:
         fc = csv.DictWriter(output_file,
                             fieldnames=headers,
                             delimiter=';',
@@ -320,15 +320,19 @@ def import_enumerations():
         file = request.files["file"]
         file.stream.seek(0)  # seek to the beginning of file
 
-        csv_file = TextIOWrapper(file, encoding='cp1252')
+        csv_file = TextIOWrapper(file, encoding='utf_8_sig')
         csv_reader = csv.reader(csv_file, delimiter=';')
         headers = next(csv_reader)
         headers = [field_french_to_english_dic[field] for field in headers]
         for row in csv_reader:
             dic = {headers[i]: row[i] for i in range(len(headers))}
             enum_cls = get_enumeration_model_by_name(enumeration_french_to_english[dic["category"]])
-            enumeration = enum_cls.from_dict(dic)
-            db.session.add(enumeration)
+            if enum_cls.find_if_exists_by_full_path(dic['full_path']):
+                enum = enum_cls.find_by_full_path(dic['full_path'])
+                enum.update_from_dict(dic)
+            else:
+                enumeration = enum_cls.from_dict(dic)
+                db.session.add(enumeration)
         db.session.commit()
     except Exception as e:
         db.session.rollback()

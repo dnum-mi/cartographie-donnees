@@ -35,6 +35,7 @@ class DataSourceReutilizationsSection extends React.Component {
         value={this.props.dataSource.reutilizations}
         onChange={(reutilizations) => this.props.onChange(reutilizations)}
         mode={"multiple"}
+        limited={false}
       />
     );
   }

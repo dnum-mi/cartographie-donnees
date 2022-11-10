@@ -1,8 +1,6 @@
 import React from "react";
-import { Divider, Select, Spin } from "antd";
-import { fetchApplications, searchApplicationsLimited } from "../api";
-import Loading from "../components/Loading";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import {Select, Spin} from "antd";
+import {searchApplications, searchApplicationsLimited} from "../api";
 import "./ApplicationSelect.css"
 
 export default class ApplicationSelect extends React.Component {
@@ -15,7 +13,9 @@ export default class ApplicationSelect extends React.Component {
     }
 
     componentDidMount() {
-        searchApplicationsLimited("").then((data) => this.setState({ applications: data.data.results, loading: false }))
+        this.props.limited
+            ? searchApplicationsLimited("").then((data) => this.setState({ applications: data.data.results, loading: false }))
+            : searchApplications("").then((data) => this.setState({ applications: data.data.results, loading: false }))
     }
 
     valuesToOptions = (values) => !!values ? (values.map((value) => ({ key: value.id, value: value.id, label: value.name }))) : [];
@@ -23,7 +23,7 @@ export default class ApplicationSelect extends React.Component {
     optionsToValues = (options) => !!options ? (options.map((option) => ({ id: option.value, name: option.label }))) : [];
 
     onChange = (newChoice) => {
-        if (!!this.props.mode && this.props.mode == "multiple") {
+        if (!!this.props.mode && this.props.mode === "multiple") {
             this.props.onChange(this.optionsToValues(newChoice));
         } else {
             this.props.onChange(this.state.applications.find((app) => app.id === newChoice));
@@ -39,11 +39,11 @@ export default class ApplicationSelect extends React.Component {
             >
                 <Select
                     mode={this.props.mode}
-                    labelInValue={!!this.props.mode && this.props.mode == "multiple"}
+                    labelInValue={!!this.props.mode && this.props.mode === "multiple"}
                     value={
                         this.state.loading
                             ? null
-                            : (!!this.props.mode && this.props.mode == "multiple") ?
+                            : (!!this.props.mode && this.props.mode === "multiple") ?
                                 this.valuesToOptions(this.props.value) :
                                 this.props.value.id
                     }

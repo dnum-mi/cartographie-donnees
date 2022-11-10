@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import unidecode
+from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
@@ -14,6 +16,7 @@ from . import api
 from .. import db
 from ..search.enums import Strictness
 
+from url_normalize import url_normalize
 
 def get_application_by_name(name, line=None, return_id=True):
     value = Application.query.filter_by(name=name).first()
@@ -73,7 +76,7 @@ def fetch_applications():
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     applications = base_query.all()
     total_count = base_query.count()
-    applications = sorted(applications, key=lambda appli: str.lower(appli.name))
+    applications = sorted(applications, key=lambda appli: str.lower(unidecode.unidecode(appli.name)))
     applications = applications[(page - 1) * count:page * count]
     return jsonify(dict(
         total_count=total_count,
@@ -111,6 +114,8 @@ def create_application():
         if json.get("validation_date"):
             json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
         json["organization_id"] = get_organization_by_name(json["organization_name"])
+        if json.get("access_url"):
+            json["access_url"] = url_normalize(json["access_url"])
         application = Application.from_dict(json)
         db.session.add(application)
         db.session.commit()
@@ -196,9 +201,13 @@ def import_applications():
                         $ref: "#/components/schemas/JsonResponse200"
     """
     try:
-        import_resource(Application)
+        warning = import_resource(Application)
     except CSVFormatError as e:
         raise BadRequest(e.message)
+    except IntegrityError as e:
+        raise BadRequest(e.args)
+    if warning:
+        return jsonify({'code':200, **warning})
     return jsonify(dict(description='OK', code=200))
 
 
@@ -511,6 +520,8 @@ def update_application(application_id):
         if json.get("validation_date"):
             json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
         json["organization_id"] = get_organization_by_name(json["organization_name"])
+        if json.get("access_url"):
+            json["access_url"] = url_normalize(json["access_url"])
         application.update_from_dict(json)
         db.session.commit()
         db.session.refresh(application)

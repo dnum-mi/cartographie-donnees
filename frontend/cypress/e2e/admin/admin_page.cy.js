@@ -10,3 +10,8 @@ describe('The admin page', () => {
     cy.get('.page-content').contains('Espace d\'administration');
   });
 });
+
+export function adminPageShouldLoadWithSuccess() {
+  cy.url().should('include', '/admin')
+  cy.get('header').contains('button[data-test="nav-admin-btn"]', 'Administration')
+}

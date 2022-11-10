@@ -111,3 +111,5 @@ Cette commande créera un dossier ``build`` au sein du frontend.
 Vous pouvez tester ce frontend compilé en créant un lien symbolique entre ce build frontend et le chemin ``backend/build``.
 
 Le backend servira le frontend minifié à l'adresse ``http://localhost:5000``.
+
+v1.1

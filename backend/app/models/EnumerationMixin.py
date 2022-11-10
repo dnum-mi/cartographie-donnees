@@ -96,6 +96,12 @@ class EnumerationMixin(BaseModel):
         return matches[0]
 
     @classmethod
+    def find_if_exists_by_full_path(cls, full_path):
+        all_records = cls.query.all()
+        matches = [record for record in all_records if record.full_path == full_path]
+        return bool(len(matches))
+
+    @classmethod
     def get_tree_dict(cls):
         """Fetch all records from db and return a tree of the results"""
         record_list = cls.query.filter_by(parent_id=None).all()

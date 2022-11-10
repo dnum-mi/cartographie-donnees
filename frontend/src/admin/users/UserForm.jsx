@@ -1,5 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
+import withTooltips from "../../hoc/tooltips/withTooltips";
 import {
     Form,
     Input,
@@ -43,9 +44,8 @@ const tailFormItemLayout = {
     },
 };
 
-const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications }) => {
+const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications, tooltips}) => {
     const [form] = Form.useForm();
-
     return (
         <Form
             {...formItemLayout}
@@ -59,7 +59,7 @@ const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications }) 
             <Form.Item
                 name="first_name"
                 label="Prénom"
-                tooltip="Prénom de l'administrateur"
+                tooltip={tooltips.get("first_name")}
                 rules={[
                     {
                         required: true,
@@ -72,7 +72,7 @@ const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications }) 
             <Form.Item
                 name="last_name"
                 label="Nom"
-                tooltip="Nom de l'administrateur"
+                tooltip={tooltips.get("last_name")}
                 rules={[
                     {
                         required: true,
@@ -82,11 +82,11 @@ const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications }) 
             >
                 <Input />
             </Form.Item>
-            <EmailField tooltip="L'email de l'administrateur" required={true} name="email"/>
+            <EmailField tooltip={tooltips.get("last_name")} required={true} name="email"/>
             <Form.Item
                 name="is_admin"
                 label="Administrateur général"
-                tooltip="L'utilisateur est-il administrateur général ?"
+                tooltip={tooltips.get("is_admin")}
                 valuePropName="checked"
             >
                 <Checkbox />
@@ -110,4 +110,4 @@ UserForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
 }
 
-export default UserForm;
+export default withTooltips(UserForm);

@@ -1,7 +1,7 @@
 import React from 'react';
 import {withRouter} from 'react-router-dom';
 
-import {readDataSource, updateApplication, updateDataSource} from '../api';
+import {createApplication, readDataSource, updateApplication, updateDataSource} from '../api';
 
 import Loading from "../components/Loading";
 import Error from "../components/Error";
@@ -59,32 +59,62 @@ class DataSourceFetcher extends React.Component {
             loading: true,
             error: null,
         });
-        updateApplication(
-            dataSource.application.id,
-            dataSource.application,
-        )
-            .then(() => updateDataSource(
-                this.props.match.params.dataSourceId,
-                dataSource,
-            ).catch((error) => {
-                this.setState({
-                    loading: false,
-                    error,
+        if (dataSource.application.id) {
+            updateApplication(
+                dataSource.application.id,
+                dataSource.application,
+            )
+                .then(() => updateDataSource(
+                    this.props.match.params.dataSourceId,
+                    dataSource,
+                ).catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
+                }))
+                .then(() => this.readDataSourceFromApi())
+                .then(() => {
+                    this.setState({
+                        loading: false,
+                        editMode: false,
+                    });
+                })
+                .catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
                 });
-            }))
-            .then(() => this.readDataSourceFromApi())
-            .then(() => {
-                this.setState({
-                    loading: false,
-                    editMode: false,
+        }
+        else {
+            createApplication(
+                dataSource.application,
+            )
+                .then(() => updateDataSource(
+                    this.props.match.params.dataSourceId,
+                    dataSource,
+                ).catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
+                }))
+                .then(() => this.readDataSourceFromApi())
+                .then(() => {
+                    this.setState({
+                        loading: false,
+                        editMode: false,
+                    });
+                })
+                .catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
                 });
-            })
-            .catch((error) => {
-                this.setState({
-                    loading: false,
-                    error,
-                });
-            });
+        }
+
     };
 
     render() {

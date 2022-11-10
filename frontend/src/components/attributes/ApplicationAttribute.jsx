@@ -37,6 +37,7 @@ class ApplicationAttribute extends React.Component {
         <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
           <ApplicationSelect 
             mode = {this.props.applicationMode}
+            limited = {this.props.applicationLimited}
           />
         </Form.Item>
       </div>
