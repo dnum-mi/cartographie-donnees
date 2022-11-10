@@ -21,7 +21,7 @@ class Application(SearchableMixin, BaseModel):
     __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False, unique=True)
     long_name = db.Column(db.String)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
     goals = db.Column(db.Text, nullable=False)

@@ -1,7 +1,7 @@
 import React from "react";
-import {Input, Typography, Form, Skeleton, Spin} from "antd";
-import { commonPropTypes, textPropTypes } from "./attributePropTypes";
-import { commonDefaultProps, textDefaultProps } from "./attributeDefaultProps";
+import {Form, Input, Spin, Typography} from "antd";
+import {commonPropTypes, textPropTypes} from "./attributePropTypes";
+import {commonDefaultProps, textDefaultProps} from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import withCurrentUser from "../../hoc/user/withCurrentUser";
 import withTooltips from "../../hoc/tooltips/withTooltips";
@@ -70,11 +70,16 @@ class TextAttribute extends React.Component {
       )
     }
     return (
-      <div style={{"whiteSpace": "pre-line", "wordBreak": "break-all"}}>
+      <div style={{"whiteSpace": "pre-line", "wordBreak": "normal", "overflowWrap": "anywhere"}}>
         {
           isNaN(textValue)
               ? textValue
-              : new Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(textValue)
+              : new Intl.NumberFormat(
+                  'fr-FR',
+                  {
+                    maximumSignificantDigits: 3,
+                    useGrouping: !(this.props.attributeId === "application_historic")
+                  }).format(textValue)
         }
         {this.props.suffixValue ? this.suffixElement() : null}
       </div>
@@ -131,6 +136,8 @@ class TextAttribute extends React.Component {
           type={this.props.inputType}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
+          min={this.props.inputType === "number" && 0}
+          max={this.props.attributeId === "application_historic" && 2100}
         />
       );
     }

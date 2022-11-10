@@ -257,7 +257,7 @@ def export_enumerations():
     enumeration_json_list = [{field_english_to_french_dic[key]: value for key, value in dic.items()} for dic in enumerations]
     path = 'app/enumerations.csv'
     headers = enumeration_json_list[0].keys()
-    with open(path, 'w', encoding='cp1252', newline='') as output_file:
+    with open(path, 'w', encoding='utf_8_sig', newline='') as output_file:
         fc = csv.DictWriter(output_file,
                             fieldnames=headers,
                             delimiter=';',
@@ -320,7 +320,7 @@ def import_enumerations():
         file = request.files["file"]
         file.stream.seek(0)  # seek to the beginning of file
 
-        csv_file = TextIOWrapper(file, encoding='cp1252')
+        csv_file = TextIOWrapper(file, encoding='utf_8_sig')
         csv_reader = csv.reader(csv_file, delimiter=';')
         headers = next(csv_reader)
         headers = [field_french_to_english_dic[field] for field in headers]

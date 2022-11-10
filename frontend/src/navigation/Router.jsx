@@ -30,7 +30,7 @@ function Router({ user, onLogin, homepageContent, updateHomepage }) {
           <SearchPage homepageContent={homepageContent}/>
         </Route>
         <Route path="/login" exact>
-          <LoginPage onLogin={onLogin} />
+          <LoginPage user={user} onLogin={onLogin} />
         </Route>
         <Route path="/forgot-password" exact>
           <ForgotPasswordPage />

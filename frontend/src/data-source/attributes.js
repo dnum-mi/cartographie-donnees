@@ -66,6 +66,7 @@ export default {
     label: "Applications sources",
     type: 'application',
     applicationMode: 'multiple',
+    applicationLimited: false
   },
   open_data_name: {
     attributeId: 'open_data_name',

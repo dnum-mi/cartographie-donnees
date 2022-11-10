@@ -5,6 +5,7 @@ import csv
 import os
 from sqlalchemy.exc import StatementError
 from difflib import SequenceMatcher
+from url_normalize import url_normalize
 
 from app import db
 from app.models import SearchableMixin
@@ -94,6 +95,9 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
                 if item_dict[key] != value:
                     raise ValueError("Ligne %s : Le champ %s de valeur %s est incorrect (la valeur attendue est %s)" % (
                         i, key, item_dict[key], value))
+
+            if "access_url" in item_dict:
+                item_dict["access_url"] = url_normalize(item_dict["access_url"])
             # Each row is converted into SQLAlchemy model instances
             item = resource_class(**item_dict)
             # Check for duplicate rows
@@ -111,6 +115,8 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
     else:
         try:
             db.session.commit()
+            if issubclass(resource_class, SearchableMixin):
+                resource_class.reindex()
             if duplicates:
                 # Must wait until objects are committed in db before obtaining their IDs
                 set_duplicate_items_ids(duplicates, resource_class)
@@ -119,8 +125,7 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
             db.session.rollback()
             raise CSVFormatError([dict(row='inconnue', error=e)])
         # TODO: test it
-        if issubclass(resource_class, SearchableMixin):
-            resource_class.reindex()
+
 
 
 def check_for_datasource_duplicates(item_dict, item, row_index, applications_dict, duplicates):

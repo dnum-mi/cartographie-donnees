@@ -152,7 +152,7 @@ class DataSourcePage extends React.Component {
 
     renderContent() {
         const validateMessages = {
-            required: "'Ce champ est requis!",
+            required: "Ce champ est requis !",
             types: {
                 email: "Ce n'est pas un email valide (ie: ____@----.**",
                 url: "Ce n'est pas une url valide (ie: http://www.___.**)",

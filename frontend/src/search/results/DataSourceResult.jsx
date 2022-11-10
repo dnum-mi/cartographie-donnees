@@ -39,6 +39,7 @@ class DataSourceResult extends React.Component {
               className="onHover"
               onClick={() => this.props.onFilterSelect("selectedApplication", this.props.dataSource.application.name)}
               color="magenta"
+              title={this.props.dataSource.application.long_name}
             >
               {this.props.dataSource.application.name}
             </Tag>

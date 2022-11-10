@@ -138,9 +138,9 @@ class AdminPage extends React.Component {
                     </p>
                     <p>
                         Le moteur de recherche prend en compte les attributs suivants pour déterminer les données
-                        pertinentes : Nom de la donnée, Description, Familles, Axes d'analyse, Type, Référentiel,
-                        Sensibilité, Open data, Exposition, Origine, Nom de l’application, Finalités de l’application,
-                        Organisation, Tags.
+                        pertinentes: Nom de la donnée, Description, Familles, Axes d'analyse, Type, Référentiel,
+                        Sensibilité, Open data, Exposition, Origine, Nom de l’application, Nom long de l'application,
+                        Organisation, Finalités de l’application, Tags.
                     </p>
 
                     <h3>
@@ -191,6 +191,28 @@ class AdminPage extends React.Component {
                     </p>
 
                     <h3>
+                        Paramètres
+                    </h3>
+                    <p>
+                        La page "Paramètres" est séparée en deux sections:
+                    </p>
+                    <ul>
+                        <li> La section "Page d'accueil" permet de modifier le texte affiché sur la page d'accueil.</li>
+                        <li> La section "Info-bulles" permet de modifier les info-bulles présentes dans l'outil.
+                            Les info-bulles sont rangées dans des listes déroulantes par type de champ qu'elles décrivent.</li>
+                    </ul>
+                    <p>
+                        Les paramètres peuvent être entièrement importés par un administrateur général depuis le bouton
+                        "import" de la page administration des paramètres. Chaque paramètre est stocké en base de données
+                        avec un identifiant composé d'une catégorie et d'une clé prédéfinie.
+                        Pour conserver les paramètres et leur identifiant associé, il est conseillé de sauvegarder préalablement
+                        les paramètres de l'outil via le bouton "export" car l'ensemble des paramètres sera écrasé lors de l’import.
+                        La liste des paramètres étant fixe, si des paramètres ne sont pas importés,
+                        ils pourront toujours être modifiés plus tard via le bouton "Modifier les paramètres".
+                    </p>
+
+
+                    <h3>
                         Réimporter la base de données
                     </h3>
                     <p>
@@ -209,7 +231,10 @@ class AdminPage extends React.Component {
                         <li>Importer les applications</li>
                         <li>Importer les données</li>
                     </ol>
-
+                    <p>
+                        Les paramètres sont indépendants des autres données de l'outil et ne sont donc pas affectés par ces procédures.
+                        Ils peuvent donc être complètements modifiés/importés séparément.
+                    </p>
                     <h3>
                         Documentation de l'API
                     </h3>

@@ -53,3 +53,23 @@ EMPTY_APPLICATION = {
     'user_count_comment': None,
     'validation_date': None
 }
+
+SUCCESS_RESPONSE_JSON = {
+    'code': 200,
+    'description': 'OK'
+}
+
+SAMPLE_APPLICATION = {
+    'name': 'App 1',
+    'goals': "Finalité de l'app 1",
+    'organization_id': 'MI > DGPN'
+}
+
+DEFAULT_DATA_SOURCE = {
+    "name": "New data source",
+    "family_name": [
+        "family1"
+    ],
+    "type_name": "type1",
+    "application": SAMPLE_APPLICATION
+}

@@ -30,3 +30,4 @@ SQLAlchemy-Utils==0.36.8
 urllib3==1.26.3
 Unidecode==1.2.0
 Werkzeug==1.0.1
+url-normalize==1.4.3

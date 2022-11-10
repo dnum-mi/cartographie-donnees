@@ -33,7 +33,9 @@ class LoginPage extends React.Component {
                 return this.props.onLogin();
             })
             .then(() => {
-                this.props.history.push('/');
+                !!this.props.user.id
+                    ? this.props.history.push('/admin')
+                    : this.props.history.push('/')
             })
             .catch((error) => {
                 this.setState({
