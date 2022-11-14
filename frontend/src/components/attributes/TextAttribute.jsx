@@ -130,13 +130,20 @@ class TextAttribute extends React.Component {
           />
       );
     } else {
+      let min_value = null
+      if (this.props.attributeId === "application_historic"){
+        min_value=1900
+      } else if (this.props.inputType==="number") {
+        min_value=0
+      }
+
       input = (
         <Input
           id={this.props.attributeId}
           type={this.props.inputType}
           placeholder={this.props.editionPlaceholder}
           className={this.attributeInputClassName()}
-          min={this.props.inputType === "number" && 0}
+          min={min_value}
           max={this.props.attributeId === "application_historic" && 2100}
         />
       );
