@@ -1,3 +1,10 @@
+const pathname_to_french = {
+    "search": "Recherche",
+    "data-source": "Fiche donnée",
+    "admin": "Administration",
+    "login": "Connexion"
+}
+
 const tabs_definition = [
     {
         label: "Fiche donnée",
@@ -6,8 +13,10 @@ const tabs_definition = [
         columns: [
             {
                 title: 'Fiche donnée (application)',
-                dataIndex: 'label',
                 key: 'datasource_kpi_id',
+                render: (_, record) => (
+                    <a href={"/data-source/"+record.data_source_id.toString()}>{record.data_source_name} ({record.application_name})</a>
+                ),
             },
             {
                 title: 'Nombre de visites',
@@ -23,8 +32,10 @@ const tabs_definition = [
         columns: [
             {
                 title: 'Type de page',
-                dataIndex: 'pathname',
                 key: 'path_kpi_type',
+                render: (_, record) => (
+                    <p>{pathname_to_french[record.pathname]}</p>
+                ),
             },
             {
                 title: 'Nombre de visites',
@@ -68,5 +79,6 @@ const tabs_definition = [
         ]
     },
 ]
+
 
 export default tabs_definition

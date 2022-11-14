@@ -395,16 +395,19 @@ def add_query_to_db(index, query, request_args, strictness, exclusions):
 
     # Get elasticsearch string query tokens after analyzer
     text_separator = " "
-    raw_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": query})["tokens"]
-    text_query = text_separator.join([element["token"] for element in raw_tokens])
+    raw_text_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": query})["tokens"]
+    text_query = text_separator.join([element["token"] for element in raw_text_tokens])
+
+    raw_exclusions_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": exclusions})["tokens"]
+    exclusions_token = text_separator.join([element["token"] for element in raw_exclusions_tokens])
 
     query_parameters = {
         "text_query": text_query,
         "text_operator": strictness.value,
-        "exclusion": exclusions,
+        "exclusion": exclusions_token,
         "filters_query": json.dumps({
             k: v for k, v in request_args.items() if len(v) > 0
-        }),
+        }, ensure_ascii=False),
         "date": datetime.datetime.now()
     }
     searching_kpi = SearchingKPI.from_dict(query_parameters)

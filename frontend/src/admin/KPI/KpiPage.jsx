@@ -85,8 +85,8 @@ class KpiPage extends React.Component {
         return confirm({
             title: `Suppression des données de navigation`,
             icon: <ExclamationCircleOutlined/>,
-            content: `Vous êtes sur le point de supprimer les données de navigation de l'outil 
-                        datant d'avant le ${deletion_date.toLocaleDateString()}. 
+            content: `Vous êtes sur le point de supprimer les données de navigation 
+                        vieilles de plus d'un an (${deletion_date.toLocaleDateString()}). 
                         Cette action est irréversible !`,
             okType: "danger",
             onOk: () => {

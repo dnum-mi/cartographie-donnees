@@ -102,12 +102,6 @@ def get_routing_kpi():
             all()
         )
 
-        for element in kpis["datasource_count_visits"]:
-            element["label"] = (
-                    element["data_source_name"] + " (" +
-                    element["application_name"] + ")"
-            )
-
         return jsonify(kpis)
 
     except Exception as e:
