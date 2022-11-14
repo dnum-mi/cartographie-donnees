@@ -79,7 +79,8 @@ export const fetchRoutingKPI = (start_date, end_date) => axios.get(API_HOST + '/
 export const fetchSearchingKPI = (start_date, end_date) => axios.get(API_HOST + '/kpi/searching?start_date=' + start_date + '&end_date=' + end_date);
 export const fetchCountKPI = () => axios.get(API_HOST + '/kpi/count');
 export const deleteYearBrowsingKPI = () => axios.delete(API_HOST + '/kpi/year');
-// export const deleteAllBrowsingKPI = () => axios.delete(API_HOST + '/kpi/all');
+export const exportRoutingKPIUrl = API_HOST + '/kpi/routing/export';
+export const exportSearchingKPIUrl = API_HOST + '/kpi/searching/export';
 
 /** Auth API */
 export const login = (email, password) => axios.post(API_HOST + '/login', { email, password });

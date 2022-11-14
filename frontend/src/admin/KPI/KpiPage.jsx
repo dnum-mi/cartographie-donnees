@@ -1,10 +1,18 @@
 import React from 'react';
 import {withRouter} from 'react-router-dom';
 import {Button, DatePicker, Modal, Skeleton, Table, Tabs} from "antd";
-import {deleteYearBrowsingKPI, fetchCountKPI, fetchRoutingKPI, fetchSearchingKPI} from "../../api";
+import {
+    deleteYearBrowsingKPI,
+    exportRoutingKPIUrl,
+    exportSearchingKPIUrl,
+    exportModel,
+    fetchCountKPI,
+    fetchRoutingKPI,
+    fetchSearchingKPI
+} from "../../api";
 import "./KpiPage.css";
 import tabs_definition from "./kpi_tabs_definition";
-import {ExclamationCircleOutlined} from "@ant-design/icons";
+import {DownloadOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
 import moment from "moment";
 
 const {confirm} = Modal;
@@ -103,6 +111,11 @@ class KpiPage extends React.Component {
         });
     }
 
+    onExportKpis = () => {
+        exportModel(exportRoutingKPIUrl, "historique_navigation.csv");
+        exportModel(exportSearchingKPIUrl, "historique_recherche.csv");
+    }
+
     onDateChange = (dates, dateStrings) => {
         this.setState({
             start_date: dates[0].toISOString(),
@@ -132,7 +145,8 @@ class KpiPage extends React.Component {
                     <div className="KpiPageHeader">
                         <div>Nombre total de lignes: {this.state.count_kpi}</div>
                         <div>
-                            <Button onClick={this.onDeleteYear}>Supprimer données de plus d'un an </Button>
+                            <Button onClick={this.onDeleteYear}>Supprimer données de plus d'un an</Button>
+                            <Button onClick={this.onExportKpis} icon={<DownloadOutlined/>} type="default">Export</Button>
                         </div>
                     </div>
                     <div className={"KpiPageBody"}>

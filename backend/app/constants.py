@@ -60,7 +60,18 @@ field_english_to_french_dic = {
     "referentiel_count":"Nombre de référentiels utilisés",
     "reutilization_count":"Nombre de réutilisations",
     "application_description_level":"Niveau de description de l'application",
-    "datasource_description_level":"Niveau de description des données"
+    "datasource_description_level":"Niveau de description des données",
+    "text_query": "Recherche textuelle",
+    "text_operator": "Type de recherche textuelle",
+    "exclusion": "Exclusion",
+    "filters_query": "Filtre",
+    "date": "Date",
+    "pathname": "URL",
+    "subpath": "Complément d'URL",
+    "search": "Recherche",
+    "is_general_admin": "Administrateur général?",
+    "is_simple_admin": "Administrateur?",
+
 }
 
 field_french_to_english_dic = {

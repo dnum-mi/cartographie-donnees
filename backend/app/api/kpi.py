@@ -8,6 +8,7 @@ from sqlalchemy import func, desc
 from app import db
 from app.models import RoutingKPI, SearchingKPI, DataSource, Application
 import json
+from app.api.commons import export_resource
 
 from decorators import admin_required
 from . import api
@@ -168,8 +169,21 @@ def delete_kpi_year():
     delete_searching = db.session.query(SearchingKPI).filter(SearchingKPI.date <= start_date).delete()
     delete_routing = db.session.query(RoutingKPI).filter(RoutingKPI.date <= start_date).delete()
     db.session.commit()
-    return jsonify(dict(description=f"OK, {delete_searching+delete_routing} deleted", code=200))
+    return jsonify(dict(description=f"OK, {delete_searching + delete_routing} deleted", code=200))
 
+
+@api.route('/api/kpi/routing/export', methods=['GET'])
+@login_required
+@admin_required
+def export_routing_kpi():
+    return export_resource(RoutingKPI, "historique_navigation.csv")
+
+
+@api.route('/api/kpi/searching/export', methods=['GET'])
+@login_required
+@admin_required
+def export_searching_kpi():
+    return export_resource(SearchingKPI, "historique_recherche.csv")
 
 # @api.route('/api/kpi/all', methods=['DELETE'])
 # @login_required
