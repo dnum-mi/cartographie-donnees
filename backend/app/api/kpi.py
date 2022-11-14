@@ -6,7 +6,7 @@ from flask import jsonify, request
 from sqlalchemy import func, desc
 
 from app import db
-from app.models import RoutingKPI, SearchingKPI
+from app.models import RoutingKPI, SearchingKPI, DataSource, Application
 import json
 
 from decorators import admin_required
@@ -84,15 +84,28 @@ def get_routing_kpi():
         )
 
         # Count number of visit for each datasource
-        kpis["datasource_count_visits"] = row_to_dict(
-            db.session.query(RoutingKPI.subpath, func.count(RoutingKPI.id).label("count")).
+        main_query = (
+            db.session.query(RoutingKPI.subpath.label("data_source_id"), func.count(RoutingKPI.id).label("count")).
             filter(RoutingKPI.id.in_(filter_by_date)).
             group_by(RoutingKPI.pathname, RoutingKPI.subpath).
-            having(RoutingKPI.pathname == "data-source").
+            having(RoutingKPI.pathname == "data-source").subquery()
+        )
+
+        kpis["datasource_count_visits"] = row_to_dict(
+            db.session.query(main_query.c.count, main_query.c.data_source_id, DataSource.name.label("data_source_name"),
+                             Application.name.label("application_name")).
+            join(DataSource, db.cast(DataSource.id, db.String) == main_query.c.data_source_id).
+            join(Application, Application.id == DataSource.application_id).
             order_by(desc("count")).
             limit(50).
             all()
         )
+
+        for element in kpis["datasource_count_visits"]:
+            element["label"] = (
+                    element["data_source_name"] + " (" +
+                    element["application_name"] + ")"
+            )
 
         return jsonify(kpis)
 

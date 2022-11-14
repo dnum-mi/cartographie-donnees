@@ -5,8 +5,8 @@ const tabs_definition = [
         rowKey:"subpath",
         columns: [
             {
-                title: 'Fiche donnée',
-                dataIndex: 'subpath',
+                title: 'Fiche donnée (application)',
+                dataIndex: 'label',
                 key: 'datasource_kpi_id',
             },
             {
