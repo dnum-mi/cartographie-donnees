@@ -92,7 +92,7 @@ class EnumerationsList extends React.Component {
 
   getAttributeKeyFromCategory = (category) =>{
     return !!Object.values(filters).find((item)=>item.categoryName == category)
-    ? Object.values(filters).find((item)=>item.categoryName == category).attributeKey 
+    ? Object.values(filters).find((item)=>item.categoryName == category).attributeKey
     : Object.values(attributes).find((item)=>item.tagCategory == category).attributeId
   }
   getTooltip = (category) => {
@@ -192,13 +192,13 @@ class EnumerationsList extends React.Component {
           </h1>
 
           <div className="actions">
-            <Button onClick={this.export} icon={<DownloadOutlined/>} type="default">Export</Button>
+            <Button onClick={this.export} icon={<UploadOutlined/>} type="default">Export</Button>
             <Upload
               customRequest={this.uploadfile.bind(this)}
               maxCount={1}
               showUploadList={false}
             >
-              <Button icon={<UploadOutlined/>} type="default">Import</Button>
+              <Button icon={<DownloadOutlined/>} type="default">Import</Button>
             </Upload>
           </div>
         </header>

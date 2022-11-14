@@ -2,7 +2,7 @@ import React from 'react';
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom';
 import { Input, Tag, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import {UploadOutlined} from '@ant-design/icons';
 import './SearchPage.css';
 import SearchTree from "./SearchTree";
 
@@ -372,7 +372,7 @@ class SearchPage extends React.Component {
                             <Button
                                 onClick={this.export}
                                 type="secondary"
-                                icon={<DownloadOutlined />}
+                                icon={<UploadOutlined />}
                                 disabled={!this.state.dataSources.length}
                             >
                                 Télécharger les résultats
