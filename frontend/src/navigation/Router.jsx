@@ -17,10 +17,12 @@ import ForgotPasswordPage from "../auth/ForgotPasswordPage";
 import DataSourceFetcher from "../data-source/DataSourceFetcher";
 import DataSourceCreation from "../admin/data-sources/DataSourceCreation";
 import Navigation from "./Navigation";
+import RoutingCount from "./RoutingCount";
 
-function Router({ user, onLogin, homepageContent, updateHomepage }) {
+function Router({ user, onLogin, homepageContent, updateHomepage, loading }) {
   return (
     <BrowserRouter>
+      <RoutingCount loading={loading}></RoutingCount>
       <Navigation user={user} homepageContent={homepageContent}/>
       <Switch>
         <Route path="/" exact>

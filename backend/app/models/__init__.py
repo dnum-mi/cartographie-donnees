@@ -24,6 +24,8 @@ from .Application import ownerships
 
 # Other
 from .WildCard import WildCard
+from .RoutingKPI import RoutingKPI
+from .SearchingKPI import SearchingKPI
 
 
 def get_enumeration_model_by_name(name):

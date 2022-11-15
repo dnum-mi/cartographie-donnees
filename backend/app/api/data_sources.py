@@ -1,12 +1,14 @@
 import copy
+import datetime
+import json
 
 import unidecode
 from werkzeug.exceptions import BadRequest
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
-    get_enumeration_model_by_name, Origin, Tag
+    get_enumeration_model_by_name, Origin, Tag, SearchingKPI
 from app.decorators import admin_required, admin_or_owner_required
 from app.api.enumerations import get_type_by_name, get_family_by_name, get_classification_by_name, \
     get_exposition_by_name, get_sensibily_by_name, get_open_data_by_name, \
@@ -69,6 +71,7 @@ def get_reutilizations(reutilizations):
         return [get_application_by_name(json.get("name"), return_id=False) for json in reutilizations]
     else:
         return []
+
 
 def get_origin_applications(origin_applications):
     if origin_applications:
@@ -162,7 +165,7 @@ def export_data_source_request():
 
     """
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
-    data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness,1, 10000, exclusions)
+    data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness, 1, 10000, exclusions)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
 
@@ -311,7 +314,7 @@ def import_data_sources():
     except CSVFormatError as e:
         raise BadRequest(e.message)
     if warning:
-        return jsonify({'code':200, **warning})
+        return jsonify({'code': 200, **warning})
     return jsonify(dict(description='OK', code=200))
 
 
@@ -374,7 +377,7 @@ def get_fields_values(request_args):
 
 def get_request_args_data_source(request):
     filters_list = ['family', 'type', 'organization', 'application', 'referentiel', 'sensibility', 'open_data',
-                    'exposition', 'origin', 'classification','tag']
+                    'exposition', 'origin', 'classification', 'tag']
 
     query = request.args.get('q', '', type=str)
     strictness = request.args.get('strictness', '', type=str)
@@ -386,6 +389,30 @@ def get_request_args_data_source(request):
         temp = [] if not temp else temp.split(";")
         to_return[filter] = temp
     return query, to_return, strictness, exclusions
+
+
+def add_query_to_db(index, query, request_args, strictness, exclusions):
+
+    # Get elasticsearch string query tokens after analyzer
+    text_separator = " "
+    raw_text_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": query})["tokens"]
+    text_query = text_separator.join([element["token"] for element in raw_text_tokens])
+
+    raw_exclusions_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": exclusions})["tokens"]
+    exclusions_token = text_separator.join([element["token"] for element in raw_exclusions_tokens])
+
+    query_parameters = {
+        "text_query": text_query,
+        "text_operator": strictness.value,
+        "exclusion": exclusions_token,
+        "filters_query": json.dumps({
+            k: v for k, v in request_args.items() if len(v) > 0
+        }, ensure_ascii=False),
+        "date": datetime.datetime.now()
+    }
+    searching_kpi = SearchingKPI.from_dict(query_parameters)
+    db.session.add(searching_kpi)
+    db.session.commit()
 
 
 @api.route('/api/data-sources/search', methods=['GET'])
@@ -434,6 +461,11 @@ def search_data_sources():
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
+
+    # Add query to DB for KPI
+    add_query_to_db(DataSource.__tablename__, query, request_args, strictness, exclusions)
+
+    # search and return results
     data_sources, total_count = DataSource.search_with_filter(
         query, request_args, strictness, page, count, exclusions)
     return jsonify(dict(

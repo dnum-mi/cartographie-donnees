@@ -73,6 +73,14 @@ export const updateWildCards = (wild_card_list) => axios.post(wildCardEndpoint, 
 export const importWildCards = (file) => axios.post(wildCardEndpoint + '/import', file, { "headers": { 'Content-Type': 'multipart/form-data' } });
 export const exportWildCardsUrl = wildCardEndpoint + '/export';
 
+/* KPI API */
+export const updateRoutingKPI = (user, location) => axios.post(API_HOST + '/kpi/routing', {"user":user, "location":location});
+export const fetchRoutingKPI = (start_date, end_date) => axios.get(API_HOST + '/kpi/routing?start_date=' + start_date + '&end_date=' + end_date);
+export const fetchSearchingKPI = (start_date, end_date) => axios.get(API_HOST + '/kpi/searching?start_date=' + start_date + '&end_date=' + end_date);
+export const fetchCountKPI = () => axios.get(API_HOST + '/kpi/count');
+export const deleteYearBrowsingKPI = () => axios.delete(API_HOST + '/kpi/year');
+export const exportRoutingKPIUrl = API_HOST + '/kpi/routing/export';
+export const exportSearchingKPIUrl = API_HOST + '/kpi/searching/export';
 
 /** Auth API */
 export const login = (email, password) => axios.post(API_HOST + '/login', { email, password });
