@@ -87,11 +87,9 @@ class LoginPage extends React.Component {
                         </Link>
                     </Form.Item>
                 </Form>
-                {this.state.error && (
-                    <Error error={{
-                        message: 'Votre adresse email ou votre mot de passe sont incorrects.'
-                    }} />
-                )}
+                <Error error={{
+                    message: 'Votre adresse email ou votre mot de passe sont incorrects.'
+                }} />
             </div>
         );
     }

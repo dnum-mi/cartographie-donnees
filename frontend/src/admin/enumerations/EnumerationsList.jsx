@@ -120,7 +120,7 @@ class EnumerationsList extends React.Component {
       )
     }
     return (<>
-      {this.state.error ? <Error error={this.state.error}/> : null}
+      <Error error={this.state.error}/>
       {
         this.state.categories.map((category) => (
           <Collapse

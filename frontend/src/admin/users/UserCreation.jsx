@@ -39,7 +39,7 @@ class UserCreation extends React.Component {
                     <h1>
                         Création d'un administrateur
                     </h1>
-                    {this.state.error && <Error error={this.state.error} />}
+                    <Error error={this.state.error} />
                     <div>
                         <UserForm withPassword onSubmit={this.submitForm}/>
                     </div>
