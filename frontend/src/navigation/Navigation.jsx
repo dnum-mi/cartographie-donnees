@@ -32,6 +32,10 @@ function Navigation({ user, homepageContent, location }) {
         </Button>
       </Link>
   );
+  const path = location.pathname.split('/')[1];
+  const query = window.location.search;
+  const showNewSearchButton = path === "data-source" || ( path === "search" && query !== '' );
+
   return (
     <Header className="header">
       <div className="container navigation-container">
@@ -45,8 +49,8 @@ function Navigation({ user, homepageContent, location }) {
         </span>
         <div>
             <Space>
-                {location.pathname.split('/')[1] === "data-source" &&
-                    <Link to="/search">
+                {showNewSearchButton &&
+                    <Link to="/">
                         <Button icon={<SearchOutlined />}>
                             Nouvelle recherche
                         </Button>
