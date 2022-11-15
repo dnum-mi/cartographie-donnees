@@ -10,7 +10,7 @@ from app.models import RoutingKPI, SearchingKPI, DataSource, Application
 import json
 from app.api.commons import export_resource
 
-from decorators import admin_required
+from app.decorators import admin_required
 from . import api
 
 
