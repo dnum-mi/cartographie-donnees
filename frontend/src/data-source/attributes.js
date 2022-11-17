@@ -254,7 +254,7 @@ export default {
     validation_date: {
       attributeId: 'application_validation_date',
       label: 'Date de validation',
-      type: 'text',
+      type: 'date',
     },
     references: {
       attributeId: 'references',
