@@ -16,6 +16,7 @@ import filters from "../filters";
 import Results from "./Results";
 
 import withTooltips from '../hoc/tooltips/withTooltips';
+import DataSourceResult from "./results/DataSourceResult";
 
 const { Search } = Input;
 
@@ -392,18 +393,34 @@ class SearchPage extends React.Component {
             return this.renderLoading();
         } else if (this.state.homeDescription) {
             return (
-                <div className="home-description">
-                    <h3>
-                        {this.props.homepageContent["welcome_title"]}
-                    </h3>
-                    <div>
-                        {this.props.homepageContent["welcome_text"]}
+                <>
+                    <div className="home-description">
+                        <h3>
+                            {this.props.homepageContent["welcome_title"]}
+                        </h3>
+                        <div>
+                            {this.props.homepageContent["welcome_text"]}
+                        </div>
+                        <br />
+                        <a href={"mailto:"+this.props.homepageContent["email"]}>
+                            {this.props.homepageContent["email"]}
+                        </a>
                     </div>
-                    <br />
-                    <a href={"mailto:"+this.props.homepageContent["email"]}>
-                        {this.props.homepageContent["email"]}
-                    </a>
-                </div>
+                    <div className="home-highlights">
+                        <h3>
+                            Données mises en avant
+                        </h3>
+                        <div>
+                            {this.props.dataSourceHighlights.map((dataSource) => (
+                                <DataSourceResult
+                                  key={dataSource.id}
+                                  dataSource={dataSource}
+                                  onFilterSelect={(key, value) => this.addFilter(key, value)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </>
             );
         }
         else {
@@ -503,14 +520,6 @@ class SearchPage extends React.Component {
     export = () => {
         const search = this.getQuery(this.state.query);
         exportSearchDataSources("Recherche_donnees.csv", search);
-    }
-
-    getDefaultActiveKey = () => {
-        if (this.state.strictness === ANY_WORDS) {
-            return []
-        } else {
-            return ["1"]
-        }
     }
 
     render() {

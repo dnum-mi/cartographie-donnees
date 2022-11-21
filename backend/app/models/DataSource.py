@@ -91,6 +91,7 @@ class DataSource(SearchableMixin, BaseModel):
     update_frequency_id = db.Column(
         db.Integer, db.ForeignKey('update_frequency.id'))
     conservation = db.Column(db.String)
+    highlights_index = db.Column(db.Integer)
     families = db.relationship(
         "Family",
         secondary=association_family_table,
@@ -126,7 +127,6 @@ class DataSource(SearchableMixin, BaseModel):
         secondary=origin_application_table,
         backref="origin_data_sources",
     )
-
     application_id = db.Column(
         db.Integer,
         db.ForeignKey('application.id'),
@@ -391,7 +391,8 @@ class DataSource(SearchableMixin, BaseModel):
             'reutilizations': [application.to_dict() for application in self.reutilizations],
             'nb_reutilizations': self.nb_reutilizations,
             'is_reference': self.is_reference,
-            'datasource_description_level': self.datasource_description_level
+            'datasource_description_level': self.datasource_description_level,
+            'highlights_index': self.highlights_index,
         }
 
     def to_export(self):
@@ -421,7 +422,8 @@ class DataSource(SearchableMixin, BaseModel):
             'exposition_name': ",".join(self.exposition_name),
             'origin_name': self.origin_name,
             'origin_application_name': ",".join(self.origin_application_name),
-            'is_reference': self.is_reference
+            'is_reference': self.is_reference,
+            'highlights_index': self.highlights_index,
         }
 
     def update_from_dict(self, data):
@@ -453,6 +455,7 @@ class DataSource(SearchableMixin, BaseModel):
         self.origin_id = data.get('origin_id')
         self.origin_applications = data.get('origin_applications')
         self.is_reference = data.get('is_reference') if data.get('is_reference') else False
+        self.highlights_index = data.get('highlights_index')
 
     @staticmethod
     def from_dict(data):
@@ -485,7 +488,8 @@ class DataSource(SearchableMixin, BaseModel):
             origin_id=data.get('origin_id'),
             origin_applications=data.get('origin_applications'),
             is_reference=data.get('is_reference') if data.get('is_reference') else False,
-            tags = data.get('tags') if data.get('tags') else []
+            tags=data.get('tags') if data.get('tags') else [],
+            highlights_index=data.get('highlights_index'),
         )
 
     @classmethod
@@ -560,6 +564,24 @@ class DataSource(SearchableMixin, BaseModel):
                 return int(monthly_volumetry)
             except:
                 raise ValueError("La production par mois doit être un entier")
+
+    @validates('highlights_index')
+    def validate_highlights_index(self, key, value):
+        if not value:
+            return None
+        try:
+            int_value = int(value)
+        except:
+            raise ValueError(
+                "Le nombre d'opérateurs dans la base de "
+                "données doit être un entier"
+            )
+        if not 1 <= int_value <= 10:
+            raise ValueError(
+                "Le rang dans la liste des données mises en avant"
+                " doit être compris entre 1 et 10"
+            )
+        return int_value
 
     @staticmethod
     def get_foreign_key_column(name_enum):

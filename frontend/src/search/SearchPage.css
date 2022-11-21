@@ -20,6 +20,15 @@
     white-space: pre-line;
 }
 
+.SearchPage .content .home-highlights {
+    padding: 20px;
+}
+
+.SearchPage .content .home-highlights h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
 .SearchPage .content .right-col {
     width: 300px;
 }

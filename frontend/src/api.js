@@ -30,6 +30,7 @@ export const importDataSource = (file) => axios.post(API_HOST + '/data-sources/i
 export const importDataSourceByApplication = (file, applicationId) => axios.post(API_HOST + '/data-sources/import_by_application/' + applicationId, file, { "headers": { 'Content-Type': 'multipart/form-data' } });
 export const exportDataSourceUrl = API_HOST + '/data-sources/export';
 export const countDataSource = () => axios.get(API_HOST + '/data-sources/count');
+export const fetchDataSourceHighlights = () => axios.get(API_HOST + '/data-sources/highlights');
 
 export const searchApplicationsOfDataSources = () => axios.get(API_HOST + '/data-sources/applications');
 export const searchOrganizations = () => axios.get(API_HOST + '/data-sources/organizations');

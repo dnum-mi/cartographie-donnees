@@ -103,6 +103,12 @@ export default {
     tagCategory: 'Tag',
     tagDisplayMode: 'tag',
   },
+  highlights_index: {
+    attributeId: 'highlights_index',
+    label: "Rang dans la liste des données mise en avant",
+    type: 'text',
+    inputType: 'number',
+  },
   volumetry: {
     attributeId: 'volumetry',
     label: "Volumétrie",

@@ -71,7 +71,7 @@ field_english_to_french_dic = {
     "search": "Recherche",
     "is_general_admin": "Administrateur général?",
     "is_simple_admin": "Administrateur?",
-
+    "highlights_index": "Rang dans la liste des données mise en avant",
 }
 
 field_french_to_english_dic = {
@@ -136,7 +136,8 @@ field_french_to_english_dic = {
     "Nombre de référentiels utilisés":"referentiel_count",
     "Nombre de réutilisations":"reutilization_count",
     "Niveau de description de l'application":"application_description_level",
-    "Niveau de description des données":"datasource_description_level"
+    "Niveau de description des données":"datasource_description_level",
+    "Rang dans la liste des données mise en avant": "highlights_index",
 }
 
 
@@ -196,7 +197,17 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'exposition_name',
     'origin_name',
     'origin_applications',
-    'is_reference'
+    'is_reference',
+    'highlights_index',
 ]
 
-DATASOURCE_ID_NO_COMMENT =  [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if (field not in ['volumetry_comment','monthly_volumetry_comment', 'is_reference'])]
+DATASOURCE_ID_NO_COMMENT = [
+    field
+    for field in DATASOURCE_ORIGINAL_FIELDS_ID
+    if (field not in [
+        'volumetry_comment',
+        'monthly_volumetry_comment',
+        'is_reference',
+        'highlights_index',
+    ])
+]

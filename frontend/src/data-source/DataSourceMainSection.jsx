@@ -8,6 +8,7 @@ import ApplicationSection from "./ApplicationSection";
 import attributes from "./attributes";
 
 import './DataSourceMainSection.css';
+import withCurrentUser from "../hoc/user/withCurrentUser";
 
 class DataSourceMainSection extends React.Component {
   constructor(props) {
@@ -105,6 +106,15 @@ class DataSourceMainSection extends React.Component {
                   {this.getAttributeElement('tag_name')}
                 </Col>
               </Row>
+              {this.props.currentUser.userIsAdmin() && (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    {this.getAttributeElement('highlights_index')}
+                  </Col>
+                  <Col span={12}>
+                  </Col>
+                </Row>
+              )}
             </Col>
             <Col span={8}>
               <ApplicationSection
@@ -131,4 +141,4 @@ DataSourceMainSection.propTypes = {
   onChange: PropTypes.func,
 };
 
-export default DataSourceMainSection;
+export default withCurrentUser(DataSourceMainSection);

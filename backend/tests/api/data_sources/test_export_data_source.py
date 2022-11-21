@@ -22,5 +22,5 @@ def test_create_data_source_admin(client, admin_auth_header, sample_data_sources
                            ";Base/index;Table;Nb tables;Champ;Nb champs;Volumétrie;Commentaire sur la " \
                            "volumétrie;Production par mois;Commentaire sur la  production par mois;Mise à " \
                            "jour;Conservation;Axes d'analyse;Exposition;Origine;Application source;Donnée " \
-                           "référentielle"
+                           "référentielle;Rang dans la liste des données mise en avant"
 
