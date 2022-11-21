@@ -2,17 +2,18 @@ from elasticmock import elasticmock
 
 import os
 
-def test_create_data_source_unauthorized(client):
+
+def test_export_data_source_unauthorized(client):
     response = client.get("/api/data-sources/export")
     assert response.status_code == 401
 
 
-def test_create_data_source_forbidden(client, user_auth_header):
+def test_export_data_source_forbidden(client, user_auth_header):
     response = client.get("/api/data-sources/export", headers=user_auth_header)
     assert response.status_code == 403
 
 
-def test_create_data_source_admin(client, admin_auth_header, sample_data_sources):
+def test_export_data_source_admin(client, admin_auth_header, sample_data_sources):
     response = client.get("/api/data-sources/export", headers=admin_auth_header)
     assert response.status_code == 200
     csv_data = response.data.decode('utf-8-sig')

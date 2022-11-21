@@ -23,7 +23,7 @@ field_english_to_french_dic = {
     "monthly_volumetry_comment": "Commentaire sur la  production par mois",
     "update_frequency_name": "Mise à jour",
     "conservation": "Conservation",
-    "classification_name": "Axes d'analyse",
+    "analysis_axis_name": "Axes d'analyse",
     "exposition_name": "Exposition",
     "origin_name": "Origine",
     "created_at": "Date de création",
@@ -99,7 +99,7 @@ field_french_to_english_dic = {
     "Commentaire sur la  production par mois": "monthly_volumetry_comment",
     "Mise à jour": "update_frequency_name",
     "Conservation": "conservation",
-    "Axes d'analyse": "classification_name",
+    "Axes d'analyse": "analysis_axis_name",
     "Exposition": "exposition_name",
     "Origine": "origin_name",
     "Date de création": "created_at",
@@ -151,7 +151,7 @@ enumeration_french_to_english = {
     "Origine": "origin",
     "Exposition": "exposition",
     "Organisation": "organization",
-    "Axes d'analyse": "classification"
+    "Axes d'analyse": "analysis_axis"
 }
 
 enumeration_english_to_french = {
@@ -164,7 +164,7 @@ enumeration_english_to_french = {
     "origin": "Origine",
     "type": "Type",
     "exposition": "Exposition",
-    "classification": "Axes d'analyse",
+    "analysis_axis": "Axes d'analyse",
     "organization": "Organisation"
 }
 
@@ -192,7 +192,7 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'monthly_volumetry_comment',
     'update_frequency_name',
     'conservation',
-    'classification_name',
+    'analysis_axis_name',
     'exposition_name',
     'origin_name',
     'origin_applications',

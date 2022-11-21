@@ -6,8 +6,8 @@ from app.models import SearchableMixin, BaseModel, Type, Application, OpenData, 
 from app.constants import DATASOURCE_ID_NO_COMMENT
 
 
-association_classification_table = db.Table(
-    'association_classification', db.Model.metadata,
+association_analysis_axis_table = db.Table(
+    'association_analysis_axis', db.Model.metadata,
     db.Column('data_source_id', db.Integer, db.ForeignKey('data_source.id'), primary_key=True),
     db.Column('family_id', db.Integer, db.ForeignKey('family.id'), primary_key=True),
     db.UniqueConstraint('data_source_id', 'family_id')
@@ -67,7 +67,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     """List of the fields indexed by Elasticsearch"""
     __search_index_fields__ = [
-        'name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
+        'name', 'description', 'family_name', "analysis_axis_name", 'type_name', 'referentiel_name',
         'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
         'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
         'tag_name'
@@ -75,14 +75,14 @@ class DataSource(SearchableMixin, BaseModel):
 
     """List of the fields used by Elasticsearch in the text queries (inclusions and exclusions)"""
     __text_search_fields__ = [
-        'name', 'description', 'family_name', "classification_name", 'type_name', 'application_name',
+        'name', 'description', 'family_name', "analysis_axis_name", 'type_name', 'application_name',
         'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
         'tag_name'
     ]
 
     """List of the fields to count the number of results on"""
     __search_count__ = [
-        'family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name', 'open_data_name',
+        'family_name', "analysis_axis_name", 'type_name', 'referentiel_name', 'sensibility_name', 'open_data_name',
         'exposition_name', 'origin_name', 'application_name', 'application_long_name', 'organization_name', 'tag_name'
     ]
 
@@ -112,10 +112,10 @@ class DataSource(SearchableMixin, BaseModel):
         lazy="joined",
         backref="data_sources",
     )
-    classifications = db.relationship(
+    analysis_axis = db.relationship(
         "Family",
         lazy="joined",
-        secondary=association_classification_table,
+        secondary=association_analysis_axis_table,
     )
     origin_id = db.Column(db.Integer, db.ForeignKey('origin.id'))
     expositions = db.relationship(
@@ -221,12 +221,12 @@ class DataSource(SearchableMixin, BaseModel):
         self.set_enumeration_multiple(family_name, 'families', Family, 'La famille', mandatory=True)
 
     @property
-    def classification_name(self):
-        return self.get_enumeration_multiple('classifications')
+    def analysis_axis_name(self):
+        return self.get_enumeration_multiple('analysis_axis')
 
-    @classification_name.setter
-    def classification_name(self, classification_name):
-        self.set_enumeration_multiple(classification_name, 'classifications', Family, 'Le référentiel')
+    @analysis_axis_name.setter
+    def analysis_axis_name(self, analysis_axis_name):
+        self.set_enumeration_multiple(analysis_axis_name, 'analysis_axis', Family, "L'axe d'analyse")
 
     @property
     def tag_name(self):
@@ -395,7 +395,7 @@ class DataSource(SearchableMixin, BaseModel):
             'update_frequency': self.update_frequency.to_dict() if self.update_frequency else None,
             'update_frequency_name': self.update_frequency_name,
             'conservation': self.conservation,
-            'classification_name': self.classification_name,
+            'analysis_axis_name': self.analysis_axis_name,
             'nb_referentiels': self.nb_referentiels,
             'exposition_name': self.exposition_name,
             'origin_name': self.origin_name,
@@ -416,7 +416,7 @@ class DataSource(SearchableMixin, BaseModel):
             'description': self.description,
             'example': self.example,
             'family_name': ",".join(self.family_name),
-            'classification_name': ",".join(self.classification_name),
+            'analysis_axis_name': ",".join(self.analysis_axis_name),
             'type_name': self.type_name,
             'is_reference': self.is_reference,
             'origin_name': self.origin_name,
@@ -464,8 +464,8 @@ class DataSource(SearchableMixin, BaseModel):
         self.monthly_volumetry_comment = data.get('monthly_volumetry_comment')
         self.update_frequency_id = data.get('update_frequency_id')
         self.conservation = data.get('conservation')
-        self.classifications = data.get(
-            'classifications') if data.get('classifications') else []
+        self.analysis_axis = data.get(
+            'analysis_axis') if data.get('analysis_axis') else []
         self.expositions = data.get('expositions')
         self.origin_id = data.get('origin_id')
         self.origin_applications = data.get('origin_applications')
@@ -496,8 +496,8 @@ class DataSource(SearchableMixin, BaseModel):
             monthly_volumetry_comment=data.get('monthly_volumetry_comment'),
             update_frequency_id=data.get('update_frequency_id'),
             conservation=data.get('conservation'),
-            classifications=data.get(
-                'classifications') if data.get('classifications') else [],
+            analysis_axis=data.get(
+                'analysis_axis') if data.get('analysis_axis') else [],
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
             origin_applications=data.get('origin_applications'),
@@ -588,7 +588,7 @@ class DataSource(SearchableMixin, BaseModel):
     @classmethod
     def delete_all(cls):
         db.session.execute("DELETE FROM association_family")
-        db.session.execute("DELETE FROM association_classification")
+        db.session.execute("DELETE FROM association_analysis_axis")
         db.session.execute("DELETE FROM association_reutilization")
         db.session.execute("DELETE FROM association_exposition")
         db.session.execute("DELETE FROM association_tag")

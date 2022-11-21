@@ -37,7 +37,7 @@ def get_enumeration_model_by_name(name):
         return Organization
     elif name.lower() == "sensibility":
         return Sensibility
-    elif name.lower() == "classification":
+    elif name.lower() == "analysis_axis":
         return Family
     elif name.lower() == "exposition":
         return Exposition
@@ -62,7 +62,7 @@ def get_enumeration_type_by_name(name):
         return 'single'
     elif name.lower() == "sensibility":
         return 'single'
-    elif name.lower() == "classification":
+    elif name.lower() == "analysis_axis":
         return 'multiple'
     elif name.lower() == "exposition":
         return 'multiple'

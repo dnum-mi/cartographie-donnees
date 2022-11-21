@@ -445,7 +445,7 @@ def delete_enumeration(category, enumeration_id):
     else:
         if category == "Famille":
             db.session.execute(f"DELETE FROM association_family WHERE family_id={enumeration_id}")
-            db.session.execute(f"DELETE FROM association_classification WHERE family_id={enumeration_id}")
+            db.session.execute(f"DELETE FROM association_analysis_axis WHERE family_id={enumeration_id}")
         if category == "Exposition":
             db.session.execute(f"DELETE FROM association_exposition WHERE exposition_id={enumeration_id}")
         if category == "Tag":
@@ -494,7 +494,7 @@ def get_organization_by_name(name, line=None):
     return get_enumeration_by_name(Organization, name, line=line, nullable=False)
 
 
-def get_classification_by_name(names, line=None):
+def get_analysis_axis_by_name(names, line=None):
     _list = []
     if names:
         for name in names:

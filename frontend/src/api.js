@@ -40,7 +40,7 @@ export const searchSensibilities = () => axios.get(API_HOST + '/data-sources/sen
 export const searchOpenData = () => axios.get(API_HOST + '/data-sources/open-data');
 export const searchExpositions = () => axios.get(API_HOST + '/data-sources/expositions');
 export const searchOrigins = () => axios.get(API_HOST + '/data-sources/origins');
-export const searchClassifications = () => axios.get(API_HOST + '/data-sources/classifications');
+export const searchAnalysisAxis = () => axios.get(API_HOST + '/data-sources/analysis-axis');
 export const searchTags = () => axios.get(API_HOST + '/data-sources/tags');
 
 /** Enumerations API */
