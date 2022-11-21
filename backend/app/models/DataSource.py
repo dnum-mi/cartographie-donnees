@@ -75,8 +75,7 @@ class DataSource(SearchableMixin, BaseModel):
 
     """List of the fields used by Elasticsearch in the text queries (inclusions and exclusions)"""
     __text_search_fields__ = [
-        'name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
-        'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
+        'name', 'description', 'family_name', "classification_name", 'type_name', 'application_name',
         'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
         'tag_name'
     ]
