@@ -182,11 +182,6 @@
         },
         {
             "namespace": "tooltips",
-            "key": "references",
-            "value": "xxxx"
-        },
-        {
-            "namespace": "tooltips",
             "key": "first_name",
             "value": "Prénom de l'administrateur"
         },
