@@ -56,12 +56,12 @@ def create_filter_query(filter_key: str, values: List[str]):
     return result
 
 
-def create_exclusion(exclusions: str, searchable_fields: List[str]):
+def create_exclusion(exclusions: str, text_search_fields: List[str]):
     if len(exclusions) > 0:
         return {
             'query_string': {
                 'query': create_query_string(exclusions),
-                'fields': searchable_fields,
+                'fields': text_search_fields,
             },
         }
     else:
@@ -98,11 +98,11 @@ def create_query_string(query: str):
     return ' '.join([f'*{word}*' for word in query.split()])
 
 
-def create_text_query(query: str, searchable_fields: List[str], strictness: Strictness):
+def create_text_query(query: str, text_search_fields: List[str], strictness: Strictness):
     return {
         'query_string': {
             'query': create_query_string(query),
-            'fields': searchable_fields,
+            'fields': text_search_fields,
             'default_operator': 'AND' if strictness == Strictness.ALL_WORDS else 'OR'
         },
     }
@@ -113,16 +113,16 @@ def create_query_filter(
         filters_dict: Dict[str, List[str]],
         strictness: Strictness,
         exclusions: str,
-        searchable_fields: List[str]
+        text_search_fields: List[str]
 ):
     slim_filters_dict = {
         k: v for k, v in filters_dict.items() if len(v) > 0
     }
     text_query = None
     filters_query = None
-    exclusion = create_exclusion(exclusions, searchable_fields)
+    exclusion = create_exclusion(exclusions, text_search_fields)
     if query:
-        text_query = create_text_query(query, searchable_fields, strictness)
+        text_query = create_text_query(query, text_search_fields, strictness)
     if len(slim_filters_dict.keys()):
         filters_query = create_filters_query(slim_filters_dict)
     if text_query:
@@ -172,14 +172,14 @@ def query_index_with_filter(
         filters_dict,
         strictness,
         exclusions,
-        searchable_fields,
+        text_search_fields,
         page,
         per_page,
 ):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return [], 0
 
-    body = create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields)
+    body = create_query_filter(query, filters_dict, strictness, exclusions, text_search_fields)
 
     body['from'] = (page - 1) * per_page
     body['size'] = per_page
@@ -200,13 +200,13 @@ def query_count(
         filters_dict,
         strictness,
         exclusions,
-        searchable_fields,
+        text_search_fields,
         enumerations,
 ):
     if not current_app.elasticsearch or not current_app.elasticsearch.indices.exists(index=index):
         return {}, 0
 
-    body = create_query_filter(query, filters_dict, strictness, exclusions, searchable_fields)
+    body = create_query_filter(query, filters_dict, strictness, exclusions, text_search_fields)
     body["track_total_hits"] = True
     body["size"] = 10000 #Beware, 10000 is the limit
 

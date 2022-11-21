@@ -25,7 +25,7 @@ class SearchableMixin(object):
             filters_dict,
             strictness,
             exclusions,
-            cls.__searchable__,
+            cls.__text_search_fields__,
             page,
             per_page,
         )
@@ -51,7 +51,7 @@ class SearchableMixin(object):
             filters_dict,
             strictness,
             exclusions,
-            cls.__searchable__,
+            cls.__text_search_fields__,
             cls.__search_count__,
         )
 

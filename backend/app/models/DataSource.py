@@ -63,13 +63,29 @@ origin_application_table = db.Table(
 
 
 class DataSource(SearchableMixin, BaseModel):
-    __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
-                      'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
-                      'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
-                      'tag_name']
-    __search_count__ = ['family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name',
-                        'open_data_name', 'exposition_name', 'origin_name', 'application_name',
-                        'application_long_name', 'organization_name', 'tag_name']
+    """The model for storing the data sources in database"""
+
+    """List of the fields indexed by Elasticsearch"""
+    __search_index_fields__ = [
+        'name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
+        'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
+        'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
+        'tag_name'
+    ]
+
+    """List of the fields used by Elasticsearch in the text queries (inclusions and exclusions)"""
+    __text_search_fields__ = [
+        'name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name',
+        'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
+        'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
+        'tag_name'
+    ]
+
+    """List of the fields to count the number of results on"""
+    __search_count__ = [
+        'family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name', 'open_data_name',
+        'exposition_name', 'origin_name', 'application_name', 'application_long_name', 'organization_name', 'tag_name'
+    ]
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, server_default="", nullable=False)
