@@ -18,7 +18,7 @@ ownerships = db.Table(
 
 class Application(SearchableMixin, BaseModel):
     __search_index_fields__ = ['name', "goals", 'organization_name', 'long_name']
-    __text_saerch_fields__ = ['name', "goals", 'organization_name', 'long_name']
+    __text_search_fields__ = ['name', "goals", 'organization_name', 'long_name']
     __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
