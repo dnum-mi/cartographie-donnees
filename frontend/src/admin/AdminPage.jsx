@@ -152,7 +152,7 @@ class AdminPage extends React.Component {
                     </p>
                     <p>
                         Le moteur de recherche prend en compte les attributs suivants pour déterminer les données
-                        pertinentes: Nom de la donnée, Description, Familles, Axes d'analyse, Type, Nom de l’application,
+                        pertinentes : Nom de la donnée, Description, Familles, Axes d'analyse, Type, Nom de l’application,
                         Nom long de l'application, Organisation, Nom long de l'organisation, Finalités de l’application, Tags.
                     </p>
 
@@ -199,8 +199,8 @@ class AdminPage extends React.Component {
                         "import" de la page administration des administrateurs. Pour importer les administrateurs, il faut
                         s'assurer qu'aucune donnée et qu'aucune application ne soit encore présente. Pour cela,
                         il est conseillé d'importer un fichier de données ne contenant que les en-têtes puis un fichier
-                        d'application ne contenant que les en-têtes. Les données et applications seront supprimées.
-                        Les administrateurs seront tous supprimés avant d’importer les nouveaux administrateurs.
+                        d'application ne contenant que les en-têtes. Les administrateurs seront tous supprimés avant
+                        d’importer les nouveaux administrateurs.
                     </p>
 
                     <h3>
@@ -248,6 +248,51 @@ class AdminPage extends React.Component {
                         Les paramètres sont indépendants des autres données de l'outil et ne sont donc pas affectés par ces procédures.
                         Ils peuvent donc être complètements modifiés/importés séparément.
                     </p>
+                    <h3>
+                        Identification des doublons dans l'import
+                    </h3>
+                    <p>
+                        A l'import des applications et des données, des doublons peuvent être identifiés.
+                        Si c'est le cas, les données seront tout de même importées, l'administrateur général sera averti
+                        et il poura modifier manuellement les données importées si besoin.
+                    </p>
+                    <p>
+                        Deux applications sont considérées en doublons si leurs noms sont sémantiquement proches. Deux
+                        données sont considérées en doublon si elles appartiennent à une même application et que leurs
+                        noms sont sémantiquement proches.
+                    </p>
+                    <p>
+                        Deux noms sont condérés sémantiquement proches s'ils sont similaires à plus de 95%.
+                        Ce ratio est calculé en fonction du nombre de sous-parties présents dans les deux chaînes
+                        de caractères. Par exemple, les noms "Empreintes génétiques" et "Empreintes digitales"
+                        ont ratio de similarité de 73% et ne sont donc pas considérés comme proches.
+                    </p>
+                    <h3>
+                        Propriétés calculées des applications
+                    </h3>
+                    <p>
+                        Certaines propriétés, visibles à l'export des applications, sont calculées à partir d'autres
+                        informations de la base de données. Voici la liste des règles de calcul utilisées pour ces champs.
+                    </p>
+                    <ul>
+                        <li>
+                            <b>Nombre de données</b> : nombre de données qui sont dans le périmètre de cette
+                            application.
+                        </li>
+                        <li>
+                            <b>Nombre de référentiels utilisés</b> : nombre de données étant indiquées comme
+                            "Données référentielles" dans le périmètre de l'application.
+                        </li>
+                        <li>
+                            <b>Nombre de réutilisations</b> : nombre d'applications réutilisant des données qui sont
+                            dans le périmètre de l'application.
+                        </li>
+                        <li>
+                            <b>Niveau de description de l'application</b> : taux de remplissage moyen des fiches pour les
+                            données dans le périmètre de l'application. Ce taux de remplissage par fiche est calculé à partir
+                            de tous les champs visibles sur la fiche donnée.
+                        </li>
+                    </ul>
                     <h3>
                         Documentation de l'API
                     </h3>
