@@ -6,6 +6,7 @@ permissions:
 
 jobs:
   test:
+    name: API and unit tests with pytest
     runs-on: ubuntu-latest
     services:
       elasticsearch:
@@ -47,7 +48,7 @@ jobs:
         run: |
           pytest ./tests/
   test-e2e:
-    name: Run end-to-end tests with Cypress
+    name: End-to-end tests with Cypress
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://carto:carto@localhost:5432/carto_db
@@ -125,7 +126,7 @@ jobs:
           name: cypress-videos
           path: frontend/cypress/videos
   deploy-staging:
-    needs: test
+    needs: [test, test-e2e]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/staging'
     steps:
