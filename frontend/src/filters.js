@@ -15,6 +15,7 @@ const filters = {
     titleKey: 'organization_long_name',
     selectedTitleKey: 'selectedOrganizationLong',
     attributeKey: 'organization_name',
+    tooltipKey: 'application_organization',
     color: 'volcano',
     tooltip: "MOA propriétaire de la donnée",
     multiple: false,

@@ -92,7 +92,7 @@ class EnumerationsList extends React.Component {
 
   getAttributeKeyFromCategory = (category) =>{
     return !!Object.values(filters).find((item)=>item.categoryName == category)
-    ? Object.values(filters).find((item)=>item.categoryName == category).attributeKey
+    ? Object.values(filters).find((item)=>item.categoryName == category).tooltipKey || Object.values(filters).find((item)=>item.categoryName == category).attributeKey
     : Object.values(attributes).find((item)=>item.tagCategory == category).attributeId
   }
   getTooltip = (category) => {

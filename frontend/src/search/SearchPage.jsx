@@ -343,7 +343,7 @@ class SearchPage extends React.Component {
                         loading={this.state.loading}
                         filterCategoryName={filters[key].categoryName}
                         treeData={this.getFilterData(key)}
-                        tooltip={this.props.tooltips.get(filters[key].attributeKey)}
+                        tooltip={this.props.tooltips.get(filters[key].tooltipKey || filters[key].attributeKey)}
                         color={filters[key].color}
                         multiple={filters[key].multiple}
                         expandedKeys={filters[key].expandedKeys}

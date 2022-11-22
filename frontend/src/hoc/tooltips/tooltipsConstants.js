@@ -2,6 +2,12 @@ import attributes from "../../data-source/attributes"
 import filters from "../../filters";
 const _ = require('lodash');
 
+/*
+Create default tooltips dictionary with all keys
+Define labels/translation
+Define settings sections (datasource, application, other)
+ */
+
 let defaultTooltips = {};
 let defaultLabels = {};
 let datasourceKeys = [];
@@ -12,7 +18,8 @@ let otherKeys = [];
 for (let value of Object.values(filters)) {
     defaultTooltips[value.attributeKey] = "";
     defaultLabels[value.attributeKey] = value.categoryName;
-    if (value.attributeKey != "application_name") {
+    if (value.attributeKey !== "application_name" && value.attributeKey !== "organization_name") {
+        // application_name and organization_name already in attribute.js
         datasourceKeys.push(value.attributeKey)
     }
 }
@@ -65,7 +72,7 @@ _.assign(defaultLabels, {
     "first_name": "Prénom",
     "last_name": "Nom",
     "email": "Email",
-    "is_admin": "Administrateur ?",
+    "is_admin": "Administrateur général",
     "application_select": "Choix d'Application",
 })
 
