@@ -10,14 +10,22 @@ from app.search.enums import Strictness
 
 class SearchableMixin(object):
     @classmethod
-    def search_with_filter(cls, query: str, filters_dict: Dict, strictness: Strictness, page: int, per_page: int, exclusions: str = ""):
+    def search_with_filter(
+            cls,
+            query: str,
+            filters_dict: Dict,
+            strictness: Strictness,
+            page: int,
+            per_page: int,
+            exclusions: str = "",
+    ):
         ids, total_count = query_index_with_filter(
             cls.__tablename__,
             query,
             filters_dict,
             strictness,
             exclusions,
-            cls.__searchable__,
+            cls.__text_search_fields__,
             page,
             per_page,
         )
@@ -30,14 +38,20 @@ class SearchableMixin(object):
             db.case(when, value=cls.id)).all(), total_count
 
     @classmethod
-    def query_count(cls, query, filters_dict, strictness, exclusions):
+    def query_count(
+            cls,
+            query: str,
+            filters_dict: Dict,
+            strictness: Strictness,
+            exclusions: str,
+    ):
         return query_count(
             cls.__tablename__,
             query,
             filters_dict,
             strictness,
             exclusions,
-            cls.__searchable__,
+            cls.__text_search_fields__,
             cls.__search_count__,
         )
 
@@ -48,19 +62,6 @@ class SearchableMixin(object):
             'update': list(session.dirty),
             'delete': list(session.deleted)
         }
-
-    @classmethod
-    def after_commit(cls, session):
-        for obj in session._changes['add']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['update']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['delete']:
-            if isinstance(obj, SearchableMixin):
-                remove_from_index(obj.__tablename__, obj)
-        session._changes = None
 
     @classmethod
     def reindex(cls):
@@ -80,4 +81,3 @@ class SearchableMixin(object):
 
 
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
-# db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)

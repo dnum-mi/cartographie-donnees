@@ -85,11 +85,11 @@ const filters = {
     tooltip: "Origine fonctionnelle de la donnée",
     multiple: false,
   },
-  classification: {
+  analysis_axis: {
     categoryName: "Axes d'analyse",
-    selectedKey: "selectedClassification",
-    listKey: 'classifications',
-    attributeKey: 'classification_name',
+    selectedKey: "selectedAnalysisAxis",
+    listKey: 'analysis_axis',
+    attributeKey: 'analysis_axis_name',
     color: 'purple',
     tooltip: "Types de référentiels utilisés pour classifier la donnée",
     multiple: true,

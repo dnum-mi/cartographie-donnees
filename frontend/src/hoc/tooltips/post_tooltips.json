@@ -32,7 +32,7 @@
         },
         {
             "namespace": "tooltips",
-            "key": "classification_name",
+            "key": "analysis_axis_name",
             "value": "Types de référentiels utilisés pour classifier la donnée"
         },
         {
