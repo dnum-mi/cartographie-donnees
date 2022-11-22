@@ -77,11 +77,9 @@ class ForgotPasswordPage extends React.Component {
                         type="success"
                     />
                 )}
-                {this.state.error && (
-                    <Error error={{
-                        message: 'Votre token a expiré. Merci de réitérer votre demande.'
-                    }} />
-                )}
+                <Error error={{
+                    message: 'Votre token a expiré. Merci de réitérer votre demande.'
+                }} />
             </div>
         );
     }

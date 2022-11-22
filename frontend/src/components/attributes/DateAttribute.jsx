@@ -1,16 +1,16 @@
 import React from "react";
-import {Form, Input, Spin, Typography} from "antd";
-import {commonPropTypes, textPropTypes} from "./attributePropTypes";
-import {commonDefaultProps, textDefaultProps} from "./attributeDefaultProps";
+import {Input, Typography, Form, Spin, DatePicker} from "antd";
+import { commonPropTypes, textPropTypes } from "./attributePropTypes";
+import { commonDefaultProps, textDefaultProps } from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import withCurrentUser from "../../hoc/user/withCurrentUser";
 import withTooltips from "../../hoc/tooltips/withTooltips";
+import moment from "moment";
+
 
 const { Title } = Typography;
-const { TextArea } = Input;
 
-
-class TextAttribute extends React.Component {
+class DateAttribute extends React.Component {
 
   suffixElement() {
     return (
@@ -74,12 +74,7 @@ class TextAttribute extends React.Component {
         {
           isNaN(textValue)
               ? textValue
-              : new Intl.NumberFormat(
-                  'fr-FR',
-                  {
-                    maximumSignificantDigits: 3,
-                    useGrouping: !(this.props.attributeId === "application_historic")
-                  }).format(textValue)
+              : new Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(textValue)
         }
         {this.props.suffixValue ? this.suffixElement() : null}
       </div>
@@ -109,49 +104,18 @@ class TextAttribute extends React.Component {
 
   writeElement() {
     let input;
-    const mustAwaitApplicationSelection = !!this.props.textEditDisabledIfApplicationNotSelected &&
-        (
-          this.props.currentUser?.user?.is_admin
-            ? !(this.props.applicationIsSelected || this.props.applicationCreationMode)
-            : !this.props.applicationIsSelected
-        )
+     const dateFormat = "DD/MM/YYYY";
     const spinning = !!this.props.textEditDisabledIfApplicationNotSelected && !!this.props.applicationSimulatedLoading
-    if (this.props.isTextArea) {
-      input = (
-          <TextArea
-            id={this.props.attributeId}
-            placeholder={
-              mustAwaitApplicationSelection
-                ? "Veuillez sélectionner une application"
-                : this.props.editionPlaceholder
-            }
-            className={this.attributeInputClassName()}
-            disabled={mustAwaitApplicationSelection}
-          />
-      );
-    } else {
-      let min_value = null
-      if (this.props.attributeId === "application_historic"){
-        min_value=1900
-      } else if (this.props.inputType==="number") {
-        min_value=0
-      }
 
-      input = (
-        <Input
-          id={this.props.attributeId}
-          type={this.props.inputType}
-          placeholder={this.props.editionPlaceholder}
-          className={this.attributeInputClassName()}
-          min={min_value}
-          max={this.props.attributeId === "application_historic" && 2100}
-        />
-      );
-    }
+    input = (
+        <DatePicker format={dateFormat}/>
+    )
+
+    const initialValue = this.props.value == null ? null : moment(this.props.value, dateFormat)
     return (
       <div className="attribute-input-container">
         <Spin spinning={spinning}>
-          <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
+          <Form.Item name={this.props.attributeId} initialValue={initialValue}>
             {input}
           </Form.Item>
           {this.props.hasSuffixValue ? this.suffixInput() : null}
@@ -173,14 +137,14 @@ class TextAttribute extends React.Component {
   }
 }
 
-TextAttribute.defaultProps = {
+DateAttribute.defaultProps = {
   ...commonDefaultProps,
   ...textDefaultProps,
 }
 
-TextAttribute.propTypes = {
+DateAttribute.propTypes = {
   ...commonPropTypes,
   ...textPropTypes,
 };
 
-export default withCurrentUser(withTooltips(TextAttribute));
+export default withCurrentUser(withTooltips(DateAttribute));

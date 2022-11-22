@@ -160,7 +160,7 @@ def sample_data_sources(testing_app, sample_type, sample_family, sample_applicat
         "type_id": sample_type.id,
         "application_id": sample_applications[0].id,
         "origin_applications": [],
-        "classifications": [],
+        "analysis_axis": [],
         "expositions": [],
         "reutilizations": [],
         "tags": []
@@ -174,7 +174,7 @@ def sample_data_sources(testing_app, sample_type, sample_family, sample_applicat
         "type_id": sample_type.id,
         "application_id": sample_applications[1].id,
         "origin_applications": [],
-        "classifications": [],
+        "analysis_axis": [],
         "expositions": [],
         "reutilizations": [],
         "tags": []

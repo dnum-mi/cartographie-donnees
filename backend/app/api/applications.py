@@ -5,6 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
+from dateutil.parser import parse
+from datetime import timezone
 
 from app.models import Application, DataSource
 from app.decorators import admin_required, admin_or_owner_required
@@ -111,11 +113,7 @@ def create_application():
     """
     try:
         json = request.get_json()
-        if json.get("validation_date"):
-            json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
-        json["organization_id"] = get_organization_by_name(json["organization_name"])
-        if json.get("access_url"):
-            json["access_url"] = url_normalize(json["access_url"])
+        normalize_application(json)
         application = Application.from_dict(json)
         db.session.add(application)
         db.session.commit()
@@ -207,7 +205,7 @@ def import_applications():
     except IntegrityError as e:
         raise BadRequest(e.args)
     if warning:
-        return jsonify({'code':200, **warning})
+        return jsonify({'code': 200, **warning})
     return jsonify(dict(description='OK', code=200))
 
 
@@ -517,11 +515,7 @@ def update_application(application_id):
     try:
         application = get_application(application_id)
         json = request.get_json()
-        if json.get("validation_date"):
-            json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
-        json["organization_id"] = get_organization_by_name(json["organization_name"])
-        if json.get("access_url"):
-            json["access_url"] = url_normalize(json["access_url"])
+        normalize_application(json)
         application.update_from_dict(json)
         db.session.commit()
         db.session.refresh(application)
@@ -574,3 +568,13 @@ def delete_application(application_id):
         raise BadRequest(
             f"Impossible de supprimer cette application, vérifier que celle-ci n'héberge aucunes données avant la suppression.\n"
             f"La donnée \'{source.name}\' semble toujours hébergée par l'application ")
+
+
+def normalize_application(json):
+    if json.get("validation_date"):
+        timestamp = parse(json["validation_date"])
+        corrected_timezone = timestamp.replace(tzinfo=timezone.utc).astimezone(tz=None)
+        json["validation_date"] = corrected_timezone.date()
+    json["organization_id"] = get_organization_by_name(json["organization_name"])
+    if json.get("access_url"):
+        json["access_url"] = url_normalize(json["access_url"])

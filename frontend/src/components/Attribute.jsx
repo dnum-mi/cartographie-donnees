@@ -9,6 +9,7 @@ import { commonDefaultProps } from "./attributes/attributeDefaultProps";
 import { commonPropTypes } from "./attributes/attributePropTypes";
 import ApplicationAttribute from "./attributes/ApplicationAttribute";
 import withTooltips from "../hoc/tooltips/withTooltips";
+import DateAttribute from "./attributes/DateAttribute";
 
 class Attribute extends React.Component {
 
@@ -22,6 +23,8 @@ class Attribute extends React.Component {
         return <TagAttribute {...this.props} />
       case 'application':
         return <ApplicationAttribute {...this.props} />
+      case 'date':
+        return <DateAttribute {...this.props} />
       default:
         return null;
     }

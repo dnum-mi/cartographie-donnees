@@ -23,7 +23,7 @@ field_english_to_french_dic = {
     "monthly_volumetry_comment": "Commentaire sur la  production par mois",
     "update_frequency_name": "Mise à jour",
     "conservation": "Conservation",
-    "classification_name": "Axes d'analyse",
+    "analysis_axis_name": "Axes d'analyse",
     "exposition_name": "Exposition",
     "origin_name": "Origine",
     "created_at": "Date de création",
@@ -60,7 +60,18 @@ field_english_to_french_dic = {
     "referentiel_count":"Nombre de référentiels utilisés",
     "reutilization_count":"Nombre de réutilisations",
     "application_description_level":"Niveau de description de l'application",
-    "datasource_description_level":"Niveau de description des données"
+    "datasource_description_level":"Niveau de description des données",
+    "text_query": "Recherche textuelle",
+    "text_operator": "Type de recherche textuelle",
+    "exclusion": "Exclusion",
+    "filters_query": "Filtre",
+    "date": "Date",
+    "pathname": "URL",
+    "subpath": "Complément d'URL",
+    "search": "Recherche",
+    "is_general_admin": "Administrateur général?",
+    "is_simple_admin": "Administrateur?",
+
 }
 
 field_french_to_english_dic = {
@@ -88,7 +99,7 @@ field_french_to_english_dic = {
     "Commentaire sur la  production par mois": "monthly_volumetry_comment",
     "Mise à jour": "update_frequency_name",
     "Conservation": "conservation",
-    "Axes d'analyse": "classification_name",
+    "Axes d'analyse": "analysis_axis_name",
     "Exposition": "exposition_name",
     "Origine": "origin_name",
     "Date de création": "created_at",
@@ -140,7 +151,7 @@ enumeration_french_to_english = {
     "Origine": "origin",
     "Exposition": "exposition",
     "Organisation": "organization",
-    "Axes d'analyse": "classification"
+    "Axes d'analyse": "analysis_axis"
 }
 
 enumeration_english_to_french = {
@@ -153,7 +164,7 @@ enumeration_english_to_french = {
     "origin": "Origine",
     "type": "Type",
     "exposition": "Exposition",
-    "classification": "Axes d'analyse",
+    "analysis_axis": "Axes d'analyse",
     "organization": "Organisation"
 }
 
@@ -181,7 +192,7 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'monthly_volumetry_comment',
     'update_frequency_name',
     'conservation',
-    'classification_name',
+    'analysis_axis_name',
     'exposition_name',
     'origin_name',
     'origin_applications',

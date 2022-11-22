@@ -1,7 +1,7 @@
 from collections import defaultdict
 from werkzeug.exceptions import BadRequest
-from flask import jsonify, request, abort
-from flask_login import login_required, current_user
+from flask import jsonify, request
+from flask_login import login_required
 
 from app import db
 from app.decorators import admin_required
@@ -19,8 +19,7 @@ from . import api
 def create_update_wildcards():
     try:
         json = request.get_json(force=True)
-        print(json)
-        data = json.get("data",[])
+        data = json.get("data", [])
         wild_cards = []
 
         for item in data:
