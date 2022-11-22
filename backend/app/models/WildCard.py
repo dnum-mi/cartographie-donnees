@@ -1,16 +1,18 @@
 from app import db
 from app.models import BaseModel
+from app.constants import field_english_to_french_dic, WILDCARDS_LABELS
+
 
 class WildCard(BaseModel):
-    namespace = db.Column(db.String, nullable=False, primary_key = True)
-    key = db.Column(db.String, nullable=False, primary_key = True)
+    namespace = db.Column(db.String, nullable=False, primary_key=True)
+    key = db.Column(db.String, nullable=False, primary_key=True)
     value = db.Column(db.String)
 
     def from_dict(data):
         wild_card = WildCard(
-            namespace= data.get("namespace"),
-            key= data.get("key"),
-            value= data.get("value")
+            namespace=data.get("namespace"),
+            key=data.get("key"),
+            value=data.get("value")
         )
         return wild_card
 
@@ -20,7 +22,6 @@ class WildCard(BaseModel):
             'key': self.key,
             'value': self.value
         }
-
         return result
 
     def update_from_dict(self, data):
@@ -30,4 +31,13 @@ class WildCard(BaseModel):
 
     def to_export(self):
         wild_card_dict = self.to_dict()
-        return wild_card_dict
+        wild_card_dict["label"] = field_english_to_french_dic.get(
+            wild_card_dict["key"], WILDCARDS_LABELS.get(wild_card_dict["key"], "Libellé non défini")
+        )
+        # Reorder columns for csv
+        return {
+            "namespace": wild_card_dict["namespace"],
+            "key": wild_card_dict["key"],
+            "label": wild_card_dict["label"],
+            "value": wild_card_dict["value"]
+        }
