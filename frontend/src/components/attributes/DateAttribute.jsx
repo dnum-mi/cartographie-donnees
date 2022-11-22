@@ -108,7 +108,7 @@ class DateAttribute extends React.Component {
     const spinning = !!this.props.textEditDisabledIfApplicationNotSelected && !!this.props.applicationSimulatedLoading
 
     input = (
-        <DatePicker format={dateFormat}/>
+        <DatePicker format={dateFormat} style={{ width: '100%' }} />
     )
 
     const initialValue = this.props.value == null ? null : moment(this.props.value, dateFormat)
