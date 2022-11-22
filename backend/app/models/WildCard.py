@@ -41,3 +41,11 @@ class WildCard(BaseModel):
             "label": wild_card_dict["label"],
             "value": wild_card_dict["value"]
         }
+
+    @classmethod
+    def filter_import_dict(cls, import_dict):
+        new_import_dict = super().filter_import_dict(import_dict)
+        # we need to remove these keys because they do not have setters (but can still be exported)
+        if "label" in new_import_dict:
+            del new_import_dict["label"]
+        return new_import_dict
