@@ -75,11 +75,11 @@ class AdminPage extends React.Component {
                         Paramètres
                     </Menu.Item>
                 )}
-                {this.props.user.is_admin && (
+                {/*{this.props.user.is_admin && (
                     <Menu.Item key="kpi">
                         KPI
                     </Menu.Item>
-                )}
+                )}*/}
 
             </Menu>
         );
