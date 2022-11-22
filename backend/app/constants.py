@@ -54,13 +54,13 @@ field_english_to_french_dic = {
     'data_source_count': 'Nombre de données',
     "is_reference": "Donnée référentielle",
     "long_name": "Nom long",
-    "key":"clé",
-    "namespace":"namespace",
-    "value":"valeur",
-    "referentiel_count":"Nombre de référentiels utilisés",
-    "reutilization_count":"Nombre de réutilisations",
-    "application_description_level":"Niveau de description de l'application",
-    "datasource_description_level":"Niveau de description des données",
+    "key": "Clé",
+    "namespace": "Namespace",
+    "value": "Contenu",
+    "referentiel_count": "Nombre de référentiels utilisés",
+    "reutilization_count": "Nombre de réutilisations",
+    "application_description_level": "Niveau de description de l'application",
+    "datasource_description_level": "Niveau de description des données",
     "text_query": "Recherche textuelle",
     "text_operator": "Type de recherche textuelle",
     "exclusion": "Exclusion",
@@ -71,7 +71,6 @@ field_english_to_french_dic = {
     "search": "Recherche",
     "is_general_admin": "Administrateur général?",
     "is_simple_admin": "Administrateur?",
-
 }
 
 field_french_to_english_dic = {
@@ -130,15 +129,14 @@ field_french_to_english_dic = {
     'Nombre de données': 'data_source_count',
     "Donnée référentielle": "is_reference",
     "Nom long": "long_name",
-    "clé":"key",
-    "namespace":"namespace",
-    "valeur":"value",
-    "Nombre de référentiels utilisés":"referentiel_count",
-    "Nombre de réutilisations":"reutilization_count",
-    "Niveau de description de l'application":"application_description_level",
-    "Niveau de description des données":"datasource_description_level"
+    "Clé": "key",
+    "Namespace": "namespace",
+    "Contenu": "value",
+    "Nombre de référentiels utilisés": "referentiel_count",
+    "Nombre de réutilisations": "reutilization_count",
+    "Niveau de description de l'application": "application_description_level",
+    "Niveau de description des données": "datasource_description_level",
 }
-
 
 enumeration_french_to_english = {
     "Tag": "tag",
@@ -199,4 +197,23 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'is_reference'
 ]
 
-DATASOURCE_ID_NO_COMMENT =  [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if (field not in ['volumetry_comment','monthly_volumetry_comment', 'is_reference'])]
+WILDCARDS_LABELS = {
+    "welcome_title": "Titre d'accueil",
+    "app_title": "Titre de l'application",
+    "welcome_text": "Texte d'accueil",
+    "origin_applications": "Applications sources",
+    "application_context_email": "Contact",
+    "application_goals": "Finalité de l'application",
+    "application_historic": "Historique",
+    "application_long_name": "Nom détaillé de l'application",
+    "application_monthly_connection_count": "Nombre de connexions mensuelles",
+    "application_name": "Nom de l'application",
+    "application_operator_count": "Nombre d'opérateurs",
+    "application_organization": "Organisation",
+    "application_select": "Choix d'Application",
+    "application_user_count": "Nombre d'utilisateurs",
+    "application_validation_date": "Date de validation",
+}
+
+DATASOURCE_ID_NO_COMMENT = [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
+                            (field not in ['volumetry_comment', 'monthly_volumetry_comment', 'is_reference'])]

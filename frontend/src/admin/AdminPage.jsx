@@ -216,12 +216,16 @@ class AdminPage extends React.Component {
                     </ul>
                     <p>
                         Les paramètres peuvent être entièrement importés par un administrateur général depuis le bouton
-                        "import" de la page administration des paramètres. Chaque paramètre est stocké en base de données
-                        avec un identifiant composé d'une catégorie et d'une clé prédéfinie.
-                        Pour conserver les paramètres et leur identifiant associé, il est conseillé de sauvegarder préalablement
-                        les paramètres de l'outil via le bouton "export" car l'ensemble des paramètres sera écrasé lors de l’import.
-                        La liste des paramètres étant fixe, si des paramètres ne sont pas importés,
-                        ils pourront toujours être modifiés plus tard via le bouton "Modifier les paramètres".
+                        "import" de la page administration des paramètres.
+                        Chaque paramètre est stocké en base de données avec un identifiant composé d'une catégorie
+                        "Namespace" et d'une clé prédéfinie.
+                        Pour conserver les paramètres et leur identifiant associé, il est conseillé de sauvegarder
+                        préalablement les paramètres de l'outil via le bouton "export ", car l'ensemble des paramètres
+                        sera écrasé lors de l’import.
+                        La colonne "Libellé" du fichier exporté est uniquement présente à titre indicatif et ne permet
+                        pas de modifier les libellés des paramètres via l'import.
+                        Si des paramètres ne sont pas importés, ils pourront toujours être modifiés plus tard via le
+                        bouton "Modifier les paramètres".
                     </p>
 
 

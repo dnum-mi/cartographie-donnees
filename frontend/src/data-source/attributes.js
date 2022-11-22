@@ -255,14 +255,6 @@ export default {
       attributeId: 'application_validation_date',
       label: 'Date de validation',
       type: 'date',
-    },
-    references: {
-      attributeId: 'references',
-      label: 'Références',
-      readOnly: true,
-      tagMode: 'multiple',
-      tagColor: 'blue',
-      type: 'tag'
     }
   },
 };
