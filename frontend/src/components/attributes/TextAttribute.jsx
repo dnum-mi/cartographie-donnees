@@ -103,13 +103,7 @@ class TextAttribute extends React.Component {
                 required: !!this.props.required,
                 type: "email"
             }]
-        } else if (this.props.attributeId === "application_historic") {
-            return [{
-                required: !!this.props.required,
-                len: 4,
-                message: "Une année doit être composée de 4 chiffres"
-            }]
-        } else {
+        }  else {
             return [{
                 required: !!this.props.required,
             }]
@@ -139,8 +133,14 @@ class TextAttribute extends React.Component {
                 />
             );
         } else {
-            let min_value = this.props.inputType === "number"
-                ?  0
+            const min_value = this.props.inputType === "number"
+                ?  this.props.attributeId === "application_historic"
+                    ? 1000
+                    : 0
+                : null
+
+            const max_value = this.props.attributeId === "application_historic"
+                ? 3000
                 : null
 
             input = (
@@ -150,6 +150,7 @@ class TextAttribute extends React.Component {
                     placeholder={this.props.editionPlaceholder}
                     className={this.attributeInputClassName()}
                     min={min_value}
+                    max={max_value}
                 />
             );
         }

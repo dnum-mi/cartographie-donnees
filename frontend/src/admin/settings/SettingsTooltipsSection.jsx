@@ -37,7 +37,8 @@ class SettingsTooltipsSection extends React.Component {
     }
 
     tooltipsInput = (unsorted_key_list) => {
-        let key_list = unsorted_key_list.sort(this.sort_by_label)
+        let key_list = unsorted_key_list
+        // let key_list = unsorted_key_list.sort(this.sort_by_label)
         let inputList = [];
         for (const key of key_list) {
             if (!!defaultLabels[key]) {
@@ -52,11 +53,11 @@ class SettingsTooltipsSection extends React.Component {
             <div className="SettingsTooltipsSection">
                 <h2>Info-bulles</h2>
                 <Collapse ghost>
-                    <Panel header="Applications" key="Panel_Applications">
-                        {this.tooltipsInput(applicationKeys)}
-                    </Panel>
                     <Panel header="Données" key="Panel_Datasources">
                         {this.tooltipsInput(datasourceKeys)}
+                    </Panel>
+                    <Panel header="Applications" key="Panel_Applications">
+                        {this.tooltipsInput(applicationKeys)}
                     </Panel>
                     <Panel header="Administrateurs" key="Panel_Other">
                         {this.tooltipsInput(otherKeys)}
