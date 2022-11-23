@@ -8,7 +8,7 @@ import SearchTree from "./SearchTree";
 
 import {
     searchDataSources, searchApplicationsOfDataSources, searchOrganizations, searchFamilies, searchTypes,
-    searchReferentiels, searchSensibilities, searchOpenData, searchExpositions, searchOrigins, searchClassifications,
+    searchReferentiels, searchSensibilities, searchOpenData, searchExpositions, searchOrigins, searchAnalysisAxis,
     searchTags, exportSearchDataSources, countDataSourcesByEnumeration
 } from "../api";
 import Error from "../components/Error";
@@ -48,7 +48,7 @@ class SearchPage extends React.Component {
             open_data: [],
             expositions: [],
             origins: [],
-            classifications: [],
+            analysis_axiss: [],
             tags: [],
             filtersCount: null,
             strictness: ANY_WORDS,
@@ -70,7 +70,7 @@ class SearchPage extends React.Component {
             selectedOpenData: this.stringToList(values.open_data),
             selectedExposition: this.stringToList(values.exposition),
             selectedOrigin: this.stringToList(values.origin),
-            selectedClassification: this.stringToList(values.classification),
+            selectedAnalysisAxis: this.stringToList(values.analysis_axis),
             selectedTag: this.stringToList(values.tag),
             strictness: this.readString(values.strictness, ANY_WORDS),
             toExclude: this.readString(values.toExclude, "")
@@ -88,7 +88,7 @@ class SearchPage extends React.Component {
             || this.state.selectedOpenData.length !== 0
             || this.state.selectedExposition.length !== 0
             || this.state.selectedOrigin.length !== 0
-            || this.state.selectedClassification.length !== 0
+            || this.state.selectedAnalysisAxis.length !== 0
             || this.state.selectedTag.length !== 0);
     }
 
@@ -121,7 +121,7 @@ class SearchPage extends React.Component {
             + "&application=" + this.listToString(this.state.selectedApplication) + "&referentiel=" + this.listToString(this.state.selectedReferentiel)
             + "&sensibility=" + this.listToString(this.state.selectedSensibility) + "&open_data=" + this.listToString(this.state.selectedOpenData)
             + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.listToString(this.state.selectedOrigin)
-            + "&classification=" + this.listToString(this.state.selectedClassification) + "&tag=" + this.listToString(this.state.selectedTag)
+            + "&analysis_axis=" + this.listToString(this.state.selectedAnalysisAxis) + "&tag=" + this.listToString(this.state.selectedTag)
             + "&strictness=" + this.state.strictness + "&toExclude=" + this.state.toExclude;
     }
 
@@ -175,7 +175,7 @@ class SearchPage extends React.Component {
         this.refreshOpenData(),
         this.refreshExpositions(),
         this.refreshOrigins(),
-        this.refreshClassifications(),
+        this.refreshAnalysisAxis(),
         this.refreshTags(),
     ])
     refreshFamilies = () => searchFamilies()
@@ -205,8 +205,8 @@ class SearchPage extends React.Component {
     refreshOrigins = () => searchOrigins()
         .then((response) => this.setStatePromise({ origins: response.data }));
 
-    refreshClassifications = () => searchClassifications()
-        .then((response) => this.setStatePromise({ classifications: response.data }));
+    refreshAnalysisAxis = () => searchAnalysisAxis()
+        .then((response) => this.setStatePromise({ analysis_axis: response.data }));
 
     refreshTags = () => searchTags()
         .then((response) => this.setStatePromise({ tags: response.data }));
@@ -344,7 +344,7 @@ class SearchPage extends React.Component {
                         loading={this.state.loading}
                         filterCategoryName={filters[key].categoryName}
                         treeData={this.getFilterData(key)}
-                        tooltip={this.props.tooltips.get(filters[key].attributeKey)}
+                        tooltip={this.props.tooltips.get(filters[key].tooltipKey || filters[key].attributeKey)}
                         color={filters[key].color}
                         multiple={filters[key].multiple}
                         expandedKeys={filters[key].expandedKeys}
@@ -393,6 +393,18 @@ class SearchPage extends React.Component {
             return this.renderLoading();
         } else if (this.state.homeDescription) {
             return (
+                <div className="home-description">
+                    <h3>
+                        {this.props.homepageContent["welcome_title"]}
+                    </h3>
+                    <div>
+                        {this.props.homepageContent["welcome_text"]}
+                    </div>
+                    <br />
+                    <a href={"mailto:"+this.props.homepageContent["welcome_email"]}>
+                        {this.props.homepageContent["welcome_email"]}
+                    </a>
+                </div>
                 <>
                     <div className="home-description">
                         <h3>

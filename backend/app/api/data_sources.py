@@ -10,7 +10,7 @@ from app import db
 from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
     get_enumeration_model_by_name, Origin, Tag, SearchingKPI
 from app.decorators import admin_required, admin_or_owner_required
-from app.api.enumerations import get_type_by_name, get_family_by_name, get_classification_by_name, \
+from app.api.enumerations import get_type_by_name, get_family_by_name, get_analysis_axis_by_name, \
     get_exposition_by_name, get_sensibily_by_name, get_open_data_by_name, \
     get_update_frequency_by_name, get_origin_by_name, get_tag_by_name
 from app.api.applications import get_application_by_name
@@ -149,7 +149,7 @@ def create_data_source():
         json["origin_applications"] = get_origin_applications(json.get("origin_applications"))
         json["type_id"] = get_type_by_name(json.get("type_name"))
         json["families"] = get_family_by_name(json.get("family_name"))
-        json["classifications"] = get_classification_by_name(json.get("classification_name"))
+        json["analysis_axis"] = get_analysis_axis_by_name(json.get("analysis_axis_name"))
         json["expositions"] = get_exposition_by_name(json.get("exposition_name"))
         json["sensibility_id"] = get_sensibily_by_name(json.get("sensibility_name"))
         json["open_data_id"] = get_open_data_by_name(json.get("open_data_name"))
@@ -412,7 +412,7 @@ def get_fields_values(request_args):
 
 def get_request_args_data_source(request):
     filters_list = ['family', 'type', 'organization', 'application', 'referentiel', 'sensibility', 'open_data',
-                    'exposition', 'origin', 'classification', 'tag']
+                    'exposition', 'origin', 'analysis_axis', 'tag']
 
     query = request.args.get('q', '', type=str)
     strictness = request.args.get('strictness', '', type=str)
@@ -759,8 +759,8 @@ def fetch_data_source_origins():
     return jsonify(Origin.get_tree_dict())
 
 
-@api.route('/api/data-sources/classifications', methods=['GET'])
-def fetch_data_source_classifications():
+@api.route('/api/data-sources/analysis-axis', methods=['GET'])
+def fetch_data_source_analysis_axis():
     """Obtenir les éléments de l'arbre des axes d'analyse
     ---
     get:
@@ -854,7 +854,7 @@ def update_data_source(data_source_id):
         json["application_id"] = get_application_by_name(json.get("application").get("name"))
         json["origin_applications"] = get_origin_applications(json.get("origin_applications"))
         json["families"] = get_family_by_name(json.get("family_name"))
-        json["classifications"] = get_classification_by_name(json.get("classification_name"))
+        json["analysis_axis"] = get_analysis_axis_by_name(json.get("analysis_axis_name"))
         json["reutilizations"] = get_reutilizations(json.get("reutilizations"))
         json["tags"] = get_tag_by_name(json.get("tag_name"))
         json["type_id"] = get_type_by_name(json.get("type_name"))

@@ -15,6 +15,7 @@ const filters = {
     titleKey: 'organization_long_name',
     selectedTitleKey: 'selectedOrganizationLong',
     attributeKey: 'organization_name',
+    tooltipKey: 'application_organization',
     color: 'volcano',
     tooltip: "MOA propriétaire de la donnée",
     multiple: false,
@@ -84,11 +85,11 @@ const filters = {
     tooltip: "Origine fonctionnelle de la donnée",
     multiple: false,
   },
-  classification: {
+  analysis_axis: {
     categoryName: "Axes d'analyse",
-    selectedKey: "selectedClassification",
-    listKey: 'classifications',
-    attributeKey: 'classification_name',
+    selectedKey: "selectedAnalysisAxis",
+    listKey: 'analysis_axis',
+    attributeKey: 'analysis_axis_name',
     color: 'purple',
     tooltip: "Types de référentiels utilisés pour classifier la donnée",
     multiple: true,

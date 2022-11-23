@@ -377,7 +377,7 @@ components:
           type: string
         application_name:
           type: string
-        classification_name:
+        analysis_axis_name:
           type: array
           items:
             type: string
@@ -561,7 +561,7 @@ components:
           $ref: "#/components/schemas/EnumAdditionnalProp"
         application_name:
           $ref: "#/components/schemas/EnumAdditionnalProp"
-        classification_name:
+        analysis_axis_name:
           $ref: "#/components/schemas/EnumAdditionnalProp"
         exposition_name:
           $ref: "#/components/schemas/EnumAdditionnalProp"

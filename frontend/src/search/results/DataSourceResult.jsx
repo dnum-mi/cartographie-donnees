@@ -119,11 +119,11 @@ class DataSourceResult extends React.Component {
               {this.props.dataSource.origin_name}
             </Tag>
           )) : null}
-          {this.props.dataSource.classification_name.map((tag) => (
+          {this.props.dataSource.analysis_axis_name.map((tag) => (
             <Tag
               key={tag}
               className="onHover"
-              onClick={() => this.props.onFilterSelect("selectedClassification", tag)}
+              onClick={() => this.props.onFilterSelect("selectedAnalysisAxis", tag)}
               color="purple"
             >
               {tag}
