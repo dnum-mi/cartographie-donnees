@@ -31,8 +31,8 @@ class WildCard(BaseModel):
 
     def to_export(self):
         wild_card_dict = self.to_dict()
-        wild_card_dict["label"] = field_english_to_french_dic.get(
-            wild_card_dict["key"], WILDCARDS_LABELS.get(wild_card_dict["key"], "Libellé non défini")
+        wild_card_dict["label"] = WILDCARDS_LABELS.get(
+            wild_card_dict["key"], field_english_to_french_dic.get(wild_card_dict["key"], "Libellé non défini")
         )
         # Reorder columns for csv
         return {

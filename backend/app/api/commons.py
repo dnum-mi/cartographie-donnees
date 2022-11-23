@@ -9,7 +9,7 @@ from url_normalize import url_normalize
 
 from app import db
 from app.models import SearchableMixin
-from app.constants import field_french_to_english_dic, field_english_to_french_dic, ORDERED_KEY_BY_APPEARANCE
+from app.constants import field_french_to_english_dic, field_english_to_french_dic, WILDCARDS_LABELS
 from app.exceptions import CSVFormatError
 from app.models import Application, DataSource, WildCard
 
@@ -264,11 +264,11 @@ def export_resource(resource_class, filename, items=None):
 
 
 def sort_wildcards_by_appearance(items_list):
-    ordered_list = [{}]*len(ORDERED_KEY_BY_APPEARANCE)
+    ordered_list = [{}]*len(WILDCARDS_LABELS.keys())
     for element in items_list:
         key = element["Clé"]
         try:
-            idx = ORDERED_KEY_BY_APPEARANCE.index(key)
+            idx = list(WILDCARDS_LABELS.keys()).index(key)
             ordered_list[idx] = element
         except ValueError:
             ordered_list.append(element)
