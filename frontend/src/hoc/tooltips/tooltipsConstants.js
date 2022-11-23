@@ -1,5 +1,4 @@
 import attributes from "../../data-source/attributes"
-import filters from "../../filters";
 const _ = require('lodash');
 
 /*
@@ -14,15 +13,6 @@ let datasourceKeys = [];
 let applicationKeys = [];
 let otherKeys = [];
 
-// Filters tooltips
-for (let value of Object.values(filters)) {
-    defaultTooltips[value.attributeKey] = "";
-    defaultLabels[value.attributeKey] = value.categoryName;
-    if (value.attributeKey !== "application_name" && value.attributeKey !== "organization_name") {
-        // application_name and organization_name already in attribute.js
-        datasourceKeys.push(value.attributeKey)
-    }
-}
 
 // Datasources tooltips
 for (let value of Object.values(_.omit(attributes, "application"))) {
@@ -36,7 +26,11 @@ for (let value of Object.values(_.omit(attributes, "application"))) {
         datasourceKeys.push(value.suffixAttributeId)
     }
 }
-datasourceKeys = _.uniq(datasourceKeys)
+
+// Add referentiel_name
+defaultTooltips["referentiel_name"] = "";
+defaultLabels["referentiel_name"] = "Référentiel";
+datasourceKeys.push("referentiel_name")
 
 // Application tooltips
 for (let value of Object.values(attributes.application)) {
