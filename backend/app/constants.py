@@ -201,6 +201,7 @@ WILDCARDS_LABELS = {
     "welcome_title": "Titre d'accueil",
     "app_title": "Titre de l'application",
     "welcome_text": "Texte d'accueil",
+    "welcome_email": "Adresse mail de contact",
     "origin_applications": "Applications sources",
     "application_context_email": "Contact",
     "application_goals": "Finalité de l'application",
@@ -214,6 +215,61 @@ WILDCARDS_LABELS = {
     "application_user_count": "Nombre d'utilisateurs",
     "application_validation_date": "Date de validation",
 }
+
+ORDERED_KEY_BY_APPEARANCE = [
+    # Welcome page
+    "welcome_title",
+    "app_title",
+    "welcome_text",
+    "welcome_email",
+    # Datasources
+    'name',
+    'description',
+    'example',
+    'family_name', 'analysis_axis_name',
+    'type_name',
+    'is_reference',
+    'origin_name',
+    'origin_applications',
+    'open_data_name',
+    'exposition_name',
+    'sensibility_name',
+    'tag_name',
+    'volumetry',
+    'volumetry_comment',
+    'monthly_volumetry',
+    'monthly_volumetry_comment',
+    'update_frequency_name',
+    'conservation',
+    'database_name',
+    'database_table_name',
+    'database_table_count',
+    'fields',
+    'field_count',
+    'referentiel_name',
+    # Applications
+    'application_goals',
+    'application_name',
+    'application_long_name',
+    'access_url',
+    'application_organization',
+    'application_context_email',
+    'data_source_count',
+    'application_operator_count',
+    'operator_count_comment',
+    'application_user_count',
+    'user_count_comment',
+    'application_monthly_connection_count',
+    'monthly_connection_count_comment',
+    'application_historic',
+    'application_validation_date',
+    'application_select',
+    # Admin
+    "first_name",
+    "last_name",
+    "email",
+    "is_admin"
+]
 
 DATASOURCE_ID_NO_COMMENT = [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
                             (field not in ['volumetry_comment', 'monthly_volumetry_comment', 'is_reference'])]

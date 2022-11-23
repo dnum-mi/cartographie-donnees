@@ -49,7 +49,6 @@ class SettingsTooltipsSection extends React.Component {
     }
 
     render() {
-        console.log(datasourceKeys)
         return (
             <div className="SettingsTooltipsSection">
                 <h2>Info-bulles</h2>

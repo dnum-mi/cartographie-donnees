@@ -1,6 +1,5 @@
 import React from 'react';
-import { Col, Row, Button, Form, Input} from "antd";
-import {fetchWildCards} from "../../api";
+import {Form, Input} from "antd";
 
 import './SettingsHomepageSection.css';
 
@@ -36,9 +35,9 @@ class SettingsHomepageSection extends React.Component {
                         {this.createTextArea("welcome_title", "Titre d'accueil")}
                         {this.createTextArea("welcome_text", "Texte d'accueil")}
                         <Form.Item 
-                        name ="homepage/email" 
+                        name ="homepage/welcome_email"
                         label="Adresse mail de contact"
-                        initialValue={this.props.homepageContent["email"]} 
+                        initialValue={this.props.homepageContent["welcome_email"]}
                         rules={[{type: 'email'}]}>
                             <Input 
                             disabled={!this.props.editMode} 
