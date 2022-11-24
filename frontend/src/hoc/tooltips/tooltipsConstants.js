@@ -1,6 +1,11 @@
 import attributes from "../../data-source/attributes"
-import filters from "../../filters";
 const _ = require('lodash');
+
+/*
+Create default tooltips dictionary with all keys
+Define labels/translation
+Define settings sections (datasource, application, other)
+ */
 
 let defaultTooltips = {};
 let defaultLabels = {};
@@ -8,14 +13,6 @@ let datasourceKeys = [];
 let applicationKeys = [];
 let otherKeys = [];
 
-// Filters tooltips
-for (let value of Object.values(filters)) {
-    defaultTooltips[value.attributeKey] = "";
-    defaultLabels[value.attributeKey] = value.categoryName;
-    if (value.attributeKey != "application_name") {
-        datasourceKeys.push(value.attributeKey)
-    }
-}
 
 // Datasources tooltips
 for (let value of Object.values(_.omit(attributes, "application"))) {
@@ -29,7 +26,11 @@ for (let value of Object.values(_.omit(attributes, "application"))) {
         datasourceKeys.push(value.suffixAttributeId)
     }
 }
-datasourceKeys = _.uniq(datasourceKeys)
+
+// Add referentiel_name
+defaultTooltips["referentiel_name"] = "";
+defaultLabels["referentiel_name"] = "Référentiel";
+datasourceKeys.push("referentiel_name")
 
 // Application tooltips
 for (let value of Object.values(attributes.application)) {
@@ -65,7 +66,7 @@ _.assign(defaultLabels, {
     "first_name": "Prénom",
     "last_name": "Nom",
     "email": "Email",
-    "is_admin": "Administrateur ?",
+    "is_admin": "Administrateur général",
     "application_select": "Choix d'Application",
 })
 
@@ -80,7 +81,7 @@ export default defaultTooltips
 //     "description": "Description fonctionnelle de la donnée",
 //     "example": "Exemple de donnée",
 //     "family_name": "Famille fonctionnelle de la donnée",
-//     "classification_name": "Types de référentiels utilisés pour classifier la donnée",
+//     "analysis_axis_name": "Types de référentiels utilisés pour classifier la donnée",
 //     "type_name": "Type de la donnée",
 //     "is_reference": "xxxxx",
 //     "origin_name": "Origine fonctionnelle de la donnée",
@@ -124,7 +125,7 @@ export default defaultTooltips
 //     "description",
 //     "example",
 //     "family_name",
-//     "classification_name",
+//     "analysis_axis_name",
 //     "type_name",
 //     "is_reference",
 //     "origin_name",

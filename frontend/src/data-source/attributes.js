@@ -28,8 +28,8 @@ export default {
     tagDisplayMode: 'tag',
     required: true
   },
-  classification_name: {
-    attributeId: 'classification_name',
+  analysis_axis_name: {
+    attributeId: 'analysis_axis_name',
     label: "Axes d'analyse",
     type: 'tag',
     tagMode: 'multiple',
@@ -107,6 +107,7 @@ export default {
     attributeId: 'volumetry',
     label: "Volumétrie",
     type: 'text',
+    inputType: 'number',
     hasSuffixValue: true,
     suffixAttributeId: 'volumetry_comment',
     suffixAttributeLabel: 'Commentaire sur la volumétrie',
@@ -115,6 +116,7 @@ export default {
     attributeId: 'monthly_volumetry',
     label: "Production par mois",
     type: 'text',
+    inputType: 'number',
     hasSuffixValue: true,
     suffixAttributeId: 'monthly_volumetry_comment',
     suffixAttributeLabel: 'Commentaire sur la production par mois',
@@ -254,15 +256,7 @@ export default {
     validation_date: {
       attributeId: 'application_validation_date',
       label: 'Date de validation',
-      type: 'text',
-    },
-    references: {
-      attributeId: 'references',
-      label: 'Références',
-      readOnly: true,
-      tagMode: 'multiple',
-      tagColor: 'blue',
-      type: 'tag'
+      type: 'date',
     }
   },
 };

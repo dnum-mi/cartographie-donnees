@@ -9,9 +9,9 @@ from url_normalize import url_normalize
 
 from app import db
 from app.models import SearchableMixin
-from app.constants import field_french_to_english_dic, field_english_to_french_dic
+from app.constants import field_french_to_english_dic, field_english_to_french_dic, WILDCARDS_LABELS
 from app.exceptions import CSVFormatError
-from app.models import Application, DataSource
+from app.models import Application, DataSource, WildCard
 
 
 def typed_value_from_string(value):
@@ -232,6 +232,9 @@ def export_resource(resource_class, filename, items=None):
     # Translate the keys in french
     items_list = [{field_english_to_french_dic[key]: value for key, value in dic.items()} for dic in items_list]
 
+    if resource_class is WildCard:
+        items_list = sort_wildcards_by_appearance(items_list)
+
     # Write the temporary CSV file in Windows Excel encoding on the given path
     path = 'app/{}'.format(filename)
     if not items_list:
@@ -258,3 +261,17 @@ def export_resource(resource_class, filename, items=None):
         attachment_filename=filename,
         cache_timeout=0,
     )
+
+
+def sort_wildcards_by_appearance(items_list):
+    ordered_list = [{}]*len(WILDCARDS_LABELS.keys())
+    for element in items_list:
+        key = element["Clé"]
+        try:
+            idx = list(WILDCARDS_LABELS.keys()).index(key)
+            ordered_list[idx] = element
+        except ValueError:
+            ordered_list.append(element)
+    return ordered_list
+
+

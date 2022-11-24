@@ -179,13 +179,13 @@ class ApplicationsList extends React.Component {
                             Créer une application
                         </Button>
                     </Link>
-                    <Button onClick={this.export} icon={<DownloadOutlined />} type="default">Export</Button>
+                    <Button onClick={this.export} icon={<UploadOutlined />} type="default">Export</Button>
                     <Upload
                         customRequest={this.uploadfile.bind(this)}
                         maxCount={1}
                         showUploadList={false}
                     >
-                        <Button icon={<UploadOutlined />} type="default">Import</Button>
+                        <Button icon={<DownloadOutlined />} type="default">Import</Button>
                     </Upload>
                 </div>
                 )}

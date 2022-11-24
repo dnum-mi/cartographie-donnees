@@ -80,7 +80,7 @@ class UserUpdate extends React.Component {
                     <h1>
                         Mise à jour de l'administrateur
                     </h1>
-                    {this.state.error && <Error error={this.state.error} />}
+                    <Error error={this.state.error} />
                     <div>
                         <UserForm
                             user={this.state.user}

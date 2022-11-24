@@ -32,7 +32,7 @@
         },
         {
             "namespace": "tooltips",
-            "key": "classification_name",
+            "key": "analysis_axis_name",
             "value": "Types de référentiels utilisés pour classifier la donnée"
         },
         {
@@ -179,11 +179,6 @@
             "namespace": "tooltips",
             "key": "application_validation_date",
             "value": "Validité de la présente cartographie pour publication"
-        },
-        {
-            "namespace": "tooltips",
-            "key": "references",
-            "value": "xxxx"
         },
         {
             "namespace": "tooltips",

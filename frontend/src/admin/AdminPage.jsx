@@ -8,6 +8,7 @@ import EnumerationsRouter from "./enumerations/EnumerationsRouter";
 import UsersRouter from "./users/UsersRouter";
 import SettingsRouter from "./settings/SettingsRouter";
 import {countApplication, countDataSource, countUser} from '../api';
+import KPIPage from "./KPI/KpiPage";
 
 class AdminPage extends React.Component {
 
@@ -70,10 +71,15 @@ class AdminPage extends React.Component {
                 </Menu.Item>
                 )}
                 {this.props.user.is_admin && (
-                <Menu.Item key="settings">
-                    Paramètres
-                </Menu.Item>
+                    <Menu.Item key="settings">
+                        Paramètres
+                    </Menu.Item>
                 )}
+                {/*{this.props.user.is_admin && (
+                    <Menu.Item key="kpi">
+                        KPI
+                    </Menu.Item>
+                )}*/}
 
             </Menu>
         );
@@ -118,6 +124,14 @@ class AdminPage extends React.Component {
                     <SettingsRouter updateHomepage = {this.props.updateHomepage} homepageContent= {this.props.homepageContent}/>
                 </Route>
                 )}
+                {this.props.user.is_admin && (
+                    <Route
+                        key="kpi"
+                        path={this.props.match.url + '/kpi'}
+                    >
+                        <KPIPage/>
+                    </Route>
+                )}
 
                 <Route
                     key="root"
@@ -138,9 +152,8 @@ class AdminPage extends React.Component {
                     </p>
                     <p>
                         Le moteur de recherche prend en compte les attributs suivants pour déterminer les données
-                        pertinentes: Nom de la donnée, Description, Familles, Axes d'analyse, Type, Référentiel,
-                        Sensibilité, Open data, Exposition, Origine, Nom de l’application, Nom long de l'application,
-                        Organisation, Nom long de l'organisation, Finalités de l’application, Tags.
+                        pertinentes : Nom de la donnée, Description, Familles, Axes d'analyse, Type, Nom de l’application,
+                        Nom long de l'application, Organisation, Nom long de l'organisation, Finalités de l’application, Tags.
                     </p>
 
                     <h3>
@@ -186,8 +199,8 @@ class AdminPage extends React.Component {
                         "import" de la page administration des administrateurs. Pour importer les administrateurs, il faut
                         s'assurer qu'aucune donnée et qu'aucune application ne soit encore présente. Pour cela,
                         il est conseillé d'importer un fichier de données ne contenant que les en-têtes puis un fichier
-                        d'application ne contenant que les en-têtes. Les données et applications seront supprimées.
-                        Les administrateurs seront tous supprimés avant d’importer les nouveaux administrateurs.
+                        d'application ne contenant que les en-têtes. Les administrateurs seront tous supprimés avant
+                        d’importer les nouveaux administrateurs.
                     </p>
 
                     <h3>
@@ -203,12 +216,16 @@ class AdminPage extends React.Component {
                     </ul>
                     <p>
                         Les paramètres peuvent être entièrement importés par un administrateur général depuis le bouton
-                        "import" de la page administration des paramètres. Chaque paramètre est stocké en base de données
-                        avec un identifiant composé d'une catégorie et d'une clé prédéfinie.
-                        Pour conserver les paramètres et leur identifiant associé, il est conseillé de sauvegarder préalablement
-                        les paramètres de l'outil via le bouton "export" car l'ensemble des paramètres sera écrasé lors de l’import.
-                        La liste des paramètres étant fixe, si des paramètres ne sont pas importés,
-                        ils pourront toujours être modifiés plus tard via le bouton "Modifier les paramètres".
+                        "import" de la page administration des paramètres.
+                        Chaque paramètre est stocké en base de données avec un identifiant composé d'une catégorie
+                        "Namespace" et d'une clé prédéfinie.
+                        Pour conserver les paramètres et leur identifiant associé, il est conseillé de sauvegarder
+                        préalablement les paramètres de l'outil via le bouton "export ", car l'ensemble des paramètres
+                        sera écrasé lors de l’import.
+                        La colonne "Libellé" du fichier exporté est uniquement présente à titre indicatif et ne permet
+                        pas de modifier les libellés des paramètres via l'import.
+                        Si des paramètres ne sont pas importés, ils pourront toujours être modifiés plus tard via le
+                        bouton "Modifier les paramètres".
                     </p>
 
 
@@ -235,6 +252,51 @@ class AdminPage extends React.Component {
                         Les paramètres sont indépendants des autres données de l'outil et ne sont donc pas affectés par ces procédures.
                         Ils peuvent donc être complètements modifiés/importés séparément.
                     </p>
+                    <h3>
+                        Identification des doublons dans l'import
+                    </h3>
+                    <p>
+                        A l'import des applications et des données, des doublons peuvent être identifiés.
+                        Si c'est le cas, les données seront tout de même importées, l'administrateur général sera averti
+                        et il poura modifier manuellement les données importées si besoin.
+                    </p>
+                    <p>
+                        Deux applications sont considérées en doublons si leurs noms sont sémantiquement proches. Deux
+                        données sont considérées en doublon si elles appartiennent à une même application et que leurs
+                        noms sont sémantiquement proches.
+                    </p>
+                    <p>
+                        Deux noms sont condérés sémantiquement proches s'ils sont similaires à plus de 95%.
+                        Ce ratio est calculé en fonction du nombre de sous-parties présents dans les deux chaînes
+                        de caractères. Par exemple, les noms "Empreintes génétiques" et "Empreintes digitales"
+                        ont ratio de similarité de 73% et ne sont donc pas considérés comme proches.
+                    </p>
+                    <h3>
+                        Propriétés calculées des applications
+                    </h3>
+                    <p>
+                        Certaines propriétés, visibles à l'export des applications, sont calculées à partir d'autres
+                        informations de la base de données. Voici la liste des règles de calcul utilisées pour ces champs.
+                    </p>
+                    <ul>
+                        <li>
+                            <b>Nombre de données</b> : nombre de données qui sont dans le périmètre de cette
+                            application.
+                        </li>
+                        <li>
+                            <b>Nombre de référentiels utilisés</b> : nombre de données étant indiquées comme
+                            "Données référentielles" dans le périmètre de l'application.
+                        </li>
+                        <li>
+                            <b>Nombre de réutilisations</b> : nombre d'applications réutilisant des données qui sont
+                            dans le périmètre de l'application.
+                        </li>
+                        <li>
+                            <b>Niveau de description de l'application</b> : taux de remplissage moyen des fiches pour les
+                            données dans le périmètre de l'application. Ce taux de remplissage par fiche est calculé à partir
+                            de tous les champs visibles sur la fiche donnée.
+                        </li>
+                    </ul>
                     <h3>
                         Documentation de l'API
                     </h3>

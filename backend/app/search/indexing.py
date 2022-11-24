@@ -4,7 +4,7 @@ from flask import current_app
 def create_record_payload(model):
     return {
         field: getattr(model, field)
-        for field in model.__searchable__
+        for field in model.__search_index_fields__
     }
 
 

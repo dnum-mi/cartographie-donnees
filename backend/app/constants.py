@@ -23,7 +23,7 @@ field_english_to_french_dic = {
     "monthly_volumetry_comment": "Commentaire sur la  production par mois",
     "update_frequency_name": "Mise à jour",
     "conservation": "Conservation",
-    "classification_name": "Axes d'analyse",
+    "analysis_axis_name": "Axes d'analyse",
     "exposition_name": "Exposition",
     "origin_name": "Origine",
     "created_at": "Date de création",
@@ -54,13 +54,23 @@ field_english_to_french_dic = {
     'data_source_count': 'Nombre de données',
     "is_reference": "Donnée référentielle",
     "long_name": "Nom long",
-    "key":"clé",
-    "namespace":"namespace",
-    "value":"valeur",
-    "referentiel_count":"Nombre de référentiels utilisés",
-    "reutilization_count":"Nombre de réutilisations",
-    "application_description_level":"Niveau de description de l'application",
-    "datasource_description_level":"Niveau de description des données"
+    "key": "Clé",
+    "namespace": "Namespace",
+    "value": "Contenu",
+    "referentiel_count": "Nombre de référentiels utilisés",
+    "reutilization_count": "Nombre de réutilisations",
+    "application_description_level": "Niveau de description de l'application",
+    "datasource_description_level": "Niveau de description des données",
+    "text_query": "Recherche textuelle",
+    "text_operator": "Type de recherche textuelle",
+    "exclusion": "Exclusion",
+    "filters_query": "Filtre",
+    "date": "Date",
+    "pathname": "URL",
+    "subpath": "Complément d'URL",
+    "search": "Recherche",
+    "is_general_admin": "Administrateur général?",
+    "is_simple_admin": "Administrateur?",
 }
 
 field_french_to_english_dic = {
@@ -88,7 +98,7 @@ field_french_to_english_dic = {
     "Commentaire sur la  production par mois": "monthly_volumetry_comment",
     "Mise à jour": "update_frequency_name",
     "Conservation": "conservation",
-    "Axes d'analyse": "classification_name",
+    "Axes d'analyse": "analysis_axis_name",
     "Exposition": "exposition_name",
     "Origine": "origin_name",
     "Date de création": "created_at",
@@ -119,15 +129,14 @@ field_french_to_english_dic = {
     'Nombre de données': 'data_source_count',
     "Donnée référentielle": "is_reference",
     "Nom long": "long_name",
-    "clé":"key",
-    "namespace":"namespace",
-    "valeur":"value",
-    "Nombre de référentiels utilisés":"referentiel_count",
-    "Nombre de réutilisations":"reutilization_count",
-    "Niveau de description de l'application":"application_description_level",
-    "Niveau de description des données":"datasource_description_level"
+    "Clé": "key",
+    "Namespace": "namespace",
+    "Contenu": "value",
+    "Nombre de référentiels utilisés": "referentiel_count",
+    "Nombre de réutilisations": "reutilization_count",
+    "Niveau de description de l'application": "application_description_level",
+    "Niveau de description des données": "datasource_description_level",
 }
-
 
 enumeration_french_to_english = {
     "Tag": "tag",
@@ -140,7 +149,7 @@ enumeration_french_to_english = {
     "Origine": "origin",
     "Exposition": "exposition",
     "Organisation": "organization",
-    "Axes d'analyse": "classification"
+    "Axes d'analyse": "analysis_axis"
 }
 
 enumeration_english_to_french = {
@@ -153,7 +162,7 @@ enumeration_english_to_french = {
     "origin": "Origine",
     "type": "Type",
     "exposition": "Exposition",
-    "classification": "Axes d'analyse",
+    "analysis_axis": "Axes d'analyse",
     "organization": "Organisation"
 }
 
@@ -181,11 +190,66 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'monthly_volumetry_comment',
     'update_frequency_name',
     'conservation',
-    'classification_name',
+    'analysis_axis_name',
     'exposition_name',
     'origin_name',
     'origin_applications',
     'is_reference'
 ]
 
-DATASOURCE_ID_NO_COMMENT =  [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if (field not in ['volumetry_comment','monthly_volumetry_comment', 'is_reference'])]
+# Ordered by order of appearance on datasource page
+WILDCARDS_LABELS = {
+    "welcome_title": "Titre d'accueil",
+    "app_title": "Titre de l'application",
+    "welcome_text": "Texte d'accueil",
+    "welcome_email": "Adresse mail de contact",
+    "name": "Nom de la donnée",
+    "description": "Description",
+    "example": "Exemple",
+    "family_name": "Familles",
+    "analysis_axis_name": "Axes d'analyse",
+    "type_name": "Type",
+    "is_reference": "Donnée référentielle",
+    "origin_name": "Origine",
+    "origin_applications": "Applications sources",
+    "open_data_name": "Open Data",
+    "exposition_name": "Exposition",
+    "sensibility_name": "Sensibilité",
+    "tag_name": "Tags",
+    "volumetry": "Volumétrie",
+    "volumetry_comment": "Commentaire sur la volumétrie",
+    "monthly_volumetry": "Production par mois",
+    "monthly_volumetry_comment": "Commentaire sur la production par mois",
+    "update_frequency_name": "Fréquence de mises à jour",
+    "conservation": "Durée de conservation",
+    "database_name": "Base / index",
+    "database_table_name": "Tables",
+    "database_table_count": "Nombre de tables dans la base",
+    "fields": "Champs",
+    "field_count": "Nombre de champs dans la table",
+    "referentiel_name": "Référentiel",
+    "application_goals": "Finalité de l'application",
+    "application_name": "Nom de l'application",
+    "application_long_name": "Nom détaillé de l'application",
+    "access_url": "Site",
+    "application_organization": "Organisation",
+    "application_context_email": "Contact",
+    "data_source_count": "Nombre de données décrites",
+    "application_operator_count": "Nombre d'opérateurs",
+    "operator_count_comment": "Commentaire sur le nombre d'opérateurs",
+    "application_user_count": "Nombre d'utilisateurs",
+    "user_count_comment": "Commentaire sur le nombre d'utilisateurs",
+    "application_monthly_connection_count": "Nombre de connexions mensuelles",
+    "monthly_connection_count_comment": "Commentaire sur le nombre de connexions mensuelles",
+    "application_historic": "Historique",
+    "application_validation_date": "Date de validation",
+    "application_select": "Choix d'Application",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "Email",
+    "is_admin": "Administrateur général"
+}
+
+
+DATASOURCE_ID_NO_COMMENT = [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
+                            (field not in ['volumetry_comment', 'monthly_volumetry_comment', 'is_reference'])]

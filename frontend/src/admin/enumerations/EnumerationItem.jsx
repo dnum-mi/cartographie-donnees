@@ -38,14 +38,13 @@ class EnumerationItem extends React.Component {
                 this.setState({
                     loading: false,
                 });
-                this.props.error();
                 this.props.fetch();
             })
             .catch((error) => {
                 this.setState({
                     loading: false,
                 });
-                this.props.error(error);
+                this.props.onError(error);
                 this.props.fetch()
             });
     }
