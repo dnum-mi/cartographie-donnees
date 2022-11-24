@@ -18,7 +18,6 @@ class EnumerationCategory extends React.Component {
             newValue: '',
             newValueInputKey: Math.random(),
             items: [],
-            error:null,
         };
     }
     componentDidMount() {
@@ -41,7 +40,7 @@ class EnumerationCategory extends React.Component {
                     loading: false,
                     error,
                 });
-                this.props.error(error)
+                this.props.onError(error)
             });
     };
     createItem = () => {
@@ -57,14 +56,13 @@ class EnumerationCategory extends React.Component {
                     this.setState({
                         loading: false
                     });
-                    this.props.error()
                     this.fetchEnumerationsFromApi();
                 })
                 .catch((error) => {
                     this.setState({
                         loading: false
                     });
-                    this.props.error(error)
+                    this.props.onError(error)
                 });
         }
     };
@@ -78,14 +76,13 @@ class EnumerationCategory extends React.Component {
             this.setState({
                 loading: false
             });
-            this.props.error()
             this.fetchEnumerationsFromApi();
         })
         .catch((error) => {
             this.setState({
                 loading: false
             });
-            this.props.error(error)
+            this.props.onError(error)
         });
     }
 
@@ -102,7 +99,7 @@ class EnumerationCategory extends React.Component {
                           key={item.id}
                           item={item}
                           onDelete={this.deleteEnumerationApi}
-                          error={this.props.error}
+                          onError={this.props.onError}
                           fetch={this.fetchEnumerationsFromApi}
                         />
                     )})}
