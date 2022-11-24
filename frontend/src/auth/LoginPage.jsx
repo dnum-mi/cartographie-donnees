@@ -27,6 +27,9 @@ class LoginPage extends React.Component {
     }
 
     onFinish = ({ email, password }) => {
+        this.setState({
+            error: null,
+        });
         login(email, password)
             .then((response) => {
                 doLogin(response.data.token);
@@ -61,7 +64,7 @@ class LoginPage extends React.Component {
                     onFinishFailed={() => {}}
                     data-test="login-form"
                 >
-                <EmailField tooltip={this.props.tooltips.get("email")} required={true} name="email"/>
+                    <EmailField tooltip={this.props.tooltips.get("email")} required={true} name="email"/>
 
                     <Form.Item
                         label="Mot de passe"
@@ -87,9 +90,7 @@ class LoginPage extends React.Component {
                         </Link>
                     </Form.Item>
                 </Form>
-                <Error error={{
-                    message: 'Votre adresse email ou votre mot de passe sont incorrects.'
-                }} />
+                <Error error={this.state.error} />
             </div>
         );
     }
