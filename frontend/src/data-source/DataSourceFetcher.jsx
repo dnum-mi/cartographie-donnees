@@ -73,7 +73,7 @@ class DataSourceFetcher extends React.Component {
                         error,
                     });
                 }))
-                .then(() => this.readDataSourceFromApi())
+                .then(() => readDataSource(this.props.match.params.dataSourceId))
                 .then(() => {
                     this.setState({
                         loading: false,
@@ -100,7 +100,7 @@ class DataSourceFetcher extends React.Component {
                         error,
                     });
                 }))
-                .then(() => this.readDataSourceFromApi())
+                .then(() => this.readDataSource(this.props.match.params.dataSourceId))
                 .then(() => {
                     this.setState({
                         loading: false,
