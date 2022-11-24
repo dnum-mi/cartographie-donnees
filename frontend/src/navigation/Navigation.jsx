@@ -33,8 +33,7 @@ function Navigation({ user, homepageContent, location }) {
       </Link>
   );
   const path = location.pathname.split('/')[1];
-  const query = window.location.search;
-  const showNewSearchButton = path !== "search" || query !== '';
+  const showNewSearchButton = path !== "search";
 
   return (
     <Header className="header">
