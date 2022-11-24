@@ -258,7 +258,7 @@ class AdminPage extends React.Component {
                     <p>
                         A l'import des applications et des données, des doublons peuvent être identifiés.
                         Si c'est le cas, les données seront tout de même importées, l'administrateur général sera averti
-                        et il poura modifier manuellement les données importées si besoin.
+                        et il pourra modifier manuellement les données importées si besoin.
                     </p>
                     <p>
                         Deux applications sont considérées en doublons si leurs noms sont sémantiquement proches. Deux
@@ -266,7 +266,7 @@ class AdminPage extends React.Component {
                         noms sont sémantiquement proches.
                     </p>
                     <p>
-                        Deux noms sont condérés sémantiquement proches s'ils sont similaires à plus de 95%.
+                        Deux noms sont considérés sémantiquement proches s'ils sont similaires à plus de 95%.
                         Ce ratio est calculé en fonction du nombre de sous-parties présents dans les deux chaînes
                         de caractères. Par exemple, les noms "Empreintes génétiques" et "Empreintes digitales"
                         ont ratio de similarité de 73% et ne sont donc pas considérés comme proches.
