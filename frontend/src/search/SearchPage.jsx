@@ -16,7 +16,7 @@ import filters from "../filters";
 import Results from "./Results";
 
 import withTooltips from '../hoc/tooltips/withTooltips';
-import DataSourceResult from "./results/DataSourceResult";
+import DataSourceHighlight from "./results/DataSourceHighlight";
 
 const { Search } = Input;
 
@@ -393,18 +393,6 @@ class SearchPage extends React.Component {
             return this.renderLoading();
         } else if (this.state.homeDescription) {
             return (
-                <div className="home-description">
-                    <h3>
-                        {this.props.homepageContent["welcome_title"]}
-                    </h3>
-                    <div>
-                        {this.props.homepageContent["welcome_text"]}
-                    </div>
-                    <br />
-                    <a href={"mailto:"+this.props.homepageContent["welcome_email"]}>
-                        {this.props.homepageContent["welcome_email"]}
-                    </a>
-                </div>
                 <>
                     <div className="home-description">
                         <h3>
@@ -414,8 +402,8 @@ class SearchPage extends React.Component {
                             {this.props.homepageContent["welcome_text"]}
                         </div>
                         <br />
-                        <a href={"mailto:"+this.props.homepageContent["email"]}>
-                            {this.props.homepageContent["email"]}
+                        <a href={"mailto:"+this.props.homepageContent["welcome_email"]}>
+                            {this.props.homepageContent["welcome_email"]}
                         </a>
                     </div>
                     <div className="home-highlights">
@@ -424,7 +412,7 @@ class SearchPage extends React.Component {
                         </h3>
                         <div>
                             {this.props.dataSourceHighlights.map((dataSource) => (
-                                <DataSourceResult
+                                <DataSourceHighlight
                                   key={dataSource.id}
                                   dataSource={dataSource}
                                   onFilterSelect={(key, value) => this.addFilter(key, value)}
