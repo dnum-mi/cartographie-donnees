@@ -103,20 +103,18 @@ class DateAttribute extends React.Component {
   }
 
   writeElement() {
-    let input;
-     const dateFormat = "DD/MM/YYYY";
+    const dateFormat = "DD/MM/YYYY";
     const spinning = !!this.props.textEditDisabledIfApplicationNotSelected && !!this.props.applicationSimulatedLoading
-
-    input = (
-        <DatePicker format={dateFormat} style={{ width: '100%' }} />
-    )
-
     const initialValue = this.props.value == null ? null : moment(this.props.value, dateFormat)
     return (
       <div className="attribute-input-container">
         <Spin spinning={spinning}>
-          <Form.Item name={this.props.attributeId} initialValue={initialValue}>
-            {input}
+          <Form.Item
+            name={this.props.attributeId}
+            initialValue={initialValue}
+            getValueProps={(i) => ({ value: initialValue })}
+          >
+            <DatePicker format={dateFormat} style={{ width: '100%' }} />
           </Form.Item>
           {this.props.hasSuffixValue ? this.suffixInput() : null}
         </Spin>
