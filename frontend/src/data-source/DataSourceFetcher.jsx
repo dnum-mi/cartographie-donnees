@@ -74,8 +74,9 @@ class DataSourceFetcher extends React.Component {
                     });
                 }))
                 .then(() => readDataSource(this.props.match.params.dataSourceId))
-                .then(() => {
+                .then((response) => {
                     this.setState({
+                        dataSource: response.data,
                         loading: false,
                         editMode: false,
                     });
@@ -101,8 +102,9 @@ class DataSourceFetcher extends React.Component {
                     });
                 }))
                 .then(() => this.readDataSource(this.props.match.params.dataSourceId))
-                .then(() => {
+                .then((response) => {
                     this.setState({
+                        dataSource: response.data,
                         loading: false,
                         editMode: false,
                     });
