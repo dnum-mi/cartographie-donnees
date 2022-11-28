@@ -1,4 +1,4 @@
-# DNUM - Cartographie des données
+# Cartographie des données MI
 
 ## Bienvenue dans l'outil de cartographie des données du ministère de l'intérieur
 
