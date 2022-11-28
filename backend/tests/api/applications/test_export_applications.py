@@ -7,7 +7,7 @@ def test_export_applications(client, admin_auth_header, sample_applications, sam
     csv_data = response.data.decode('utf-8-sig')
     csv_lines = csv_data.split('\r\n')
     assert len(csv_lines) == 2 + len(sample_applications)  # Empty line at the bottom
-    assert csv_lines[0] == "Nom;Nom long;Finalités;Accès;Organisation;Contact;Nb opérateurs;" \
+    assert csv_lines[0] == "Nom;Nom long;Finalités;Site;Organisation;Contact;Nb opérateurs;" \
                            "Commentaire sur le nb d'opérateurs;Nb utilisateurs;Commentaire sur le nb utilisateurs;" \
                            "Nb connexion par mois;Commentaire sur le nb connexion par mois;Historique;" \
                            "Date de validation;Nombre de données;Nombre de référentiels utilisés;" \
