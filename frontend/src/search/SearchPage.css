@@ -77,3 +77,24 @@
 .SearchPage .search-header .download-search {
     margin-left: auto;
 }
+
+.mass-modification-section{
+    margin-bottom: 24px;
+}
+
+.mass-modification-section .ant-tag-checkable{
+    border: 1px solid #d9d9d9;
+    padding: 4px 15px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.mass-modification-section .ant-tag-checkable:hover{
+    border: 1px solid #40a9ff
+}
+
+
+.mass-modification-section .ant-tag-checkable-checked{
+    border: 1px solid transparent;
+    background-color: #1890ff;
+}
