@@ -13,7 +13,7 @@ export default class Error extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if ( this.props.error?.response?.data?.description !==  prevProps.error?.response?.data?.description) {
+        if ( this.props.error?.response?.data?.description !==  prevProps.error?.response?.data?.description || prevState.visible === false) {
             this.setState({visible: true})
         }
     }
