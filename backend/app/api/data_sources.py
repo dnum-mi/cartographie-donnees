@@ -474,8 +474,8 @@ def search_data_sources():
     ))
 
 
-@api.route('/api/data-sources/count_by_enumeration', methods=['GET'])
-def count_data_sources_by_enumeration():
+@api.route('/api/data-sources/search-metadata', methods=['GET'])
+def get_search_metadata():
     """Obtenir le décompte de données par énumération
     ---
     get:
@@ -512,10 +512,10 @@ def count_data_sources_by_enumeration():
 
     """
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
-    count_dict, total_count = DataSource.query_count(query, request_args, strictness, exclusions)
+    count_dict, total_count, datasource_ids = DataSource.query_count(query, request_args, strictness, exclusions)
     return jsonify(dict(
-        total_count=total_count,
-        results=count_dict,
+        count_by_enum=count_dict,
+        datasource_ids=datasource_ids
     ))
 
 

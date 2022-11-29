@@ -36,6 +36,7 @@ class Results extends React.Component {
                             dataSource={dataSource}
                             onFilterSelect={(key, value) => this.props.addFilter(key, value)}
                             checkable={this.props.showEditionSection}
+                            checked= {this.props.selectedDatasources[dataSource.id]}
                             onCheckDatasource={this.props.onCheckDatasource}
                         />
                     ))}

@@ -7,8 +7,8 @@ import './SearchPage.css';
 import SearchTree from "./SearchTree";
 
 import {
-    countDataSourcesByEnumeration,
     exportSearchDataSources,
+    fetchSearchMetadata,
     searchAnalysisAxis,
     searchApplicationsOfDataSources,
     searchDataSources,
@@ -20,7 +20,7 @@ import {
     searchReferentiels,
     searchSensibilities,
     searchTags,
-    searchTypes
+    searchTypes,
 } from "../api";
 import Error from "../components/Error";
 import filters from "../filters";
@@ -34,6 +34,8 @@ const {Search} = Input;
 
 const ANY_WORDS = "ANY_WORDS"
 const ALL_WORDS = "ALL_WORDS"
+
+// TODO Create an api route to mass edit
 
 class SearchPage extends React.Component {
 
@@ -66,7 +68,8 @@ class SearchPage extends React.Component {
             strictness: ANY_WORDS,
             toExlude: "",
             showEditionSection: false,
-            selectedDatasources: {}
+            selectedDatasources: {},
+            resultDatasourceIds: []
         };
         return {...state, ...this.parseQuery()}
     }
@@ -144,6 +147,7 @@ class SearchPage extends React.Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.location.search !== prevProps.location.search) {
+            this.setState({selectedDatasources:{}})
             this.launchSearch()
         }
     }
@@ -177,8 +181,11 @@ class SearchPage extends React.Component {
             total_count_data_source: response.data.total_count
         }));
 
-    refreshFilterCount = (query) => countDataSourcesByEnumeration(query || '')
-        .then((response) => this.setStatePromise({filtersCount: response.data.results}));
+    refreshFilterCount = (query) => fetchSearchMetadata(query || '')
+        .then((response) => this.setStatePromise({
+            filtersCount: response.data.count_by_enum,
+            resultDatasourceIds: response.data.datasource_ids
+        }));
 
     refreshFilters = () => Promise.all([
         this.refreshOrganizations(),
@@ -429,6 +436,7 @@ class SearchPage extends React.Component {
                             addFilter={this.addFilter}
                             showEditionSection={this.state.showEditionSection}
                             onCheckDatasource={this.onCheckDatasource}
+                            selectedDatasources={this.state.selectedDatasources}
             />;
         }
     }
@@ -532,6 +540,16 @@ class SearchPage extends React.Component {
         }
     }
 
+    onCheckUncheckAll = (checkAll=true) => {
+        const temp_datasourceIds = {}
+        if (!!checkAll) {
+            for (const datasourceId of this.state.resultDatasourceIds) {
+                temp_datasourceIds[datasourceId] = true
+            }
+        }
+        this.setState({selectedDatasources: temp_datasourceIds})
+    }
+
     getDefaultActiveKey = () => {
         if (this.state.strictness === ANY_WORDS) {
             return []
@@ -588,7 +606,10 @@ class SearchPage extends React.Component {
                 {this.props.currentUser.userIsAdmin() && !this.state.homeDescription &&
                     <MassEdition onShowModificationSection={(checked) => this.setState({showEditionSection: checked})}
                                  showEditionSection={this.state.showEditionSection}
-                                 selectedDatasources = {this.state.selectedDatasources}/>
+                                 selectedDatasources={this.state.selectedDatasources}
+                                 onCheckUncheckAll={this.onCheckUncheckAll}
+                                 totalCount = {this.state.total_count_data_source}
+                    />
                 }
                 <Divider style={{marginTop: 0}}/>
                 {this.renderDataSourcesResults()}

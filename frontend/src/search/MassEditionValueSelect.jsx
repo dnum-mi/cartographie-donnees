@@ -18,8 +18,8 @@ class MassEditionValueSelect extends React.Component {
 
 
     render() {
+        let valueSelect = <Select disabled/>
         if (!!this.props.selectedMassEditionField) {
-            let valueSelect = null
             if (this.props.selectedMassEditionField === "application") {
                 valueSelect = <ApplicationSelect limited={false}/>
             } else if (["origin_applications", "reutilizations"].includes(this.props.selectedMassEditionField)) {
@@ -37,13 +37,12 @@ class MassEditionValueSelect extends React.Component {
                     console.error("Field not found in attributes:", this.props.selectedMassEditionField)
                 }
             }
-            return (
-                <Form.Item name="massEditionValues">
-                    {valueSelect}
-                </Form.Item>
-            )
         }
-        return null
+        return (
+            <Form.Item name="massEditionValues">
+                {valueSelect}
+            </Form.Item>
+        )
     }
 }
 

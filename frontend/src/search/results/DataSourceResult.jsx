@@ -16,7 +16,7 @@ class DataSourceResult extends React.Component {
     render() {
         return (
             <div className={"DataSourceResultContainer"}>
-                {this.props.checkable && <Checkbox onChange={this.onChecked}></Checkbox>}
+                {this.props.checkable && <Checkbox checked={this.props.checked} onChange={this.onChecked}></Checkbox>}
                 <div className="DataSourceResult">
                     <Link to={'/data-source/' + this.props.dataSource.id}>
                         <h3>
@@ -161,7 +161,8 @@ DataSourceResult.propTypes = {
     dataSource: PropTypes.object.isRequired,
     onFilterSelect: PropTypes.func,
     checkable: PropTypes.bool,
-    onCheckDatasource: PropTypes.func
+    onCheckDatasource: PropTypes.func,
+    checked:PropTypes.bool
 }
 
 export default withRouter(DataSourceResult);

@@ -19,8 +19,8 @@ export const countApplication = () => axios.get(API_HOST + '/applications/count'
 export const fetchDataSources = (page, count) => axios.get(API_HOST + '/data-sources?page=' + page + '&count=' + count);
 export const searchDataSources = (location) =>
         axios.get(API_HOST + '/data-sources/search' + location);
-export const countDataSourcesByEnumeration = (location) =>
-  axios.get(API_HOST + '/data-sources/count_by_enumeration' + location);
+export const fetchSearchMetadata = (location) =>
+  axios.get(API_HOST + '/data-sources/search-metadata' + location);
 
 export const createDataSource = (dataSource) => axios.post(API_HOST + '/data-sources', dataSource);
 export const readDataSource = (dataSourceId) => axios.get(API_HOST + '/data-sources/' + dataSourceId);

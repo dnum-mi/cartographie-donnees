@@ -31,13 +31,12 @@ class MassEdition extends React.Component {
     }
 
 
-    // check onApplicationUpdate
-
     onSubmitMassEdition = (values) => {
         console.log("submit mass edition")
         console.log("modif", values)
         console.log("datasources", this.props.selectedDatasources)
     }
+
 
     render() {
         const options_attributes_id = EDITABLE_ID.map((item) => {
@@ -56,22 +55,37 @@ class MassEdition extends React.Component {
                     <div>
                         <Divider/>
                         <Form name="massEditionForm"
-                              ref = {this.formRef}
+                              ref={this.formRef}
                               className={"mass-edition-form"}
                               onFinish={this.onSubmitMassEdition}>
-                            <Form.Item name="massEditionField">
+                            <Form.Item name="massEditionField"
+                                       rules={[
+                                           {
+                                               required: true,
+                                               message: 'Merci de renseigner le champ à modifier',
+                                           },
+                                       ]}>
                                 <Select options={options_attributes_id}
                                         onSelect={this.onSelectField}
                                         placeholder="Champ à modifier"/>
                             </Form.Item>
                             <MassEditionValueSelect selectedMassEditionField={this.state.selectedMassEditionField}/>
-                            <Button type="primary" htmlType="submit" icon={<CheckOutlined/>}>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                icon={<CheckOutlined/>}>
                                 Valider les modifications
                             </Button>
                         </Form>
                         <p>
                             Données sélectionnées: {Object.keys(this.props.selectedDatasources).length}
-                            <Button>Tout cocher</Button>
+                            <CheckableTag
+                                checked={Object.keys(this.props.selectedDatasources).length === this.props.totalCount}
+                                onChange={this.props.onCheckUncheckAll}>
+                                {Object.keys(this.props.selectedDatasources).length === this.props.totalCount
+                                    ? "Tout décocher"
+                                    : "Tout cocher"}
+                            </CheckableTag>
                         </p>
                     </div>
                 }

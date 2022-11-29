@@ -219,7 +219,8 @@ def query_count(
     current_app.logger.info(f'Number of results : {search["hits"]["total"]}')
 
     # Count occurences of each enum value
-    datasource_gen = [element["_source"] for element in search["hits"]["hits"]]
+    datasource_gen = (element["_source"] for element in search["hits"]["hits"])
+    datasource_ids = [element["_id"] for element in search["hits"]["hits"]]
     count_dict = {enumeration:{} for enumeration in enumerations}
     break_char = " > "
 
@@ -246,6 +247,6 @@ def query_count(
                     for enum_name in cum_split:
                         count_dict[enumeration][enum_name]=count_dict[enumeration].get(enum_name,0)+1
 
-    return count_dict, search['hits']['total']
+    return count_dict, search['hits']['total'], datasource_ids
 
 
