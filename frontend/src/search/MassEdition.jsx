@@ -18,16 +18,12 @@ class MassEdition extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            showModificationSection: false,
             selectedMassEditionField: null,
         }
     }
 
     formRef = React.createRef();
 
-    onShowModificationSection = (checked) => {
-        this.setState({showModificationSection: checked})
-    }
 
     onSelectField = (fieldId) => {
         this.setState({selectedMassEditionField: fieldId})
@@ -38,7 +34,9 @@ class MassEdition extends React.Component {
     // check onApplicationUpdate
 
     onSubmitMassEdition = (values) => {
-        console.log(values)
+        console.log("submit mass edition")
+        console.log("modif", values)
+        console.log("datasources", this.props.selectedDatasources)
     }
 
     render() {
@@ -50,11 +48,11 @@ class MassEdition extends React.Component {
 
         return (
             <div className={"mass-edition"}>
-                <CheckableTag checked={this.state.showModificationSection}
-                              onChange={this.onShowModificationSection}>
+                <CheckableTag checked={this.props.showEditionSection}
+                              onChange={this.props.onShowModificationSection}>
                     Modifier les données
                 </CheckableTag>
-                {this.state.showModificationSection &&
+                {this.props.showEditionSection &&
                     <div>
                         <Divider/>
                         <Form name="massEditionForm"
@@ -72,7 +70,7 @@ class MassEdition extends React.Component {
                             </Button>
                         </Form>
                         <p>
-                            Données sélectionnées: TBD
+                            Données sélectionnées: {Object.keys(this.props.selectedDatasources).length}
                             <Button>Tout cocher</Button>
                         </p>
                     </div>

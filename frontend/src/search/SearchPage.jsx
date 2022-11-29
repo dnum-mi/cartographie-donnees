@@ -65,6 +65,8 @@ class SearchPage extends React.Component {
             filtersCount: null,
             strictness: ANY_WORDS,
             toExlude: "",
+            showEditionSection: false,
+            selectedDatasources: {}
         };
         return {...state, ...this.parseQuery()}
     }
@@ -425,6 +427,8 @@ class SearchPage extends React.Component {
                             total_count_data_source={this.state.total_count_data_source}
                             onChangePageDataSource={this.onChangePageDataSource}
                             addFilter={this.addFilter}
+                            showEditionSection={this.state.showEditionSection}
+                            onCheckDatasource={this.onCheckDatasource}
             />;
         }
     }
@@ -517,6 +521,17 @@ class SearchPage extends React.Component {
         exportSearchDataSources("Recherche_donnees.csv", search);
     }
 
+    onCheckDatasource = (datasourceId, check) => {
+        const temp_selectedDatasources = {...this.state.selectedDatasources}
+        if (!!check) {
+            temp_selectedDatasources[datasourceId] = true
+            this.setState({selectedDatasources: temp_selectedDatasources})
+        } else {
+            delete temp_selectedDatasources[datasourceId]
+            this.setState({selectedDatasources: temp_selectedDatasources})
+        }
+    }
+
     getDefaultActiveKey = () => {
         if (this.state.strictness === ANY_WORDS) {
             return []
@@ -570,8 +585,10 @@ class SearchPage extends React.Component {
                         </Col>
                     </Row>
                 </div>
-                {this.props.currentUser.userIsAdmin()  && !this.state.homeDescription &&
-                    <MassEdition/>
+                {this.props.currentUser.userIsAdmin() && !this.state.homeDescription &&
+                    <MassEdition onShowModificationSection={(checked) => this.setState({showEditionSection: checked})}
+                                 showEditionSection={this.state.showEditionSection}
+                                 selectedDatasources = {this.state.selectedDatasources}/>
                 }
                 <Divider style={{marginTop: 0}}/>
                 {this.renderDataSourcesResults()}
