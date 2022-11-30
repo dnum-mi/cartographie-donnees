@@ -471,6 +471,9 @@ class DataSource(SearchableMixin, BaseModel):
         self.origin_applications = data.get('origin_applications')
         self.is_reference = data.get('is_reference') if data.get('is_reference') else False
 
+    def update_from_key_value(self, key, value):
+        setattr(self, key, value)
+
     @staticmethod
     def from_dict(data):
         return DataSource(

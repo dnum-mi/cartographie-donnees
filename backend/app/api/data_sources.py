@@ -392,7 +392,6 @@ def get_request_args_data_source(request):
 
 
 def add_query_to_db(index, query, request_args, strictness, exclusions):
-
     # Get elasticsearch string query tokens after analyzer
     text_separator = " "
     raw_text_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": query})["tokens"]
@@ -476,12 +475,12 @@ def search_data_sources():
 
 @api.route('/api/data-sources/search-metadata', methods=['GET'])
 def get_search_metadata():
-    """Obtenir le décompte de données par énumération
+    """Obtenir les métadata de la recherche: décompte de données par énumération et ids des données trouvées par la recherche
     ---
     get:
         tags:
             - Donnees
-        summary: Obtenir le décompte de données par énumération
+        summary: Obtenir les métadata de la recherche
 
         parameters:
             - searchQuery
@@ -505,17 +504,19 @@ def get_search_metadata():
                     schema:
                         type: object
                         properties:
-                            results:
+                            count_by_enum:
                                 $ref: "#/components/schemas/EnumCount"
-                            total_count:
-                                type: integer
+                            data_source_ids:
+                                type: array
+                                items:
+                                    type: integer
 
     """
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
-    count_dict, total_count, datasource_ids = DataSource.query_count(query, request_args, strictness, exclusions)
+    count_dict, total_count, data_source_ids = DataSource.query_count(query, request_args, strictness, exclusions)
     return jsonify(dict(
         count_by_enum=count_dict,
-        datasource_ids=datasource_ids
+        data_source_ids=data_source_ids
     ))
 
 
@@ -771,7 +772,7 @@ def read_data_source(data_source_id):
         - Donnees
       summary: Obtenir une donnée
       parameters:
-      - dataSourceId
+      - data_source_id
 
       responses:
         200:
@@ -797,7 +798,7 @@ def update_data_source(data_source_id):
       description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de modifier les données donc l'application appartenant à l'utilisateur.
 
       parameters:
-      - dataSourceId
+      - data_source_id
 
       requestBody:
           required: true
@@ -833,6 +834,120 @@ def update_data_source(data_source_id):
         DataSource.add_to_index(data_source)
         db.session.refresh(data_source)
         return jsonify(data_source.to_dict())
+    except Exception as e:
+        raise BadRequest(str(e))
+
+
+
+@api.route('/api/data-sources/mass-edition', methods=['PUT'])
+@login_required
+@admin_required
+def mass_edit_data_sources():
+    """Modifier plusieurs données
+    ---
+    put:
+      tags:
+        - Donnees
+      summary: Modifier plusieurs données
+      description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de modifier les données donc l'application appartenant à l'utilisateur.
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        data_source_ids:
+                            type: array
+                            items:
+                                type: integer
+                        edition_type:
+                            type: string
+                        key:
+                            type: string
+                        value:
+                            type: string
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        data_source_ids:
+                            type: array
+                            items:
+                                type: integer
+    """
+    try:
+        req_json = request.get_json()
+        data_source_ids = req_json["data_source_ids"]
+        json_key = req_json["key"]
+        json_value = req_json["value"]
+
+        if req_json["edition_type"] == "application":
+            raise BadRequest(f"Organisation_name edition not implemented yet")
+
+        elif req_json["edition_type"] == "datasource":
+            if json_key == "application":
+                edition_key = "application_id"
+                edition_value = get_application_by_name(json_value.get("name"))
+            elif json_key == "origin_applications":
+                edition_key = "origin_applications"
+                edition_value = get_origin_applications(json_value)
+            elif json_key == "family_name":
+                edition_key = "families"
+                edition_value = get_family_by_name(json_value)
+            elif json_key == "analysis_axis_name":
+                edition_key = "analysis_axis"
+                edition_value = get_analysis_axis_by_name(json_value)
+            elif json_key == "reutilizations":
+                edition_key = "reutilizations"
+                edition_value = get_reutilizations(json_value)
+            elif json_key == "tag_name":
+                edition_key = "tags"
+                edition_value = get_tag_by_name(json_value)
+            elif json_key == "type_name":
+                edition_key = "type_id"
+                edition_value = get_type_by_name(json_value)
+            elif json_key == "exposition_name":
+                edition_key = "expositions"
+                edition_value = get_exposition_by_name(json_value)
+            elif json_key == "sensibility_name":
+                edition_key = "sensibility_id"
+                edition_value = get_sensibily_by_name(json_value)
+            elif json_key == "open_data_name":
+                edition_key = "open_data_id"
+                edition_value = get_open_data_by_name(json_value)
+            elif json_key == "update_frequency_name":
+                edition_key = "update_frequency_id"
+                edition_value = get_update_frequency_by_name(json_value)
+            elif json_key == "origin_name":
+                edition_key = "origin_id"
+                edition_value = get_origin_by_name(json_value)
+            elif json_key == "is_reference":
+                edition_key = "is_reference"
+                edition_value = json_value
+            else:
+                raise BadRequest(f"key {json_key} is not editable in type datasource")
+
+            data_source_list = []
+            for data_source_id in data_source_ids:
+                data_source = get_data_source(data_source_id)
+                data_source.update_from_key_value(edition_key, edition_value)
+                data_source_list.append(data_source)
+                print(data_source_list)
+
+            db.session.commit()
+
+            for data_source in data_source_list:
+                DataSource.add_to_index(data_source)
+                db.session.refresh(data_source)
+            return jsonify({"data_source_ids": data_source_ids})
+
+        else:
+            raise BadRequest(f"edition_type {req_json['edition_type']} should be either datasource or application")
     except Exception as e:
         raise BadRequest(str(e))
 

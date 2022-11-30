@@ -4,6 +4,7 @@ import {CheckOutlined} from "@ant-design/icons";
 import "./MassEdition.css"
 import {defaultLabels} from "../hoc/tooltips/tooltipsConstants";
 import MassEditionValueSelect from "./MassEditionValueSelect";
+import {massEditDataSource} from "../api";
 
 const {CheckableTag} = Tag;
 const LABELS = {
@@ -12,7 +13,7 @@ const LABELS = {
     "reutilizations": "Réutilisations",
     "organization_name": "Organisation"
 }
-const EDITABLE_ID = ["family_name", "analysis_axis_name", "type_name", "is_reference", "origin_name", "origin_applications", "open_data_name", "exposition_name", "sensibility_name", "tag_name", "application", "organization_name", "reutilizations"]
+const EDITABLE_ID = ["family_name", "analysis_axis_name", "type_name", "is_reference", "origin_name", "origin_applications", "open_data_name", "exposition_name", "sensibility_name", "tag_name", "update_frequency_name", "application", "organization_name", "reutilizations"]
 
 class MassEdition extends React.Component {
     constructor(props) {
@@ -31,10 +32,23 @@ class MassEdition extends React.Component {
     }
 
 
-    onSubmitMassEdition = (values) => {
+    onSubmitMassEdition = (form_values) => {
         console.log("submit mass edition")
-        console.log("modif", values)
+        console.log("modif", form_values)
         console.log("datasources", this.props.selectedDatasources)
+
+        const key = form_values["massEditionField"]
+        const value = form_values["massEditionValues"]
+        massEditDataSource(
+            Object.keys(this.props.selectedDatasources).map(Number),
+            key === "organization_name"
+                ? "application"
+                : "datasource",
+            key,
+            value
+        ).then((res) => {
+            console.log(res)
+        })
     }
 
 

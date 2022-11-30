@@ -184,7 +184,7 @@ class SearchPage extends React.Component {
     refreshFilterCount = (query) => fetchSearchMetadata(query || '')
         .then((response) => this.setStatePromise({
             filtersCount: response.data.count_by_enum,
-            resultDatasourceIds: response.data.datasource_ids
+            resultDatasourceIds: response.data.data_source_ids
         }));
 
     refreshFilters = () => Promise.all([
