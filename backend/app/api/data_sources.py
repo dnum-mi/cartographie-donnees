@@ -12,8 +12,8 @@ from app.models import DataSource, Application, Type, Family, Organization, Expo
 from app.decorators import admin_required, admin_or_owner_required
 from app.api.enumerations import get_type_by_name, get_family_by_name, get_analysis_axis_by_name, \
     get_exposition_by_name, get_sensibily_by_name, get_open_data_by_name, \
-    get_update_frequency_by_name, get_origin_by_name, get_tag_by_name
-from app.api.applications import get_application_by_name
+    get_update_frequency_by_name, get_origin_by_name, get_tag_by_name, get_organization_by_name
+from app.api.applications import get_application_by_name, get_application
 from app.api.commons import import_resource, export_resource
 from app.exceptions import CSVFormatError
 
@@ -887,7 +887,31 @@ def mass_edit_data_sources():
         json_value = req_json["value"]
 
         if req_json["edition_type"] == "application":
-            raise BadRequest(f"Organisation_name edition not implemented yet")
+            if json_key == "organization_name":
+                edition_key = "organization_id"
+                edition_value = get_organization_by_name(json_value)
+            else:
+                raise BadRequest(f"key {json_key} is not editable in type application")
+
+            application_list = []
+            application_ids = [get_data_source(data_source_id).application_id for data_source_id in data_source_ids]
+            for application_id in application_ids:
+                application = get_application(application_id)
+                application.update_from_key_value(edition_key, edition_value)
+                application_list.append(application)
+
+            db.session.commit()
+
+            for application in application_list:
+                db.session.refresh(application)
+                # Get all datasource of application
+                # reindex them
+                data_sources = DataSource.query.filter(DataSource.application_id == application.id).all()
+                for data_source in data_sources:
+                    DataSource.add_to_index(data_source)
+                Application.add_to_index(application)
+
+            return jsonify({"application_ids": application_ids})
 
         elif req_json["edition_type"] == "datasource":
             if json_key == "application":

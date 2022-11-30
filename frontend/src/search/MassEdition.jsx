@@ -15,6 +15,9 @@ const LABELS = {
 }
 const EDITABLE_ID = ["family_name", "analysis_axis_name", "type_name", "is_reference", "origin_name", "origin_applications", "open_data_name", "exposition_name", "sensibility_name", "tag_name", "update_frequency_name", "application", "organization_name", "reutilizations"]
 
+// TODO disable submit when no datasource selected
+// TODO add rules to selectVAlues, required based on attributes.js
+
 class MassEdition extends React.Component {
     constructor(props) {
         super(props);

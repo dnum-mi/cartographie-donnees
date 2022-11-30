@@ -193,6 +193,9 @@ class Application(SearchableMixin, BaseModel):
         if "owners" in data:
             self.owners = [User.query.get(owner['id']) for owner in data.get('owners')]
 
+    def update_from_key_value(self, key, value):
+        setattr(self, key, value)
+
     @staticmethod
     def from_dict(data):
         application = Application(
