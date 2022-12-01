@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button, Layout, Space} from 'antd';
-import logo from '../Logo_MIOM.svg';
+import logo from '../logo_MIOM.svg';
 import './Navigation.css';
 import {logout} from "../api";
 import {logout as doLogout} from "../auth";
