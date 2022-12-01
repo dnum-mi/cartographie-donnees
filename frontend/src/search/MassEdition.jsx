@@ -4,9 +4,9 @@ import {CheckOutlined} from "@ant-design/icons";
 import "./MassEdition.css"
 import {defaultLabels} from "../hoc/tooltips/tooltipsConstants";
 import MassEditionValueSelect from "./MassEditionValueSelect";
-import {massEditDataSource} from "../api";
 
 const {CheckableTag} = Tag;
+
 const LABELS = {
     ...defaultLabels,
     "application": "Application",
@@ -15,8 +15,6 @@ const LABELS = {
 }
 const EDITABLE_ID = ["family_name", "analysis_axis_name", "type_name", "is_reference", "origin_name", "origin_applications", "open_data_name", "exposition_name", "sensibility_name", "tag_name", "update_frequency_name", "application", "organization_name", "reutilizations"]
 
-// TODO disable submit when no datasource selected
-// TODO add rules to selectVAlues, required based on attributes.js
 
 class MassEdition extends React.Component {
     constructor(props) {
@@ -35,26 +33,6 @@ class MassEdition extends React.Component {
     }
 
 
-    onSubmitMassEdition = (form_values) => {
-        console.log("submit mass edition")
-        console.log("modif", form_values)
-        console.log("datasources", this.props.selectedDatasources)
-
-        const key = form_values["massEditionField"]
-        const value = form_values["massEditionValues"]
-        massEditDataSource(
-            Object.keys(this.props.selectedDatasources).map(Number),
-            key === "organization_name"
-                ? "application"
-                : "datasource",
-            key,
-            value
-        ).then((res) => {
-            console.log(res)
-        })
-    }
-
-
     render() {
         const options_attributes_id = EDITABLE_ID.map((item) => {
             return {
@@ -66,16 +44,21 @@ class MassEdition extends React.Component {
             <div className={"mass-edition"}>
                 <CheckableTag checked={this.props.showEditionSection}
                               onChange={this.props.onShowModificationSection}>
-                    Modifier les données
+                    {this.props.showEditionSection
+                        ? "Annuler modification"
+                        : "Modifier les données"
+                    }
                 </CheckableTag>
                 {this.props.showEditionSection &&
                     <div>
                         <Divider/>
+
                         <Form name="massEditionForm"
                               ref={this.formRef}
                               className={"mass-edition-form"}
-                              onFinish={this.onSubmitMassEdition}>
+                              onFinish={this.props.onSubmitMassEdition}>
                             <Form.Item name="massEditionField"
+                                       className={"field-select"}
                                        rules={[
                                            {
                                                required: true,
@@ -86,23 +69,29 @@ class MassEdition extends React.Component {
                                         onSelect={this.onSelectField}
                                         placeholder="Champ à modifier"/>
                             </Form.Item>
-                            <MassEditionValueSelect selectedMassEditionField={this.state.selectedMassEditionField}/>
+                            <MassEditionValueSelect
+                                className={"value-select"}
+                                selectedMassEditionField={this.state.selectedMassEditionField}/>
                             <Button
                                 type="primary"
                                 htmlType="submit"
-                                icon={<CheckOutlined/>}>
+                                className={"submit-button"}
+                                icon={<CheckOutlined/>}
+                                loading={this.props.loading}
+                                disabled={Object.keys(this.props.selectedDatasources).length === 0 || !this.state.selectedMassEditionField}>
                                 Valider les modifications
                             </Button>
                         </Form>
                         <p>
-                            Données sélectionnées: {Object.keys(this.props.selectedDatasources).length}
                             <CheckableTag
                                 checked={Object.keys(this.props.selectedDatasources).length === this.props.totalCount}
                                 onChange={this.props.onCheckUncheckAll}>
-                                {Object.keys(this.props.selectedDatasources).length === this.props.totalCount
-                                    ? "Tout décocher"
-                                    : "Tout cocher"}
+                                {Object.keys(this.props.selectedDatasources).length !== this.props.totalCount || this.props.totalCount === 0
+                                    ? "Tout cocher"
+                                    : "Tout décocher"}
                             </CheckableTag>
+                            <Divider type="vertical"/>
+                            Données sélectionnées: {Object.keys(this.props.selectedDatasources).length}
                         </p>
                     </div>
                 }

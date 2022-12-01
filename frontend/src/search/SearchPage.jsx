@@ -1,14 +1,14 @@
 import React from 'react';
 import queryString from 'query-string'
 import {withRouter} from 'react-router-dom';
-import {Button, Col, Divider, Input, Radio, Row, Skeleton, Tag} from 'antd';
-import {UploadOutlined} from '@ant-design/icons';
+import {Button, Col, Divider, Input, Modal, Radio, Row, Skeleton, Tag} from 'antd';
+import {ExclamationCircleOutlined, UploadOutlined} from '@ant-design/icons';
 import './SearchPage.css';
 import SearchTree from "./SearchTree";
 
 import {
     exportSearchDataSources,
-    fetchSearchMetadata,
+    fetchSearchMetadata, massEditDataSource,
     searchAnalysisAxis,
     searchApplicationsOfDataSources,
     searchDataSources,
@@ -31,6 +31,7 @@ import withCurrentUser from "../hoc/user/withCurrentUser";
 import MassEdition from "./MassEdition";
 
 const {Search} = Input;
+const {confirm} = Modal;
 
 const ANY_WORDS = "ANY_WORDS"
 const ALL_WORDS = "ALL_WORDS"
@@ -156,7 +157,7 @@ class SearchPage extends React.Component {
         return this.setStatePromise(newState)
             .then(() => {
                 const search = this.getQuery(this.state.query);
-                this.search(search);
+                return this.search(search);
             })
     }
 
@@ -166,7 +167,7 @@ class SearchPage extends React.Component {
             error: null,
         });
 
-        this.refreshDataSources(search)
+        return this.refreshDataSources(search)
             .then(() => this.refreshFilterCount(search))
             .then(() => this.setState({loading: false, error: null}))
             .catch((error) => this.setState({loading: false, error}));
@@ -234,14 +235,14 @@ class SearchPage extends React.Component {
 
 
     //Modify url based on state, then componentDidUpdate will be called to actually do the search
-    onSearch = (keepSelectedDatasource=false) => {
+    onSearch = (keepSelectedDatasource = false) => {
         const search = this.getQuery(this.state.query);
         this.props.history.push({
             search: search
         })
 
         if (!keepSelectedDatasource) {
-            this.setState({selectedDatasources:{}})
+            this.setState({selectedDatasources: {}})
         }
     };
 
@@ -251,7 +252,7 @@ class SearchPage extends React.Component {
             page_data_source: page,
             count_data_source: count,
         })
-            .then(()=> this.onSearch(true));
+            .then(() => this.onSearch(true));
     }
 
     getQueryResume = () => {
@@ -543,7 +544,7 @@ class SearchPage extends React.Component {
         }
     }
 
-    onCheckUncheckAll = (checkAll=true) => {
+    onCheckUncheckAll = (checkAll = true) => {
         const temp_datasourceIds = {}
         if (!!checkAll) {
             for (const datasourceId of this.state.resultDatasourceIds) {
@@ -552,6 +553,42 @@ class SearchPage extends React.Component {
         }
         this.setState({selectedDatasources: temp_datasourceIds})
     }
+
+    onSubmitMassEdition = (form_values) => {
+        console.log("submit mass edition")
+        console.log("modif", form_values)
+        console.log("datasources", this.state.selectedDatasources)
+
+        confirm({
+            title: 'Modification de plusieurs données',
+            icon: <ExclamationCircleOutlined/>,
+            content: <div>
+                Vous êtes sur le point de
+                modifier <strong>{Object.keys(this.state.selectedDatasources).length} données</strong>.
+                Les valeurs actuelles du champ seront effacées et remplacées. Cette action est irréversible!
+            </div>,
+            onOk: () => {
+                this.setState({loading: true})
+                const key = form_values["massEditionField"]
+                const value = form_values["massEditionValues"]
+                massEditDataSource(
+                    Object.keys(this.state.selectedDatasources).map(Number),
+                    key === "organization_name"
+                        ? "application"
+                        : "datasource",
+                    key,
+                    value
+                ).then((res) => this.launchSearch()
+                ).then(() => {
+                    this.setState({selectedDatasources: {}})
+                }).catch((error) => this.setState({loading: false, error}));
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    }
+
 
     getDefaultActiveKey = () => {
         if (this.state.strictness === ANY_WORDS) {
@@ -611,7 +648,9 @@ class SearchPage extends React.Component {
                                  showEditionSection={this.state.showEditionSection}
                                  selectedDatasources={this.state.selectedDatasources}
                                  onCheckUncheckAll={this.onCheckUncheckAll}
-                                 totalCount = {this.state.total_count_data_source}
+                                 onSubmitMassEdition={this.onSubmitMassEdition}
+                                 loading={this.state.loading}
+                                 totalCount={this.state.total_count_data_source}
                     />
                 }
                 <Divider style={{marginTop: 0}}/>
