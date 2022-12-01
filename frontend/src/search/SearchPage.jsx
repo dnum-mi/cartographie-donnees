@@ -147,7 +147,6 @@ class SearchPage extends React.Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.location.search !== prevProps.location.search) {
-            this.setState({selectedDatasources:{}})
             this.launchSearch()
         }
     }
@@ -235,11 +234,15 @@ class SearchPage extends React.Component {
 
 
     //Modify url based on state, then componentDidUpdate will be called to actually do the search
-    onSearch = () => {
+    onSearch = (keepSelectedDatasource=false) => {
         const search = this.getQuery(this.state.query);
         this.props.history.push({
             search: search
         })
+
+        if (!keepSelectedDatasource) {
+            this.setState({selectedDatasources:{}})
+        }
     };
 
 
@@ -248,7 +251,7 @@ class SearchPage extends React.Component {
             page_data_source: page,
             count_data_source: count,
         })
-            .then(this.onSearch);
+            .then(()=> this.onSearch(true));
     }
 
     getQueryResume = () => {
