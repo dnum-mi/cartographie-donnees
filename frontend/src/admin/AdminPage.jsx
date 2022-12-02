@@ -293,7 +293,7 @@ class AdminPage extends React.Component {
                         </li>
                         <li>
                             <b>Niveau de description de l'application</b> : moyenne pour chaque application des données
-                            décrites du remplissage des 25 champs suivants :
+                            décrites du remplissage des 24 champs suivants :
                             <ul>
                                 <li>
                                     19 champs "donnée" : Nom, Description, Application, Famille, Type, Exemple, Sensibilité,
