@@ -135,12 +135,12 @@ class TextAttribute extends React.Component {
         } else {
             const min_value = this.props.inputType === "number"
                 ?  this.props.attributeId === "application_historic"
-                    ? 1000
+                    ? 1950
                     : 0
                 : null
 
             const max_value = this.props.attributeId === "application_historic"
-                ? 3000
+                ? 2050
                 : null
 
             input = (

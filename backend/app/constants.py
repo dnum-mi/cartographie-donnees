@@ -30,7 +30,7 @@ field_english_to_french_dic = {
     "updated_at": "Date de modification",
     "source_data_update": "Date de modification des données",
     "goals": "Finalités",
-    "access_url": "Accès",
+    "access_url": "Site",
     "operator_count": "Nb opérateurs",
     "operator_count_comment": "Commentaire sur le nb d'opérateurs",
     "user_count": "Nb utilisateurs",
@@ -105,7 +105,7 @@ field_french_to_english_dic = {
     "Date de modification": "updated_at",
     "Date de modification des données": "source_data_update",
     "Finalités": "goals",
-    "Accès": "access_url",
+    "Site": "access_url",
     "Nb opérateurs": "operator_count",
     "Commentaire sur le nb d'opérateurs": "operator_count_comment",
     "Nb utilisateurs": "user_count",
@@ -194,7 +194,12 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'exposition_name',
     'origin_name',
     'origin_applications',
-    'is_reference'
+    'is_reference',
+    'application_context_email',
+    'application_operator_count',
+    'application_user_count',
+    'application_monthly_connection_count',
+    'application_historic',
 ]
 
 # Ordered by order of appearance on datasource page
@@ -251,5 +256,15 @@ WILDCARDS_LABELS = {
 }
 
 
-DATASOURCE_ID_NO_COMMENT = [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
-                            (field not in ['volumetry_comment', 'monthly_volumetry_comment', 'is_reference'])]
+DATASOURCE_ID_NO_COMMENT = [
+    field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
+    (field not in [
+        'reutilizations',
+        'tag_name',
+        'volumetry_comment',
+        'monthly_volumetry_comment',
+        'analysis_axis_name',
+        'origin_applications',
+        'is_reference',
+    ])
+]

@@ -366,6 +366,14 @@ class DataSource(SearchableMixin, BaseModel):
     def application_context_email(self):
         return self.application.context_email
 
+    @property
+    def application_operator_count(self):
+        return self.application.operator_count
+
+    @property
+    def application_historic(self):
+        return self.application.historic
+
     def to_dict(self, populate_statistics=False):
         return {
             'id': self.id,

@@ -314,7 +314,7 @@ components:
           type: string
         Finalités:
           type: string
-        Accès:
+        Site:
           type: string
         Nb opérateurs:
           type: integer
