@@ -194,7 +194,12 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'exposition_name',
     'origin_name',
     'origin_applications',
-    'is_reference'
+    'is_reference',
+    'application_context_email',
+    'application_operator_count',
+    'application_user_count',
+    'application_monthly_connection_count',
+    'application_historic',
 ]
 
 # Ordered by order of appearance on datasource page
@@ -251,5 +256,15 @@ WILDCARDS_LABELS = {
 }
 
 
-DATASOURCE_ID_NO_COMMENT = [field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
-                            (field not in ['volumetry_comment', 'monthly_volumetry_comment', 'is_reference'])]
+DATASOURCE_ID_NO_COMMENT = [
+    field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
+    (field not in [
+        'reutilizations',
+        'tag_name',
+        'volumetry_comment',
+        'monthly_volumetry_comment',
+        'analysis_axis_name',
+        'origin_applications',
+        'is_reference',
+    ])
+]
