@@ -37,11 +37,12 @@ class App extends React.Component {
         return this.setStatePromise({
             loading: true,
             error: null,
-        }).then(() => Promise.all([fetchWildCards("tooltips"), fetchWildCards("homepage")]))
-            .then(([res_tooltips, res_homepage]) => {
+        }).then(() => Promise.all([fetchWildCards("tooltips"), fetchWildCards("homepage"), fetchWildCards("synonyme")]))
+            .then(([res_tooltips, res_homepage, res_synonyms]) => {
                 this.setState({
                     tooltips_object: new Tooltips(res_tooltips.data.tooltips, this.refreshWildcards),
                     homepageContent: res_homepage.data.homepage,
+                    synonymsContent: res_synonyms.data.synonyme.synonyme,
                     loading: false,
                     error: null
                 })
@@ -102,6 +103,7 @@ class App extends React.Component {
                                     user={this.state.user}
                                     onLogin={this.refreshUser}
                                     homepageContent={this.state.homepageContent}
+                                    synonymsContent={this.state.synonymsContent}
                                     updateHomepage={this.updateHomepage}
                                     loading={this.state.loading}
                                 />

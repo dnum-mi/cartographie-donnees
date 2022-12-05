@@ -1,8 +1,9 @@
 import React from 'react';
-import { Col, Row, Button, Form, Upload} from "antd";
+import {Button, Form, Upload, Alert} from "antd";
 import {CloseOutlined, CheckOutlined, EditOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 
 import './SettingsHeader.css';
+import Error from "../../components/Error";
 
 
 class SettingsHeader extends React.Component {
@@ -15,18 +16,18 @@ class SettingsHeader extends React.Component {
     return (
       <div className="actions">
 
-        <Button type="primary" onClick={(e) => this.props.onActivateEdition(e)} icon={<EditOutlined />}>
+        <Button loading={this.props.submitLoading} type="primary" onClick={(e) => this.props.onActivateEdition(e)} icon={<EditOutlined />}>
           Modifier les paramètres
         </Button>
 
-        <Button onClick={(e) => this.props.onExport(e)} icon={<UploadOutlined/>} type="default">Export</Button>
+        <Button onClick={(e) => this.props.onExport(e)} icon={<UploadOutlined/>} type="default" disabled={this.props.submitLoading}>Export</Button>
 
         <Upload
               customRequest={this.props.onUploadfile}
               maxCount={1}
               showUploadList={false}
             >
-              <Button icon={<DownloadOutlined/>} type="default">Import</Button>
+              <Button icon={<DownloadOutlined/>} type="default" disabled={this.props.submitLoading}>Import</Button>
         </Upload>
 
       </div>
@@ -38,12 +39,12 @@ class SettingsHeader extends React.Component {
       <div className="actions">
 
         <Form.Item noStyle>
-            <Button type="primary" htmlType="submit" icon={<CheckOutlined />}>
+            <Button loading={this.props.submitLoading} type="primary" htmlType="submit" icon={<CheckOutlined />}>
                 Valider les modifications
             </Button>
         </Form.Item>
 
-        <Button onClick={(e) => this.props.onCancelEdition(e)} danger icon={<CloseOutlined />}>
+        <Button onClick={(e) => this.props.onCancelEdition(e)} danger icon={<CloseOutlined />} disabled={this.props.submitLoading}>
           Annuler les modifications
         </Button>
 
@@ -51,11 +52,25 @@ class SettingsHeader extends React.Component {
     )
   }
 
+  renderSuccessAlert() {
+      return (
+          <Alert type={"success"} message={"Les paramètres ont été modifiés avec succès"} showIcon closable/>
+      )
+  }
+
   render() {
     return (
-      <div className="SettingsHeader">
-          {this.props.editMode ? this.editModeRow() : this.readModeRow()}
-      </div>
+        <>
+            <div className="SettingsHeader">
+                {this.props.editMode ? this.editModeRow() : this.readModeRow()}
+            </div>
+            {/*Seperate div to avoid sticky behavior*/}
+            <div className="settingsAlert">
+                <Error error={this.props.error}/>
+                {this.props.success && this.renderSuccessAlert()}
+            </div>
+        </>
+
     );
   }
 }

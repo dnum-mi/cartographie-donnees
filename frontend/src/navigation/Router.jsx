@@ -19,7 +19,7 @@ import DataSourceCreation from "../admin/data-sources/DataSourceCreation";
 import Navigation from "./Navigation";
 import RoutingCount from "./RoutingCount";
 
-function Router({ user, onLogin, homepageContent, updateHomepage, loading }) {
+function Router({ user, onLogin, homepageContent, synonymsContent, updateHomepage, loading }) {
   return (
     <BrowserRouter>
       <RoutingCount loading={loading}></RoutingCount>
@@ -56,7 +56,7 @@ function Router({ user, onLogin, homepageContent, updateHomepage, loading }) {
         </Route>
         {user && (
           <Route path="/admin">
-            <AdminPage user={user} updateHomepage = {updateHomepage} homepageContent= {homepageContent}/>
+            <AdminPage user={user} updateHomepage = {updateHomepage} homepageContent= {homepageContent} synonymsContent={synonymsContent}/>
           </Route>
         )}
         <Route key="404">
