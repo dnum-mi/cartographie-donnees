@@ -88,6 +88,7 @@ class SettingsPage extends React.Component {
         this.setState({
           loading: true,
           error: null,
+          success: false
         })
         const formData = new FormData();
         formData.append("file", file);
@@ -95,6 +96,7 @@ class SettingsPage extends React.Component {
           .then(() => {
             onSuccess(null, file);
             this.refreshSettings();
+            this.setState({success: true})
           })
           .catch((error) => {
             this.setState({
