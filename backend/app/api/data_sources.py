@@ -37,7 +37,7 @@ def fetch_data_sources():
 
         responses:
             '200':
-              description: Les données correspondante incluant l'application associées à la donnée.
+              description: Les données correspondantes incluant l'application associées à la donnée.
               content:
                 application/json:
                     schema:
@@ -63,6 +63,41 @@ def fetch_data_sources():
     return jsonify(dict(
         total_count=total_count,
         results=[datasource.to_dict() for datasource in datasources]
+    ))
+
+
+@api.route('/api/data-sources/highlights', methods=['GET'])
+def fetch_highlighted_data_sources():
+    """Obtenir les données mises en avant
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir les données mises en avant
+        description: Endpoint retournant une liste des données mises en avant par l'administrateur général. Aucune authentification n'est requise.
+        responses:
+            '200':
+              description: Les données mises en avant incluant l'application associées à la donnée.
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/DataSource"
+                            total_count:
+                                type: integer
+
+    """
+    highlighted_data_sources = DataSource.query \
+        .filter(DataSource.highlights_index.isnot(None)) \
+        .order_by(DataSource.highlights_index.asc()) \
+        .all()
+    return jsonify(dict(
+        total_count=len(highlighted_data_sources),
+        results=[datasource.to_dict() for datasource in highlighted_data_sources]
     ))
 
 

@@ -46,5 +46,6 @@
   "type_name": null,
   "update_frequency_name": null,
   "volumetry": null,
-  "volumetry_comment": null
+  "volumetry_comment": null,
+  "highlights_index": null
 }

@@ -19,8 +19,10 @@ def test_export_data_source_admin(client, admin_auth_header, sample_data_sources
     csv_data = response.data.decode('utf-8-sig')
     csv_lines = csv_data.split('\r\n')
     assert len(csv_lines) == 2 + len(sample_data_sources)  # Empty line at the bottom
+
     assert csv_lines[0] == "Nom;Application;Description;Exemple;Famille;Axes d'analyse;" \
                            "Type;Donnée référentielle;Origine;Application source;OpenData;" \
                            "Exposition;Sensibilité;Tag;Volumétrie;Commentaire sur la volumétrie;" \
                            "Production par mois;Commentaire sur la  production par mois;Mise à jour;" \
-                           "Conservation;Base/index;Nb tables;Table;Nb champs;Champ;Réutilisation"
+                           "Conservation;Base/index;Nb tables;Table;Nb champs;Champ;Réutilisation Rang dans la liste des données mise en avant;"
+

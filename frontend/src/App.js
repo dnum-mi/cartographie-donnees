@@ -3,8 +3,7 @@ import { Layout } from 'antd';
 
 import Router from './navigation/Router';
 import './App.css';
-import {readMe, fetchWildCards} from './api';
-import Loading from "./components/Loading";
+import {readMe, fetchWildCards, fetchDataSourceHighlights} from './api';
 import Error from "./components/Error";
 import {UserProvider} from "./hoc/user/UserProvider"
 import {TooltipsProvider} from "./hoc/tooltips/TooltipsProvider"
@@ -37,11 +36,20 @@ class App extends React.Component {
         return this.setStatePromise({
             loading: true,
             error: null,
-        }).then(() => Promise.all([fetchWildCards("tooltips"), fetchWildCards("homepage")]))
-            .then(([res_tooltips, res_homepage]) => {
+        }).then(() => Promise.all([
+            fetchWildCards("tooltips"),
+            fetchWildCards("homepage"),
+            fetchDataSourceHighlights(),
+        ]))
+            .then(([
+                res_tooltips,
+                res_homepage,
+                res_highlights,
+            ]) => {
                 this.setState({
                     tooltips_object: new Tooltips(res_tooltips.data.tooltips, this.refreshWildcards),
                     homepageContent: res_homepage.data.homepage,
+                    dataSourceHighlights: res_highlights.data.results,
                     loading: false,
                     error: null
                 })
@@ -102,13 +110,11 @@ class App extends React.Component {
                                     user={this.state.user}
                                     onLogin={this.refreshUser}
                                     homepageContent={this.state.homepageContent}
+                                    dataSourceHighlights={this.state.dataSourceHighlights}
                                     updateHomepage={this.updateHomepage}
                                     loading={this.state.loading}
                                 />
                             </Content>
-                            <Footer className="footer">
-                                Designed by Artelys ©2021
-                            </Footer>
                         </Layout>
                     </TooltipsProvider>
                 </UserProvider>

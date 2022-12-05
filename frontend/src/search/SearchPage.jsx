@@ -5,6 +5,8 @@ import {Button, Col, Divider, Input, Modal, Radio, Row, Skeleton, Tag} from 'ant
 import {ExclamationCircleOutlined, UploadOutlined} from '@ant-design/icons';
 import './SearchPage.css';
 import SearchTree from "./SearchTree";
+import queryTitles from "./query_titles";
+import {parseQuery, readString, listToString} from "./QueryUtils"
 
 import {
     exportSearchDataSources,
@@ -27,6 +29,7 @@ import filters from "../filters";
 import Results from "./Results";
 
 import withTooltips from '../hoc/tooltips/withTooltips';
+import DataSourceHighlight from "./results/DataSourceHighlight";
 import withCurrentUser from "../hoc/user/withCurrentUser";
 import MassEdition from "./MassEdition";
 
@@ -35,8 +38,6 @@ const {confirm} = Modal;
 
 const ANY_WORDS = "ANY_WORDS"
 const ALL_WORDS = "ALL_WORDS"
-
-// TODO Create an api route to mass edit
 
 class SearchPage extends React.Component {
 
@@ -72,28 +73,9 @@ class SearchPage extends React.Component {
             selectedDatasources: {},
             resultDatasourceIds: []
         };
-        return {...state, ...this.parseQuery()}
+        return { ...state, ...parseQuery(this.props.location.search) }
     }
 
-    parseQuery = () => {
-        const values = queryString.parse(this.props.location.search);
-        return {
-            query: this.readString(values.q),
-            selectedOrganization: this.stringToList(values.organization),
-            selectedFamily: this.stringToList(values.family),
-            selectedType: this.stringToList(values.type),
-            selectedApplication: this.stringToList(values.application),
-            selectedReferentiel: this.stringToList(values.referentiel),
-            selectedSensibility: this.stringToList(values.sensibility),
-            selectedOpenData: this.stringToList(values.open_data),
-            selectedExposition: this.stringToList(values.exposition),
-            selectedOrigin: this.stringToList(values.origin),
-            selectedAnalysisAxis: this.stringToList(values.analysis_axis),
-            selectedTag: this.stringToList(values.tag),
-            strictness: this.readString(values.strictness, ANY_WORDS),
-            toExclude: this.readString(values.toExclude, "")
-        }
-    }
 
     isFirstTime = () => {
         return !(this.state.query
@@ -110,34 +92,17 @@ class SearchPage extends React.Component {
             || this.state.selectedTag.length !== 0);
     }
 
-    readString(value, defaultValue = null) {
-        if (value) {
-            return value;
-        } else {
-            return defaultValue ? defaultValue : '';
-        }
-    }
 
-    stringToList(value) {
-        if (value) {
-            return value.split(";");
-        } else {
-            return [];
-        }
-    }
 
-    listToString(value) {
-        return value.join(";");
-    }
 
     getQuery(query) {
-        return "?q=" + this.readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
-            + "&family=" + this.listToString(this.state.selectedFamily)
-            + "&type=" + this.listToString(this.state.selectedType) + "&organization=" + this.listToString(this.state.selectedOrganization)
-            + "&application=" + this.listToString(this.state.selectedApplication) + "&referentiel=" + this.listToString(this.state.selectedReferentiel)
-            + "&sensibility=" + this.listToString(this.state.selectedSensibility) + "&open_data=" + this.listToString(this.state.selectedOpenData)
-            + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.listToString(this.state.selectedOrigin)
-            + "&analysis_axis=" + this.listToString(this.state.selectedAnalysisAxis) + "&tag=" + this.listToString(this.state.selectedTag)
+        return "?q=" + readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
+            + "&family=" + listToString(this.state.selectedFamily)
+            + "&type=" + listToString(this.state.selectedType) + "&organization=" + listToString(this.state.selectedOrganization)
+            + "&application=" + listToString(this.state.selectedApplication) + "&referentiel=" + listToString(this.state.selectedReferentiel)
+            + "&sensibility=" + listToString(this.state.selectedSensibility) + "&open_data=" + listToString(this.state.selectedOpenData)
+            + "&exposition=" + listToString(this.state.selectedExposition) + "&origin=" + listToString(this.state.selectedOrigin)
+            + "&analysis_axis=" + listToString(this.state.selectedAnalysisAxis) + "&tag=" + listToString(this.state.selectedTag)
             + "&strictness=" + this.state.strictness + "&toExclude=" + this.state.toExclude;
     }
 
@@ -153,7 +118,7 @@ class SearchPage extends React.Component {
     }
 
     launchSearch = () => {
-        let newState = {homeDescription: this.isFirstTime(), ...this.parseQuery()};
+        let newState = { homeDescription: this.isFirstTime(), ...parseQuery(this.props.location.search) };
         return this.setStatePromise(newState)
             .then(() => {
                 const search = this.getQuery(this.state.query);
@@ -201,37 +166,37 @@ class SearchPage extends React.Component {
         this.refreshTags(),
     ])
     refreshFamilies = () => searchFamilies()
-        .then((response) => this.setStatePromise({families: response.data}));
+        .then((response) => this.setStatePromise({ families: response.data }));
 
     refreshTypes = () => searchTypes()
-        .then((response) => this.setStatePromise({types: response.data}));
+        .then((response) => this.setStatePromise({ types: response.data }));
 
     refreshOrganizations = () => searchOrganizations()
-        .then((response) => this.setStatePromise({organizations: response.data}));
+        .then((response) => this.setStatePromise({ organizations: response.data }));
 
     refreshApplications = () => searchApplicationsOfDataSources()
-        .then((response) => this.setStatePromise({applications: response.data}));
+        .then((response) => this.setStatePromise({ applications: response.data }));
 
     refreshReferentiels = () => searchReferentiels()
-        .then((response) => this.setStatePromise({referentiels: response.data}));
+        .then((response) => this.setStatePromise({ referentiels: response.data }));
 
     refreshSensibilities = () => searchSensibilities()
-        .then((response) => this.setStatePromise({sensibilities: response.data}));
+        .then((response) => this.setStatePromise({ sensibilities: response.data }));
 
     refreshOpenData = () => searchOpenData()
-        .then((response) => this.setStatePromise({open_data: response.data}));
+        .then((response) => this.setStatePromise({ open_data: response.data }));
 
     refreshExpositions = () => searchExpositions()
-        .then((response) => this.setStatePromise({expositions: response.data}));
+        .then((response) => this.setStatePromise({ expositions: response.data }));
 
     refreshOrigins = () => searchOrigins()
-        .then((response) => this.setStatePromise({origins: response.data}));
+        .then((response) => this.setStatePromise({ origins: response.data }));
 
     refreshAnalysisAxis = () => searchAnalysisAxis()
-        .then((response) => this.setStatePromise({analysis_axis: response.data}));
+        .then((response) => this.setStatePromise({ analysis_axis: response.data }));
 
     refreshTags = () => searchTags()
-        .then((response) => this.setStatePromise({tags: response.data}));
+        .then((response) => this.setStatePromise({ tags: response.data }));
 
 
     //Modify url based on state, then componentDidUpdate will be called to actually do the search
@@ -277,7 +242,7 @@ class SearchPage extends React.Component {
         for (const valueToUncheck of valuesToUncheck) {
             filter = filter.filter(item => item !== valueToUncheck);
         }
-        this.setStatePromise({[key]: filter, page_data_source: 1,})
+        this.setStatePromise({ [key]: filter, page_data_source: 1, })
             .then(() => this.onSearch());
     }
 
@@ -287,7 +252,7 @@ class SearchPage extends React.Component {
         if (!filter.includes(value)) {
             filter = [...filter, value];
         }
-        this.setStatePromise({[key]: filter, page_data_source: 1,})
+        this.setStatePromise({ [key]: filter, page_data_source: 1, })
             .then(() => this.onSearch());
     }
 
@@ -336,7 +301,7 @@ class SearchPage extends React.Component {
 
     renderDataSourcesResults = () => {
         if (this.state.error) {
-            return <Error error={this.state.error}/>
+            return <Error error={this.state.error} />
         }
         return (<>
             {this.renderSearchPageHeader()}
@@ -353,10 +318,10 @@ class SearchPage extends React.Component {
 
     renderLoading = () => {
         return (
-            <div style={{marginRight: "10px"}}>
-                <Skeleton loading={true} active/>
-                <Skeleton loading={true} active/>
-                <Skeleton loading={true} active/>
+            <div style={{ marginRight: "10px" }}>
+                <Skeleton loading={true} active />
+                <Skeleton loading={true} active />
+                <Skeleton loading={true} active />
             </div>
         )
     }
@@ -398,7 +363,7 @@ class SearchPage extends React.Component {
                             <Button
                                 onClick={this.export}
                                 type="secondary"
-                                icon={<UploadOutlined/>}
+                                icon={<UploadOutlined />}
                                 disabled={!this.state.dataSources.length}
                             >
                                 Télécharger les résultats
@@ -418,18 +383,34 @@ class SearchPage extends React.Component {
             return this.renderLoading();
         } else if (this.state.homeDescription) {
             return (
-                <div className="home-description">
-                    <h3>
-                        {this.props.homepageContent["welcome_title"]}
-                    </h3>
-                    <div>
-                        {this.props.homepageContent["welcome_text"]}
+                <>
+                    <div className="home-description">
+                        <h3>
+                            {this.props.homepageContent["welcome_title"]}
+                        </h3>
+                        <div>
+                            {this.props.homepageContent["welcome_text"]}
+                        </div>
+                        <br />
+                        <a href={"mailto:"+this.props.homepageContent["welcome_email"]}>
+                            {this.props.homepageContent["welcome_email"]}
+                        </a>
                     </div>
-                    <br/>
-                    <a href={"mailto:" + this.props.homepageContent["welcome_email"]}>
-                        {this.props.homepageContent["welcome_email"]}
-                    </a>
-                </div>
+                    <div className="home-highlights">
+                        <h3>
+                            Données mises en avant
+                        </h3>
+                        <div>
+                            {this.props.dataSourceHighlights.map((dataSource) => (
+                                <DataSourceHighlight
+                                  key={dataSource.id}
+                                  dataSource={dataSource}
+                                  onFilterSelect={(key, value) => this.addFilter(key, value)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </>
             );
         } else {
             return <Results dataSources={this.state.dataSources}
@@ -464,7 +445,7 @@ class SearchPage extends React.Component {
     }
 
     getTitleFromValue(key, value) {
-        if (key === "selectedApplication") {
+        if (key === "selectedApplication"){
             return this.findApplication(this.state.applications, value)
         }
         if (key === "selectedOrganization") {
@@ -514,18 +495,18 @@ class SearchPage extends React.Component {
     }
 
     onChange = (e) => {
-        this.setState({query: e.target.value});
+        this.setState({ query: e.target.value });
         if (!e.target.value) {
-            this.setStatePromise({page_data_source: 1,}).then(() => this.onSearch());
+            this.setStatePromise({ page_data_source: 1, }).then(() => this.onSearch());
         }
     }
 
     onRuleChange = (e) => {
-        this.setStatePromise({strictness: e.target.value, page_data_source: 1,}).then(() => this.onSearch());
+        this.setStatePromise({ strictness: e.target.value, page_data_source: 1, }).then(() => this.onSearch());
     }
 
     onExcludeChange = (e) => {
-        this.setStatePromise({toExclude: e.target.value, page_data_source: 1,}).then(() => this.onSearch());
+        this.setStatePromise({ toExclude: e.target.value, page_data_source: 1, }).then(() => this.onSearch());
     }
 
     export = () => {
@@ -606,7 +587,7 @@ class SearchPage extends React.Component {
                         placeholder="Recherche"
                         size="large"
                         value={this.state.query}
-                        defaultValue={this.props.match.params.q}
+                        defaultValue={this.props.match.params[queryTitles.query]}
                         onSearch={
                             (e) => {
                                 this.setStatePromise({page_data_source: 1,})
