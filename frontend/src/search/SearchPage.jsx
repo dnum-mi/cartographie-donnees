@@ -5,6 +5,8 @@ import { Input, Tag, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
 import {UploadOutlined} from '@ant-design/icons';
 import './SearchPage.css';
 import SearchTree from "./SearchTree";
+import queryTitles from "./query_titles";
+import {parseQuery, readString, listToString} from "./QueryUtils"
 
 import {
     searchDataSources, searchApplicationsOfDataSources, searchOrganizations, searchFamilies, searchTypes,
@@ -54,28 +56,9 @@ class SearchPage extends React.Component {
             strictness: ANY_WORDS,
             toExlude: ""
         };
-        return { ...state, ...this.parseQuery() }
+        return { ...state, ...parseQuery(this.props.location.search) }
     }
 
-    parseQuery = () => {
-        const values = queryString.parse(this.props.location.search);
-        return {
-            query: this.readString(values.q),
-            selectedOrganization: this.stringToList(values.organization),
-            selectedFamily: this.stringToList(values.family),
-            selectedType: this.stringToList(values.type),
-            selectedApplication: this.stringToList(values.application),
-            selectedReferentiel: this.stringToList(values.referentiel),
-            selectedSensibility: this.stringToList(values.sensibility),
-            selectedOpenData: this.stringToList(values.open_data),
-            selectedExposition: this.stringToList(values.exposition),
-            selectedOrigin: this.stringToList(values.origin),
-            selectedAnalysisAxis: this.stringToList(values.analysis_axis),
-            selectedTag: this.stringToList(values.tag),
-            strictness: this.readString(values.strictness, ANY_WORDS),
-            toExclude: this.readString(values.toExclude, "")
-        }
-    }
 
     isFirstTime = () => {
         return !(this.state.query
@@ -92,36 +75,17 @@ class SearchPage extends React.Component {
             || this.state.selectedTag.length !== 0);
     }
 
-    readString(value, defaultValue = null) {
-        if (value) {
-            return value;
-        }
-        else {
-            return defaultValue ? defaultValue : '';
-        }
-    }
 
-    stringToList(value) {
-        if (value) {
-            return value.split(";");
-        }
-        else {
-            return [];
-        }
-    }
 
-    listToString(value) {
-        return value.join(";");
-    }
 
     getQuery(query) {
-        return "?q=" + this.readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
-            + "&family=" + this.listToString(this.state.selectedFamily)
-            + "&type=" + this.listToString(this.state.selectedType) + "&organization=" + this.listToString(this.state.selectedOrganization)
-            + "&application=" + this.listToString(this.state.selectedApplication) + "&referentiel=" + this.listToString(this.state.selectedReferentiel)
-            + "&sensibility=" + this.listToString(this.state.selectedSensibility) + "&open_data=" + this.listToString(this.state.selectedOpenData)
-            + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.listToString(this.state.selectedOrigin)
-            + "&analysis_axis=" + this.listToString(this.state.selectedAnalysisAxis) + "&tag=" + this.listToString(this.state.selectedTag)
+        return "?q=" + readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
+            + "&family=" + listToString(this.state.selectedFamily)
+            + "&type=" + listToString(this.state.selectedType) + "&organization=" + listToString(this.state.selectedOrganization)
+            + "&application=" + listToString(this.state.selectedApplication) + "&referentiel=" + listToString(this.state.selectedReferentiel)
+            + "&sensibility=" + listToString(this.state.selectedSensibility) + "&open_data=" + listToString(this.state.selectedOpenData)
+            + "&exposition=" + listToString(this.state.selectedExposition) + "&origin=" + listToString(this.state.selectedOrigin)
+            + "&analysis_axis=" + listToString(this.state.selectedAnalysisAxis) + "&tag=" + listToString(this.state.selectedTag)
             + "&strictness=" + this.state.strictness + "&toExclude=" + this.state.toExclude;
     }
 
@@ -137,7 +101,7 @@ class SearchPage extends React.Component {
     }
 
     launchSearch = () => {
-        let newState = { homeDescription: this.isFirstTime(), ...this.parseQuery() };
+        let newState = { homeDescription: this.isFirstTime(), ...parseQuery(this.props.location.search) };
         return this.setStatePromise(newState)
             .then(() => {
                 const search = this.getQuery(this.state.query);
@@ -530,7 +494,7 @@ class SearchPage extends React.Component {
                         placeholder="Recherche"
                         size="large"
                         value={this.state.query}
-                        defaultValue={this.props.match.params.q}
+                        defaultValue={this.props.match.params[queryTitles.query]}
                         onSearch={
                             (e) => {
                                 this.setStatePromise({ page_data_source: 1, })

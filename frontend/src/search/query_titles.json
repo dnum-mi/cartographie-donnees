@@ -1,0 +1,16 @@
+{
+  "query": "q",
+  "selectedOrganization": "organization",
+  "selectedFamily": "family",
+  "selectedType": "type",
+  "selectedApplication": "application",
+  "selectedReferentiel": "referentiel",
+  "selectedSensibility": "sensibility",
+  "selectedOpenData": "open_data",
+  "selectedExposition": "exposition",
+  "selectedOrigin": "origin",
+  "selectedAnalysisAxis": "analysis_axis",
+  "selectedTag": "tag",
+  "strictness": "strictness",
+  "toExclude": "toExclude"
+}

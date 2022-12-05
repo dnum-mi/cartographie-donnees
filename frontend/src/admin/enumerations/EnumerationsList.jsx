@@ -134,7 +134,7 @@ class EnumerationsList extends React.Component {
               <EnumerationCategory
                 key={category}
                 category={category}
-                error={(error) => this.setState({error})}
+                onError={(error) => this.setState({error})}
                 onDelete={(categoryToDelete, id) => {
                   this.deleteEnumerationApi(categoryToDelete, id);
                 }}

@@ -1,4 +1,4 @@
-from flask import abort, request, current_app, render_template
+from flask import abort, request, current_app, render_template, jsonify
 from flask_login import logout_user, login_user
 import jwt
 from datetime import datetime, timedelta
@@ -69,7 +69,10 @@ def login():
     password = req.get('password', None)
     user = User.query.filter_by(email=email).first()
     if not user or not user.check_password(password):
-        abort(401)
+        return jsonify({
+            'code': 401,
+            'description': "Votre adresse email ou votre mot de passe sont incorrects.",
+        }), 401
     login_user(user)
     token = jwt.encode({
         'sub': user.email,

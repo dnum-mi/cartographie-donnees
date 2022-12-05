@@ -64,9 +64,7 @@ class ResetPasswordPage extends React.Component {
                         </Button>
                     </Form.Item>
                 </Form>
-                <Error error={{
-                    message: 'Votre token a expiré. Merci de réitérer votre demande.'
-                }} />
+                <Error error={this.state.error} />
             </div>
         );
     }

@@ -24,3 +24,7 @@ yarn-error.log*
 
 npm_start.sh
 npm_build.sh
+
+# Cypress artifacts
+cypress/screenshots
+cypress/videos
