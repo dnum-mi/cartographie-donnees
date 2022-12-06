@@ -295,7 +295,7 @@ def update_user(user_id):
         user = get_user(user_id)
         json = request.get_json()
 
-        if json['password']:
+        if 'password' in json and json['password']:
             password = json['password']
             confirm_password = json['confirm_password']
             if password != confirm_password:
