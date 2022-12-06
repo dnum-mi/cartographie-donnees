@@ -49,10 +49,10 @@ const UserForm = ({ isNewUser, onSubmit, user = {}, withOwnedApplications, toolt
     const [passwordConfirmationRequired, setPasswordConfirmationRequired] = useState(false);
 
     const onValuesChange = (changedValues, allValues) => {
-        const anyUser = allValues.password
+        const anyPassword = allValues.password
             ? Object.values(allValues.password).filter(Boolean).length > 0
             : false;
-        setPasswordConfirmationRequired(anyUser);
+        setPasswordConfirmationRequired(anyPassword);
     };
 
     return (
