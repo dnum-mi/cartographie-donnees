@@ -7,6 +7,7 @@ import {exportModel, exportWildCardsUrl, importWildCards, updateWildCards} from 
 import {ExclamationCircleOutlined} from '@ant-design/icons';
 import withTooltips from '../../hoc/tooltips/withTooltips.jsx';
 import SettingsTooltipsSection from './SettingsTooltipsSection.jsx';
+import SettingsSynonymsSection from "./SettingsSynonymsSection";
 
 const { confirm } = Modal;
 
@@ -20,6 +21,7 @@ class SettingsPage extends React.Component {
       to_submit: {},
       loading: true,
       error: null,
+      success: false
     }
   }
 
@@ -44,7 +46,7 @@ class SettingsPage extends React.Component {
 
   //#endregion
 
-  //#region Toolbox 
+  //#region Toolbox
 
   handleFormValuesChange = (changed_values, allValues) => {
     const [id, value] = Object.entries(changed_values)[0]
@@ -86,6 +88,7 @@ class SettingsPage extends React.Component {
         this.setState({
           loading: true,
           error: null,
+          success: false
         })
         const formData = new FormData();
         formData.append("file", file);
@@ -93,6 +96,7 @@ class SettingsPage extends React.Component {
           .then(() => {
             onSuccess(null, file);
             this.refreshSettings();
+            this.setState({success: true})
           })
           .catch((error) => {
             this.setState({
@@ -109,7 +113,7 @@ class SettingsPage extends React.Component {
 
 
   activateEdition = (event) => {
-    this.setState({ editMode: true });
+    this.setState({ editMode: true, success: false, error: null });
   };
 
   onCancelEdition = (event) => {
@@ -119,6 +123,7 @@ class SettingsPage extends React.Component {
 
 
   submit = (values) => {
+    this.setState({error: null, submit_loading: true, success: false})
     let payload = []
     // Flatten wildcards nested dict to list of dict
     for (const [namespace, dict] of Object.entries(this.state.to_submit)) {
@@ -128,9 +133,14 @@ class SettingsPage extends React.Component {
     }
 
     // POST
-    updateWildCards(payload);
-
-    this.refreshSettings()
+    updateWildCards(payload).then(()=>{
+      this.setState({success: true, submit_loading: false})
+      this.refreshSettings()
+    })
+    .catch((error) =>{
+      this.setState({error: error, submit_loading: false})
+      this.refreshSettings()
+    });
 
     this.setState({
       editMode: false,
@@ -165,7 +175,7 @@ class SettingsPage extends React.Component {
           autoComplete="off"
           onValuesChange={this.handleFormValuesChange}
           labelWrap
-        // layout="vertical" 
+        // layout="vertical"
         >
 
           <SettingsHeader
@@ -174,6 +184,9 @@ class SettingsPage extends React.Component {
             onCancelEdition={(e) => this.onCancelEdition(e)}
             onExport={this.onExport}
             onUploadfile={this.onUploadfile}
+            submitLoading={this.state.submit_loading}
+            error={this.state.error}
+            success={this.state.success}
           />
           {
             (this.state.loading)
@@ -189,6 +202,10 @@ class SettingsPage extends React.Component {
                 <SettingsTooltipsSection
                   editMode={this.state.editMode}
                   tooltips={this.props.tooltips}
+                />
+                <SettingsSynonymsSection
+                    editMode={this.state.editMode}
+                    synonymsContent={this.props.synonymsContent}
                 />
               </div>
           }
