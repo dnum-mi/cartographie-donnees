@@ -277,6 +277,11 @@ def update_user(user_id):
                                 id:
                                     type: integer
                                     description: L'ID de l'application
+                    password:
+                        type: string
+                        description: Doit contenir 8 charactères ou plus
+                    confirm_password:
+                        type: string
 
         responses:
             200:
@@ -289,6 +294,14 @@ def update_user(user_id):
     try:
         user = get_user(user_id)
         json = request.get_json()
+
+        if json['password']:
+            password = json['password']
+            confirm_password = json['confirm_password']
+            if password != confirm_password:
+                abort(400, dict(description="Incorrect password matching"))
+            user.set_password(password)
+
         user.update_from_dict(json, Application.query, update_admin = True)
         db.session.commit()
         db.session.refresh(user)
