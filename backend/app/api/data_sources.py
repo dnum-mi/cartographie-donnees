@@ -873,7 +873,6 @@ def update_data_source(data_source_id):
         raise BadRequest(str(e))
 
 
-
 @api.route('/api/data-sources/mass-edition', methods=['PUT'])
 @login_required
 @admin_required
@@ -928,25 +927,22 @@ def mass_edit_data_sources():
             else:
                 raise BadRequest(f"key {json_key} is not editable in type application")
 
-            application_list = []
-            application_ids = [get_data_source(data_source_id).application_id for data_source_id in data_source_ids]
-            for application_id in application_ids:
-                application = get_application(application_id)
+            application_ids = db.session.query(DataSource.application_id)\
+                .filter(DataSource.id.in_(data_source_ids))\
+                .distinct(DataSource.application_id)
+            application_list = Application.query.filter(Application.id.in_(application_ids)).all()
+            for application in application_list:
                 application.update_from_key_value(edition_key, edition_value)
-                application_list.append(application)
-
             db.session.commit()
 
             for application in application_list:
-                db.session.refresh(application)
                 # Get all datasource of application
                 # reindex them
                 data_sources = DataSource.query.filter(DataSource.application_id == application.id).all()
-                for data_source in data_sources:
-                    DataSource.add_to_index(data_source)
+                DataSource.bulk_add_to_index(data_sources)
                 Application.add_to_index(application)
 
-            return jsonify({"application_ids": application_ids})
+            return jsonify({"application_ids": [row._asdict() for row in application_ids.all()]})
 
         elif req_json["edition_type"] == "datasource":
             if json_key == "application":
@@ -991,18 +987,13 @@ def mass_edit_data_sources():
             else:
                 raise BadRequest(f"key {json_key} is not editable in type datasource")
 
-            data_source_list = []
-            for data_source_id in data_source_ids:
-                data_source = get_data_source(data_source_id)
+            data_source_list = DataSource.query.filter(DataSource.id.in_(data_source_ids)).all()
+            for data_source in data_source_list:
                 data_source.update_from_key_value(edition_key, edition_value)
-                data_source_list.append(data_source)
-                print(data_source_list)
 
             db.session.commit()
+            DataSource.bulk_add_to_index(data_source_list)
 
-            for data_source in data_source_list:
-                DataSource.add_to_index(data_source)
-                db.session.refresh(data_source)
             return jsonify({"data_source_ids": data_source_ids})
 
         else:
