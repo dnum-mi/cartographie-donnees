@@ -1,25 +1,40 @@
 import React from 'react';
 import queryString from 'query-string'
-import { withRouter } from 'react-router-dom';
-import { Input, Tag, Button, Radio, Divider, Col, Row, Skeleton } from 'antd';
-import {UploadOutlined} from '@ant-design/icons';
+import {withRouter} from 'react-router-dom';
+import {Button, Col, Divider, Input, Modal, Radio, Row, Skeleton, Tag} from 'antd';
+import {ExclamationCircleOutlined, UploadOutlined} from '@ant-design/icons';
 import './SearchPage.css';
 import SearchTree from "./SearchTree";
 import queryTitles from "./query_titles";
 import {parseQuery, readString, listToString} from "./QueryUtils"
 
 import {
-    searchDataSources, searchApplicationsOfDataSources, searchOrganizations, searchFamilies, searchTypes,
-    searchReferentiels, searchSensibilities, searchOpenData, searchExpositions, searchOrigins, searchAnalysisAxis,
-    searchTags, exportSearchDataSources, countDataSourcesByEnumeration
+    exportSearchDataSources,
+    fetchSearchMetadata, massEditDataSource,
+    searchAnalysisAxis,
+    searchApplicationsOfDataSources,
+    searchDataSources,
+    searchExpositions,
+    searchFamilies,
+    searchOpenData,
+    searchOrganizations,
+    searchOrigins,
+    searchReferentiels,
+    searchSensibilities,
+    searchTags,
+    searchTypes,
 } from "../api";
 import Error from "../components/Error";
 import filters from "../filters";
 import Results from "./Results";
 
 import withTooltips from '../hoc/tooltips/withTooltips';
+import DataSourceHighlight from "./results/DataSourceHighlight";
+import withCurrentUser from "../hoc/user/withCurrentUser";
+import MassEdition from "./MassEdition";
 
-const { Search } = Input;
+const {Search} = Input;
+const {confirm} = Modal;
 
 const ANY_WORDS = "ANY_WORDS"
 const ALL_WORDS = "ALL_WORDS"
@@ -53,7 +68,10 @@ class SearchPage extends React.Component {
             tags: [],
             filtersCount: null,
             strictness: ANY_WORDS,
-            toExlude: ""
+            toExlude: "",
+            showEditionSection: false,
+            selectedDatasources: {},
+            resultDatasourceIds: []
         };
         return { ...state, ...parseQuery(this.props.location.search) }
     }
@@ -104,7 +122,7 @@ class SearchPage extends React.Component {
         return this.setStatePromise(newState)
             .then(() => {
                 const search = this.getQuery(this.state.query);
-                this.search(search);
+                return this.search(search);
             })
     }
 
@@ -114,19 +132,25 @@ class SearchPage extends React.Component {
             error: null,
         });
 
-        this.refreshDataSources(search)
+        return this.refreshDataSources(search)
             .then(() => this.refreshFilterCount(search))
-            .then(() => this.setState({ loading: false, error: null }))
-            .catch((error) => this.setState({ loading: false, error }));
+            .then(() => this.setState({loading: false, error: null}))
+            .catch((error) => this.setState({loading: false, error}));
     }
 
     setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve()));
 
     refreshDataSources = (query) => searchDataSources(query || '')
-        .then((response) => this.setStatePromise({ dataSources: response.data.results, total_count_data_source: response.data.total_count }));
+        .then((response) => this.setStatePromise({
+            dataSources: response.data.results,
+            total_count_data_source: response.data.total_count
+        }));
 
-    refreshFilterCount = (query) => countDataSourcesByEnumeration(query || '')
-        .then((response) => this.setStatePromise({ filtersCount: response.data.results }));
+    refreshFilterCount = (query) => fetchSearchMetadata(query || '')
+        .then((response) => this.setStatePromise({
+            filtersCount: response.data.count_by_enum,
+            resultDatasourceIds: response.data.data_source_ids
+        }));
 
     refreshFilters = () => Promise.all([
         this.refreshOrganizations(),
@@ -176,11 +200,15 @@ class SearchPage extends React.Component {
 
 
     //Modify url based on state, then componentDidUpdate will be called to actually do the search
-    onSearch = () => {
+    onSearch = (keepSelectedDatasource = false) => {
         const search = this.getQuery(this.state.query);
         this.props.history.push({
             search: search
         })
+
+        if (!keepSelectedDatasource) {
+            this.setState({selectedDatasources: {}})
+        }
     };
 
 
@@ -189,7 +217,7 @@ class SearchPage extends React.Component {
             page_data_source: page,
             count_data_source: count,
         })
-            .then(this.onSearch);
+            .then(() => this.onSearch(true));
     }
 
     getQueryResume = () => {
@@ -324,8 +352,7 @@ class SearchPage extends React.Component {
     renderSearchPageHeader = () => {
         if (this.state.homeDescription) {
             return null;
-        }
-        else {
+        } else {
             return (
                 <div>
                     <div className='search-header'>
@@ -356,27 +383,45 @@ class SearchPage extends React.Component {
             return this.renderLoading();
         } else if (this.state.homeDescription) {
             return (
-                <div className="home-description">
-                    <h3>
-                        {this.props.homepageContent["welcome_title"]}
-                    </h3>
-                    <div>
-                        {this.props.homepageContent["welcome_text"]}
+                <>
+                    <div className="home-description">
+                        <h3>
+                            {this.props.homepageContent["welcome_title"]}
+                        </h3>
+                        <div>
+                            {this.props.homepageContent["welcome_text"]}
+                        </div>
+                        <br />
+                        <a href={"mailto:"+this.props.homepageContent["welcome_email"]}>
+                            {this.props.homepageContent["welcome_email"]}
+                        </a>
                     </div>
-                    <br />
-                    <a href={"mailto:"+this.props.homepageContent["welcome_email"]}>
-                        {this.props.homepageContent["welcome_email"]}
-                    </a>
-                </div>
+                    <div className="home-highlights">
+                        <h3>
+                            Données mises en avant
+                        </h3>
+                        <div>
+                            {this.props.dataSourceHighlights.map((dataSource) => (
+                                <DataSourceHighlight
+                                  key={dataSource.id}
+                                  dataSource={dataSource}
+                                  onFilterSelect={(key, value) => this.addFilter(key, value)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </>
             );
-        }
-        else {
+        } else {
             return <Results dataSources={this.state.dataSources}
-                page_data_source={this.state.page_data_source}
-                count_data_source={this.state.count_data_source}
-                total_count_data_source={this.state.total_count_data_source}
-                onChangePageDataSource={this.onChangePageDataSource}
-                addFilter={this.addFilter}
+                            page_data_source={this.state.page_data_source}
+                            count_data_source={this.state.count_data_source}
+                            total_count_data_source={this.state.total_count_data_source}
+                            onChangePageDataSource={this.onChangePageDataSource}
+                            addFilter={this.addFilter}
+                            showEditionSection={this.state.showEditionSection}
+                            onCheckDatasource={this.onCheckDatasource}
+                            selectedDatasources={this.state.selectedDatasources}
             />;
         }
     }
@@ -469,6 +514,63 @@ class SearchPage extends React.Component {
         exportSearchDataSources("Recherche_donnees.csv", search);
     }
 
+    onCheckDatasource = (datasourceId, check) => {
+        const temp_selectedDatasources = {...this.state.selectedDatasources}
+        if (!!check) {
+            temp_selectedDatasources[datasourceId] = true
+            this.setState({selectedDatasources: temp_selectedDatasources})
+        } else {
+            delete temp_selectedDatasources[datasourceId]
+            this.setState({selectedDatasources: temp_selectedDatasources})
+        }
+    }
+
+    onCheckUncheckAll = (checkAll = true) => {
+        const temp_datasourceIds = {}
+        if (!!checkAll) {
+            for (const datasourceId of this.state.resultDatasourceIds) {
+                temp_datasourceIds[datasourceId] = true
+            }
+        }
+        this.setState({selectedDatasources: temp_datasourceIds})
+    }
+
+    onSubmitMassEdition = (form_values) => {
+        console.log("submit mass edition")
+        console.log("modif", form_values)
+        console.log("datasources", this.state.selectedDatasources)
+
+        confirm({
+            title: 'Modification de plusieurs données',
+            icon: <ExclamationCircleOutlined/>,
+            content: <div>
+                Vous êtes sur le point de
+                modifier <strong>{Object.keys(this.state.selectedDatasources).length} données</strong>.
+                Les valeurs actuelles du champ seront effacées et remplacées. Cette action est irréversible!
+            </div>,
+            onOk: () => {
+                this.setState({loading: true})
+                const key = form_values["massEditionField"]
+                const value = form_values["massEditionValues"]
+                massEditDataSource(
+                    Object.keys(this.state.selectedDatasources).map(Number),
+                    key === "organization_name"
+                        ? "application"
+                        : "datasource",
+                    key,
+                    value
+                ).then((res) => this.launchSearch()
+                ).then(() => {
+                    this.setState({selectedDatasources: {}})
+                }).catch((error) => this.setState({loading: false, error}));
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    }
+
+
     getDefaultActiveKey = () => {
         if (this.state.strictness === ANY_WORDS) {
             return []
@@ -488,7 +590,7 @@ class SearchPage extends React.Component {
                         defaultValue={this.props.match.params[queryTitles.query]}
                         onSearch={
                             (e) => {
-                                this.setStatePromise({ page_data_source: 1, })
+                                this.setStatePromise({page_data_source: 1,})
                                     .then(() => this.onSearch());
                             }}
                         onChange={this.onChange}
@@ -522,11 +624,21 @@ class SearchPage extends React.Component {
                         </Col>
                     </Row>
                 </div>
-                <Divider style={{ marginTop: 0 }} />
+                {this.props.currentUser.userIsAdmin() && !this.state.homeDescription &&
+                    <MassEdition onShowModificationSection={(checked) => this.setState({showEditionSection: checked})}
+                                 showEditionSection={this.state.showEditionSection}
+                                 selectedDatasources={this.state.selectedDatasources}
+                                 onCheckUncheckAll={this.onCheckUncheckAll}
+                                 onSubmitMassEdition={this.onSubmitMassEdition}
+                                 loading={this.state.loading}
+                                 totalCount={this.state.total_count_data_source}
+                    />
+                }
+                <Divider style={{marginTop: 0}}/>
                 {this.renderDataSourcesResults()}
             </div>
         );
     }
 }
 
-export default withRouter(withTooltips(SearchPage));
+export default withRouter(withCurrentUser(withTooltips(SearchPage)));

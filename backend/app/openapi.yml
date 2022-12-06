@@ -469,6 +469,8 @@ components:
           type: integer
         volumetry_comment:
           type: string
+        highlights_index:
+          type: integer
 
     DataSourceCSV:
       type: object
@@ -525,6 +527,8 @@ components:
           type: string
         Donnée référentielle:
           type: string
+        Rang dans la liste des données mise en avant:
+          type: integer
 
     DataSourceFamily:
       type: object
@@ -693,17 +697,3 @@ components:
         Mot de passe:
           type: string
           description: Mot de passe haché
-
-
-
-
-
-
-
-
-
-
-
-
-
-

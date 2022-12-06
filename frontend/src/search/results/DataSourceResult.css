@@ -1,3 +1,9 @@
+.DataSourceResultContainer{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .DataSourceResult {
     background: white;
     border-radius: 2px;
@@ -5,6 +11,7 @@
     color: rgba(0, 0, 0, 0.85);
     margin-bottom: 20px;
     border: 1px solid #d9d9d9;
+    flex-grow: 1;
 }
 
 .DataSourceResult h3 {
@@ -45,3 +52,18 @@
 .DataSourceResult .anticon-export {
   color: grey;
 }
+
+/*Highlight CSS*/
+.SearchPage .content .home-highlights .DataSourceResult h3 {
+    margin-bottom: 0.5em;
+}
+
+.DataSourceHighlightKpi{
+}
+
+.DataSourceHighlightKpi p{
+    color: rgba(0, 0, 0, 0.50);
+    margin-bottom: 0;
+}
+
+

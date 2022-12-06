@@ -76,6 +76,10 @@ class SearchableMixin(object):
         add_to_index(cls.__tablename__, model)
 
     @classmethod
+    def bulk_add_to_index(cls, models):
+        bulk_add_to_index(cls.__tablename__, models)
+
+    @classmethod
     def remove_from_index(cls, model):
         remove_from_index(cls.__tablename__, model)
 

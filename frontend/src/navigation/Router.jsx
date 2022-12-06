@@ -19,7 +19,7 @@ import DataSourceCreation from "../admin/data-sources/DataSourceCreation";
 import Navigation from "./Navigation";
 import RoutingCount from "./RoutingCount";
 
-function Router({ user, onLogin, homepageContent, synonymsContent, updateHomepage, loading }) {
+function Router({ user, onLogin, homepageContent, dataSourceHighlights, synonymsContent, updateHomepage, loading }) {
   return (
     <BrowserRouter>
       <RoutingCount loading={loading}></RoutingCount>
@@ -29,7 +29,7 @@ function Router({ user, onLogin, homepageContent, synonymsContent, updateHomepag
           <Redirect to="/search" />
         </Route>
         <Route path="/search" exact>
-          <SearchPage homepageContent={homepageContent}/>
+          <SearchPage homepageContent={homepageContent} dataSourceHighlights={dataSourceHighlights} />
         </Route>
         <Route path="/login" exact>
           <LoginPage user={user} onLogin={onLogin} />

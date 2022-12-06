@@ -19,8 +19,8 @@ export const countApplication = () => axios.get(API_HOST + '/applications/count'
 export const fetchDataSources = (page, count) => axios.get(API_HOST + '/data-sources?page=' + page + '&count=' + count);
 export const searchDataSources = (location) =>
         axios.get(API_HOST + '/data-sources/search' + location);
-export const countDataSourcesByEnumeration = (location) =>
-  axios.get(API_HOST + '/data-sources/count_by_enumeration' + location);
+export const fetchSearchMetadata = (location) =>
+  axios.get(API_HOST + '/data-sources/search-metadata' + location);
 
 export const createDataSource = (dataSource) => axios.post(API_HOST + '/data-sources', dataSource);
 export const readDataSource = (dataSourceId) => axios.get(API_HOST + '/data-sources/' + dataSourceId);
@@ -30,6 +30,8 @@ export const importDataSource = (file) => axios.post(API_HOST + '/data-sources/i
 export const importDataSourceByApplication = (file, applicationId) => axios.post(API_HOST + '/data-sources/import_by_application/' + applicationId, file, { "headers": { 'Content-Type': 'multipart/form-data' } });
 export const exportDataSourceUrl = API_HOST + '/data-sources/export';
 export const countDataSource = () => axios.get(API_HOST + '/data-sources/count');
+export const fetchDataSourceHighlights = () => axios.get(API_HOST + '/data-sources/highlights');
+export const massEditDataSource = (data_source_ids, edition_type, key, value) => axios.put(API_HOST + '/data-sources/mass-edition', {data_source_ids, edition_type, key, value});
 
 export const searchApplicationsOfDataSources = () => axios.get(API_HOST + '/data-sources/applications');
 export const searchOrganizations = () => axios.get(API_HOST + '/data-sources/organizations');
