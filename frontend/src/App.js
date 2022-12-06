@@ -4,6 +4,7 @@ import { Layout } from 'antd';
 import Router from './navigation/Router';
 import './App.css';
 import {readMe, fetchWildCards, fetchDataSourceHighlights} from './api';
+import Loading from "./components/Loading";
 import Error from "./components/Error";
 import {UserProvider} from "./hoc/user/UserProvider"
 import {TooltipsProvider} from "./hoc/tooltips/TooltipsProvider"
@@ -36,20 +37,13 @@ class App extends React.Component {
         return this.setStatePromise({
             loading: true,
             error: null,
-        }).then(() => Promise.all([
-            fetchWildCards("tooltips"),
-            fetchWildCards("homepage"),
-            fetchDataSourceHighlights(),
-        ]))
-            .then(([
-                res_tooltips,
-                res_homepage,
-                res_highlights,
-            ]) => {
+        }).then(() => Promise.all([fetchWildCards("tooltips"), fetchWildCards("homepage"), fetchWildCards("synonyme"), fetchDataSourceHighlights()]))
+            .then(([res_tooltips, res_homepage, res_synonyms, res_highlights]) => {
                 this.setState({
                     tooltips_object: new Tooltips(res_tooltips.data.tooltips, this.refreshWildcards),
                     homepageContent: res_homepage.data.homepage,
                     dataSourceHighlights: res_highlights.data.results,
+                    synonymsContent: res_synonyms.data.synonyme.synonyme,
                     loading: false,
                     error: null
                 })
@@ -110,11 +104,15 @@ class App extends React.Component {
                                     user={this.state.user}
                                     onLogin={this.refreshUser}
                                     homepageContent={this.state.homepageContent}
+                                    synonymsContent={this.state.synonymsContent}
                                     dataSourceHighlights={this.state.dataSourceHighlights}
                                     updateHomepage={this.updateHomepage}
                                     loading={this.state.loading}
                                 />
                             </Content>
+                            <Footer className="footer">
+                                Designed by Artelys ©2021
+                            </Footer>
                         </Layout>
                     </TooltipsProvider>
                 </UserProvider>

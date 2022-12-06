@@ -8,6 +8,8 @@ from app.decorators import admin_required
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
 from app.models.WildCard import WildCard
+from app.models import DataSource, Application
+from app.search import remove_accent
 
 from . import api
 
@@ -21,9 +23,13 @@ def create_update_wildcards():
         json = request.get_json(force=True)
         data = json.get("data", [])
         wild_cards = []
+        requires_reindex = False
 
         for item in data:
             wild_card = WildCard.query.filter_by(namespace=item["namespace"], key=item["key"]).one_or_none()
+            if item['namespace'] == 'synonyme':
+                item['value'] = remove_accent(item['value'])
+                requires_reindex = True
             if wild_card is None:
                 wild_card = WildCard.from_dict(item)
                 db.session.add(wild_card)
@@ -33,6 +39,9 @@ def create_update_wildcards():
             wild_cards.append(wild_card)
 
         db.session.commit()
+        if requires_reindex:
+            DataSource.reindex()
+            Application.reindex()
         return jsonify([wild_card.to_dict() for wild_card in wild_cards])
 
     except Exception as e:

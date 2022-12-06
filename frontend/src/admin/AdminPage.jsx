@@ -121,7 +121,11 @@ class AdminPage extends React.Component {
                     key="settings"
                     path={this.props.match.url + '/settings'}
                 >
-                    <SettingsRouter updateHomepage = {this.props.updateHomepage} homepageContent= {this.props.homepageContent}/>
+                    <SettingsRouter
+                        updateHomepage = {this.props.updateHomepage}
+                        homepageContent= {this.props.homepageContent}
+                        synonymsContent={this.props.synonymsContent}
+                    />
                 </Route>
                 )}
                 {this.props.user.is_admin && (

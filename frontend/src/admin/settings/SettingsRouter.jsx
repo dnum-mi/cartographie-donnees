@@ -11,7 +11,11 @@ class SettingsRouter extends React.Component {
                     path={this.props.match.url}
                     exact
                 >
-                    <SettingsPage updateHomepage = {this.props.updateHomepage} homepageContent= {this.props.homepageContent}/>
+                    <SettingsPage
+                        updateHomepage = {this.props.updateHomepage}
+                        homepageContent= {this.props.homepageContent}
+                        synonymsContent={this.props.synonymsContent}
+                    />
                 </Route>
             </Switch>
         );

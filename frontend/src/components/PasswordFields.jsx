@@ -1,15 +1,15 @@
 import { Form, Input } from "antd";
 
 
-export default function PasswordFields() {
+export default function PasswordFields({isNewUser, passwordConfirmationRequired}) {
     return (
         <>
             <Form.Item
-                label="Mot de passe"
+                label={isNewUser ? "Mot de passe" : "Nouveau mot de passe"}
                 name="password"
                 hasFeedback
                 rules={[{
-                    required: true,
+                    required: isNewUser,
                     type: 'string',
                     min: 8,
                     message: 'Le mot de passe doit contenir 8 caractères',
@@ -23,7 +23,7 @@ export default function PasswordFields() {
                 dependencies={['password']}
                 hasFeedback
                 rules={[{
-                    required: true,
+                    required: isNewUser || passwordConfirmationRequired,
                     type: 'string',
                     min: 8,
                     message: 'Merci de confirmer votre mot de passe',
