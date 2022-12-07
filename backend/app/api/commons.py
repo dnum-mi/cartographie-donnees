@@ -100,7 +100,7 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
             if "access_url" in item_dict:
                 item_dict["access_url"] = url_normalize(item_dict["access_url"])
 
-            if item_dict['namespace'] == 'synonyme':
+            if resource_class is WildCard and 'namespace' in item_dict and item_dict['namespace'] == 'synonyme':
                 item_dict['value'] = remove_accent(item_dict['value'])
 
             # Each row is converted into SQLAlchemy model instances
