@@ -117,6 +117,7 @@ def get_origin_applications(origin_applications):
 
 @api.route('/api/data-sources', methods=['POST'])
 @login_required
+@admin_or_owner_required
 def create_data_source():
     """Créer une donnée
     ---
