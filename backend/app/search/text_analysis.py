@@ -15,8 +15,11 @@ def set_default_analyzer(index):
 
 def get_synonyms():
     query = WildCard.query.filter_by(namespace='synonyme', key='synonyme').first()
-    synonyms_raw = query.value
-    return synonyms_raw.splitlines()
+    if query is not None:
+        synonyms_raw = query.value
+        return synonyms_raw.splitlines()
+    else:
+        return []
 
 
 def get_french_analyzer_payload():
