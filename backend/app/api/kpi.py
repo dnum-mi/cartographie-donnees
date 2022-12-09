@@ -80,6 +80,7 @@ def get_routing_kpi():
             db.session.query(RoutingKPI.pathname, func.count(RoutingKPI.id).label("count")).
             filter(RoutingKPI.id.in_(filter_by_date)).
             group_by(RoutingKPI.pathname).
+            filter(RoutingKPI.pathname.in_(["search", "data-source", "admin", "login"])).
             order_by(desc("count")).
             all()
         )

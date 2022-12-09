@@ -141,7 +141,7 @@ class KpiPage extends React.Component {
             this.state.loading
                 ? <Skeleton active/>
                 : <div className="KpiPage">
-                    <h1>Indicateur de performance du site</h1>
+                    <h1>Indicateurs de l'outil</h1>
                     <div className="KpiPageHeader">
                         <div>Nombre total de lignes: {this.state.count_kpi}</div>
                         <div>
