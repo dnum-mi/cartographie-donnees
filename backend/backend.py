@@ -6,6 +6,6 @@ app = create_app()
 
 with app.app_context():
     print("Indexing elasticsearch...")
-    # Application.reindex()
-    # DataSource.reindex()
+    Application.reindex()
+    DataSource.reindex()
     print("Indexing ended...")

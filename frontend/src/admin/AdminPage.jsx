@@ -296,9 +296,21 @@ class AdminPage extends React.Component {
                             dans le périmètre de l'application.
                         </li>
                         <li>
-                            <b>Niveau de description de l'application</b> : taux de remplissage moyen des fiches pour les
-                            données dans le périmètre de l'application. Ce taux de remplissage par fiche est calculé à partir
-                            de tous les champs visibles sur la fiche donnée.
+                            <b>Niveau de description de l'application</b> : moyenne pour chaque application des données
+                            décrites du remplissage des 24 champs suivants :
+                            <ul>
+                                <li>
+                                    19 champs "donnée" : Nom, Description, Application, Famille, Type, Exemple, Sensibilité,
+                                    OpenData, Base/index, Table, Nb tables, Champ, Nb champs, Volumétrie, Production par mois,
+                                    Mise à jour, Conservation, Exposition, Origine (sont exclus les champs : Réutilisation,
+                                    Tag, Commentaire sur la volumétrie, Commentaire sur la  production par mois, Axes d'analyse,
+                                    Application source, Donnée référentielle)
+                                </li>
+                                <li>
+                                    5 champs "application" : Contact, Nombre d'opérateurs, Nombre d'utilisateurs,
+                                    Nombre de connexions mensuelles, Historique.
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                     <h3>

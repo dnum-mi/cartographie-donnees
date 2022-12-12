@@ -35,6 +35,7 @@ RUN ssl="$(npm config get strict-ssl)" ; [ "x$ssl" = "xfalse" ] && export NODE_T
 # Build the frontend
 COPY frontend/src src
 COPY frontend/public public
+ENV NODE_OPTIONS --openssl-legacy-provider
 RUN npm run build --production
 
 # Remove the node modules
