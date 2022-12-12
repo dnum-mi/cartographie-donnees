@@ -50,6 +50,64 @@ def getDatesFromArgs(args):
     return start_date, end_date
 
 
+@api.route('/api/kpi/admin', methods=['GET'])
+def get_admin_kpi():
+    try:
+        kpis = {}
+
+        application_count = db.session.query(func.count(Application.id)).scalar()
+
+        kpis["avg_datasources_per_application"] = round(
+            DataSource.query.count()
+            / application_count,
+            2
+        )
+
+        kpis["avg_referentiels_per_application"] = round(
+            DataSource.query.filter_by(is_reference=True).count()
+            / application_count,
+            2
+        )
+
+        kpis["count_applications_with_referentiels"] = DataSource.query \
+            .filter_by(is_reference=True) \
+            .distinct(DataSource.application_id) \
+            .count()
+
+        reutilizations_per_application = [appli.reutilization_count for appli in Application.query.all()]
+        kpis["avg_reutilizations_per_application"] = round(
+            sum(reutilizations_per_application) / len(reutilizations_per_application),
+            2
+        )
+
+        kpis["count_applications_with_reutilizations"] = len(
+            [element for element in reutilizations_per_application if element != 0])
+
+        datasource_description_level = []
+        application_description_level = {}
+        for ds in DataSource.query.all():
+            datasource_description_level += [ds.datasource_description_level]
+            application_description_level[ds.application_id] = \
+                application_description_level.get(ds.application_id, []) + [ds.datasource_description_level]
+
+        kpis["avg_datasource_description_level"] = round(
+            sum(datasource_description_level) / len(datasource_description_level)
+            , 2
+        )
+
+        kpis["avg_application_description_level"] = round(
+            sum(  # average of average description level per application
+                sum(temp) / len(temp) for temp in application_description_level.values()
+            ) / len(application_description_level.keys())
+            , 2
+        )
+
+        return jsonify(kpis)
+
+    except Exception as e:
+        raise BadRequest(str(e))
+
+
 @api.route('/api/kpi/count', methods=['GET'])
 @login_required
 @admin_required

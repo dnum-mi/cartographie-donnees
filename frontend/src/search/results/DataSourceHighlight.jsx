@@ -54,7 +54,7 @@ class DataSourceHighlight extends React.Component {
                 <div className="DataSourceHighlightKpi">
                     Utilisateurs : {this.formatNumber(this.props.dataSource.application.user_count) || " -"}
                     <Divider type={"vertical"}/>
-                    Réutilisations : {this.formatNumber(this.props.dataSource.reutilizations.length) || 0}
+                    Réutilisations : {this.formatNumber(this.props.dataSource.nb_reutilizations) || 0}
                 </div>
             </div>
         );
