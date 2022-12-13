@@ -16,6 +16,59 @@ from . import api
 
 @api.route('/api/kpi/routing', methods=['POST'])
 def create_routing_kpi_item():
+    """Ajouter une ligne à la table routingKPI
+    ---
+    post:
+      tags:
+        - Indicateurs
+      summary: Ajouter une ligne à la table routingKPI
+      requestBody:
+          description: Un objet JSON représentant une ligne de la table routingKPI
+          required: true
+          content:
+            application/json:
+                schema:
+                  type: object
+                  properties:
+                    location:
+                        type: object
+                        properties:
+                            pathname:
+                                type: string
+                            search:
+                                type: string
+                            hash:
+                                type: string
+                    user:
+                        type: object
+                        properties:
+                            is_general_admin:
+                                type: boolean
+                            is_simple_admin:
+                                type: boolean
+      responses:
+        200:
+          description: JSON representant la ligne créée dans routingKPI
+          content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                          date:
+                            type: string
+                          id:
+                            type: integer
+                          is_general_admin:
+                            type: boolean
+                          is_simple_admin:
+                            type: boolean
+                          pathname:
+                            type: string
+                          search:
+                            type: string
+                          subpath:
+                            type: string
+    """
     try:
         json = request.get_json(force=True)
         location = json.get("location", {})
@@ -51,7 +104,39 @@ def getDatesFromArgs(args):
 
 
 @api.route('/api/kpi/admin', methods=['GET'])
+@login_required
+@admin_required
 def get_admin_kpi():
+    """ Obtenir les indicateurs pour l'administration
+    ---
+    get:
+      tags:
+        - Indicateurs
+      summary: Obtenir les indicateurs pour l'administration
+      description: L'authentification est requise. L'utilisateur doit être administrateur général.
+      responses:
+        200:
+          description: Un JSON contenant les indicateurs pour l'administration
+          content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            avg_application_description_level:
+                                type: float
+                            avg_datasource_description_level:
+                                type: float
+                            avg_datasources_per_application:
+                                type: float
+                            avg_referentiels_per_application:
+                                type: float
+                            avg_reutilizations_per_application:
+                                type: float
+                            count_applications_with_referentiels:
+                                type: integer
+                            count_applications_with_reutilizations:
+                                type: integer
+    """
     try:
         kpis = {}
 
@@ -112,6 +197,24 @@ def get_admin_kpi():
 @login_required
 @admin_required
 def get_count_kpi():
+    """ Obtenir le nombre de ligne stockés pour les indicateurs de fréquentation
+    ---
+    get:
+      tags:
+        - Indicateurs
+      summary: Obtenir le nombre de ligne stockés pour les indicateurs de fréquentation
+      description: L'authentification est requise. L'utilisateur doit être administrateur général.
+      responses:
+        200:
+          description: Un JSON contenant le nombre de lignes
+          content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            count:
+                                type: integer
+    """
     try:
         count = db.session.query(RoutingKPI.id).count() + db.session.query(SearchingKPI.id).count()
         return jsonify({"count": count})
@@ -124,6 +227,49 @@ def get_count_kpi():
 @login_required
 @admin_required
 def get_routing_kpi():
+    """ Obtenir les indicateurs types de page et fiches donnée visités entre deux dates
+    ---
+    get:
+        tags:
+            - Indicateurs
+        summary: Obtenir les indicateurs types de page et fiches donnée visités entre deux dates
+        description: L'authentification est requise. L'utilisateur doit être administrateur général.
+        parameters:
+            - start_date
+            - end_date
+
+        responses:
+            200:
+                description: Un JSON contenant les indicateurs types de page et fiches donnée visités entre start_date et end_date
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                datasource_count_visits:
+                                    type: array
+                                    items:
+                                        type: object
+                                        properties:
+                                            application_name:
+                                                type: string
+                                            count:
+                                                type: integer
+                                            data_source_id:
+                                                type: integer
+                                            data_source_name:
+                                                type: string
+                                path_count_visits:
+                                    type: array
+                                    items:
+                                        type: object
+                                        properties:
+                                            count:
+                                                type: integer
+                                            pathname:
+                                                type: ["search", "login", "admin", "data-source"]
+        """
+
     try:
 
         kpis = {}
@@ -171,6 +317,37 @@ def get_routing_kpi():
 @login_required
 @admin_required
 def get_search_kpi():
+    """ Obtenir les indicateurs filtre et terme de recherche entre deux dates
+    ---
+    get:
+        tags:
+            - Indicateurs
+        summary: Obtenir les indicateurs filtre et terme de recherche entre deux dates
+        description: L'authentification est requise. L'utilisateur doit être administrateur général.
+        parameters:
+            - start_date
+            - end_date
+
+        responses:
+            200:
+                description: Un JSON contenant les indicateurs filtre et terme de recherche entre start_date et end_date
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                filters_queries:
+                                    description: "[[Nom du filtre, Nombre d'utilisations],...]"
+                                    type: array
+                                    items:
+                                        type: array
+                                text_queries:
+                                    description: "[[Terme de recherche, Nombre d'utilisations],...]"
+                                    type: array
+                                    items:
+                                        type: array
+        """
+
     try:
 
         start_date, end_date = getDatesFromArgs(request.args)
@@ -217,18 +394,69 @@ def get_search_kpi():
 @login_required
 @admin_required
 def delete_kpi_year():
-    current_date = datetime.date.today()
-    start_date = current_date - datetime.timedelta(days=365)
-    delete_searching = db.session.query(SearchingKPI).filter(SearchingKPI.date <= start_date).delete()
-    delete_routing = db.session.query(RoutingKPI).filter(RoutingKPI.date <= start_date).delete()
-    db.session.commit()
-    return jsonify(dict(description=f"OK, {delete_searching + delete_routing} deleted", code=200))
+    """Supprimer les données de navigation plus vieilles que 1 an
+    ---
+    delete:
+        tags:
+            - Indicateurs
+        summary: Supprimer les données de navigation plus vieilles que 1 an
+        description: L'authentification est requise. L'utilisateur doit être administrateur général.
+
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+    """
+    try:
+        current_date = datetime.date.today()
+        start_date = current_date - datetime.timedelta(days=365)
+        delete_searching = db.session.query(SearchingKPI).filter(SearchingKPI.date <= start_date).delete()
+        delete_routing = db.session.query(RoutingKPI).filter(RoutingKPI.date <= start_date).delete()
+        db.session.commit()
+        return jsonify(dict(description=f"OK, {delete_searching + delete_routing} deleted", code=200))
+
+    except Exception as e:
+        raise BadRequest(str(e))
+
 
 
 @api.route('/api/kpi/routing/export', methods=['GET'])
 @login_required
 @admin_required
 def export_routing_kpi():
+    """Exporter les données de la table routingKPI (indicateurs fiche donnée et type de page)
+    ---
+    get:
+        tags:
+            - Indicateurs
+        summary: Exporter les données de la table routingKPI (indicateurs fiche donnée et type de page)
+        description: L'authentification est requise. L'utilisateur doit être administrateur général.
+
+        responses:
+            '200':
+              description: La table routingKPI exportées.
+              content:
+                application/csv:
+                    schema:
+                        type: object
+                        properties:
+                            id:
+                                type: integer
+                            URL:
+                                type: string
+                            Complément d'URL:
+                                type: string
+                            Recherche:
+                                type: string
+                            Administrateur général?:
+                                type: boolean
+                            Administrateur?:
+                                type: boolean
+                            Date:
+                                type: date
+    """
     return export_resource(RoutingKPI, "historique_navigation.csv")
 
 
@@ -236,13 +464,35 @@ def export_routing_kpi():
 @login_required
 @admin_required
 def export_searching_kpi():
-    return export_resource(SearchingKPI, "historique_recherche.csv")
+    """Exporter les données de la table searchingKPI (indicateurs filtre et terme de recherche)
+    ---
+    get:
+        tags:
+            - Indicateurs
+        summary: Exporter les données de la table searchingKPI (indicateurs filtre et terme de recherche)
+        description: L'authentification est requise. L'utilisateur doit être administrateur général.
 
-# @api.route('/api/kpi/all', methods=['DELETE'])
-# @login_required
-# @admin_required
-# def delete_kpi_all():
-#     delete_searching = db.session.query(SearchingKPI).delete()
-#     delete_routing = db.session.query(RoutingKPI).delete()
-#     db.session.commit()
-#     return jsonify(dict(description=f"OK, {delete_searching+delete_routing} deleted", code=200))
+        responses:
+            '200':
+              description: La table searchingKPI exportées.
+              content:
+                application/csv:
+                    schema:
+                        type: object
+                        properties:
+                            id:
+                                type: integer
+                            Recherche textuelle:
+                                type: string
+                            Type de recherche textuelle:
+                                type: string
+                            Exclusion:
+                                type: string
+                            Filtre:
+                                type: object
+                                description: "{Type de filtre: [Noms de filtres, ...]}"
+                            Date:
+                                type: date
+    """
+
+    return export_resource(SearchingKPI, "historique_recherche.csv")

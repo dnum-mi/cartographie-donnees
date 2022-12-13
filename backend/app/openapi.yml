@@ -11,6 +11,8 @@ tags:
   - name: Donnees
   - name: Filtres
   - name: Utilisateurs
+  - name: Wildcards
+  - name: Indicateurs
 
 components:
 
@@ -301,7 +303,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DataSource"
-
 
     ApplicationCSV:
       type: object
@@ -697,3 +698,29 @@ components:
         Mot de passe:
           type: string
           description: Mot de passe haché
+
+    Wildcard:
+      type: object
+      properties:
+        namespace:
+          type: string
+        key:
+          type: string
+        value:
+          type: any
+
+    WildcardCSV:
+      type: object
+      required:
+        - Namespace
+        - Clé
+        - Contenu
+      properties:
+        Namespace:
+          type: string
+        Clé:
+          type: string
+        Contenu:
+          type: any
+        Libellé:
+          type: string
