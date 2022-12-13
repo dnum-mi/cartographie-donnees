@@ -134,7 +134,9 @@ class AdminPage extends React.Component {
                         key="kpi"
                         path={this.props.match.url + '/kpi'}
                     >
-                        <KPIPage/>
+                        <KPIPage
+                            application_count={this.state.application_count}
+                        />
                     </Route>
                 )}
 
@@ -315,9 +317,39 @@ class AdminPage extends React.Component {
                             de tous les champs visibles sur la fiche donnée.
                         </li>
                     </ul>
+
+
                     <h3>
                         Indicateurs de l'outil
                     </h3>
+
+                    <h4>Indicateurs pour l'administration</h4>
+                    <ul>
+                        <li>
+                            Nombre moyen de données par application
+                        </li>
+                        <li>
+                            Nombre moyen de référentiels utilisés par application
+                        </li>
+                        <li>
+                            Nombre d'applications avec au moins un référentiel
+                        </li>
+                        <li>
+                            Nombre moyen de réutilisations par application
+                        </li>
+                        <li>
+                            Nombre d'applications avec au moins une réutilisation
+                        </li>
+                        <li>
+                            Niveau moyen de description sur l’ensemble des données
+                        </li>
+                        <li>
+                            Niveau moyen de description par application (Uniquement pour les applications contenant
+                            des données
+                        </li>
+                    </ul>
+
+                    <h4>Indicateurs de fréquentation</h4>
                     <p>
                         Les indicateurs de fréquentation sont calculés sur une période de temps à définir (par défaut 1
                         an passé)
@@ -329,9 +361,12 @@ class AdminPage extends React.Component {
                         </li>
                         <li>
                             <b>Type de page</b> : Le nombre de visite par type de page (Recherche, Fiche donnée,
-                            Administration, Connexion).
-                            Les visites de pages inexistantes (url inconnu) sont stokées en base de donnée mais ne sont
-                            pas comptabilisées pour cet indicateur.
+                            Administration, Connexion). Les pages sont classées en fonction de la première partie de
+                            leur chemin d'accès: /search, /data-source, /admin, /login. Les visites de pages
+                            inexistantes sont également comptabilisé si la première partie du chemin d'accès est
+                            connue. Par exemple "/data-source/xxxx" sera compté comme une visite à une
+                            page de type fiche donnée même cette donnée n'existe pas mais "/xxxx" ne sera pas
+                            compté comme une visite de page.
                         </li>
                         <li>
                             <b>Filtre</b> : Les 50 filtres de recherche les plus utilisées.

@@ -79,6 +79,7 @@ export const exportWildCardsUrl = wildCardEndpoint + '/export';
 export const updateRoutingKPI = (user, location) => axios.post(API_HOST + '/kpi/routing', {"user":user, "location":location});
 export const fetchRoutingKPI = (start_date, end_date) => axios.get(API_HOST + '/kpi/routing?start_date=' + start_date + '&end_date=' + end_date);
 export const fetchSearchingKPI = (start_date, end_date) => axios.get(API_HOST + '/kpi/searching?start_date=' + start_date + '&end_date=' + end_date);
+export const fetchAdminKPI = () => axios.get(API_HOST + '/kpi/admin');
 export const fetchCountKPI = () => axios.get(API_HOST + '/kpi/count');
 export const deleteYearBrowsingKPI = () => axios.delete(API_HOST + '/kpi/year');
 export const exportRoutingKPIUrl = API_HOST + '/kpi/routing/export';
