@@ -13,7 +13,7 @@ const LABELS = {
     "reutilizations": "Réutilisations",
     "organization_name": "Organisation"
 }
-const EDITABLE_ID = ["family_name", "analysis_axis_name", "type_name", "is_reference", "origin_name", "origin_applications", "open_data_name", "exposition_name", "sensibility_name", "tag_name", "application", "organization_name", "reutilizations"]
+const EDITABLE_ID = ["family_name", "organization_name", "application", "type_name", "is_reference", "sensibility_name", "open_data_name", "exposition_name", "origin_name", "analysis_axis_name", "tag_name", "origin_applications", "reutilizations"]
 
 
 class MassEdition extends React.Component {
