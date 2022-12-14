@@ -107,8 +107,13 @@ class TextAttribute extends React.Component {
             let min_value = 1950;
             let max_value = 2050;
             return [{
-                required: !!this.props.required,
                 validator: (_, value) => {
+                    if (value === null){
+                        if (!!this.props.required){
+                            Promise.reject(new Error('Ce champ est requis!'))
+                        }
+                        return Promise.resolve()
+                    }
                     if (value < min_value || value > max_value) {
                         return Promise.reject(new Error('Veuillez sélectionner un nombre entre 1950 et l\'année en cours'))
                     }
@@ -120,8 +125,13 @@ class TextAttribute extends React.Component {
             let min_value = 1;
             let max_value = 10;
             return [{
-                required: !!this.props.required,
                 validator: (_, value) => {
+                    if (value === null){
+                        if (!!this.props.required){
+                            Promise.reject(new Error('Ce champ est requis!'))
+                        }
+                        return Promise.resolve()
+                    }
                     if (value < min_value || value > max_value) {
                         return Promise.reject(new Error('Veuillez sélectionner un nombre entre 1 et 10'))
                     }
