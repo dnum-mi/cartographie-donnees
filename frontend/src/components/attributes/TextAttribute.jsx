@@ -1,5 +1,5 @@
 import React from "react";
-import {Form, Input, Spin, Typography} from "antd";
+import {Form, Input, InputNumber, Spin, Typography} from "antd";
 import {commonPropTypes, textPropTypes} from "./attributePropTypes";
 import {commonDefaultProps, textDefaultProps} from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
@@ -103,7 +103,32 @@ class TextAttribute extends React.Component {
                 required: !!this.props.required,
                 type: "email"
             }]
-        }  else {
+        } else if (this.props.attributeId === "application_historic") {
+            let min_value = 1950;
+            let max_value = 2050;
+            return [{
+                required: !!this.props.required,
+                validator: (_, value) => {
+                    if (value < min_value || value > max_value) {
+                        return Promise.reject(new Error('Veuillez sélectionner un nombre entre 1950 et l\'année en cours'))
+                    }
+                    return Promise.resolve()
+                },
+            }]
+
+        } else if (this.props.attributeId === "highlights_index") {
+            let min_value = 1;
+            let max_value = 10;
+            return [{
+                required: !!this.props.required,
+                validator: (_, value) => {
+                    if (value < min_value || value > max_value) {
+                        return Promise.reject(new Error('Veuillez sélectionner un nombre entre 1 et 10'))
+                    }
+                    return Promise.resolve()
+                },
+            }]
+        } else {
             return [{
                 required: !!this.props.required,
             }]
@@ -132,38 +157,26 @@ class TextAttribute extends React.Component {
                     disabled={mustAwaitApplicationSelection}
                 />
             );
+        } else if (this.props.inputType === "number") {
+            input = (
+                <InputNumber
+                    id={this.props.attributeId}
+                    placeholder={this.props.editionPlaceholder}
+                    className={this.attributeInputClassName()}
+                    min={0}
+                    size="small"
+                />
+            );
         } else {
-
-            let min_value = null;
-            let max_value = null;
-
-            if (this.props.inputType === "number"){
-                switch (this.props.attributeId){
-                    case "highlights_index":
-                        min_value = 1;
-                        max_value = 10;
-                        break
-                    case "application_historic":
-                        min_value = 1000;
-                        max_value = 3000;
-                        break
-                    default:
-                        min_value = 0
-                        break
-                }
-            }
-
             input = (
                 <Input
                     id={this.props.attributeId}
-                    type={this.props.inputType}
                     placeholder={this.props.editionPlaceholder}
                     className={this.attributeInputClassName()}
-                    min={min_value}
-                    max={max_value}
                 />
             );
         }
+
         return (
             <div className="attribute-input-container">
                 <Spin spinning={spinning}>
