@@ -14,13 +14,20 @@ export default class ApplicationSelect extends React.Component {
 
     componentDidMount() {
         this.props.limited
-            ? searchApplicationsLimited("").then((data) => this.setState({ applications: data.data.results, loading: false }))
-            : searchApplications("").then((data) => this.setState({ applications: data.data.results, loading: false }))
+            ? searchApplicationsLimited("").then((data) => this.setState({
+                applications: data.data.results,
+                loading: false
+            }))
+            : searchApplications("").then((data) => this.setState({applications: data.data.results, loading: false}))
     }
 
-    valuesToOptions = (values) => !!values ? (values.map((value) => ({ key: value.id, value: value.id, label: value.name }))) : [];
+    valuesToOptions = (values) => !!values ? (values.map((value) => ({
+        key: value.id,
+        value: value.id,
+        label: value.name
+    }))) : [];
 
-    optionsToValues = (options) => !!options ? (options.map((option) => ({ id: option.value, name: option.label }))) : [];
+    optionsToValues = (options) => !!options ? (options.map((option) => ({id: option.value, name: option.label}))) : [];
 
     onChange = (newChoice) => {
         if (!!this.props.mode && this.props.mode === "multiple") {
@@ -29,6 +36,21 @@ export default class ApplicationSelect extends React.Component {
             this.props.onChange(this.state.applications.find((app) => app.id === newChoice));
         }
     }
+
+    getInitialValues = () => {
+        if (!!this.props.mode && this.props.mode === "multiple") {
+            return this.valuesToOptions(this.props.value)
+        } else {
+            return !!this.props.value
+                ? {
+                    key: this.props.value.id,
+                    value: this.props.value.id,
+                    label: this.props.value.name
+                }
+                : null
+        }
+    }
+
 
     render() {
         return (
@@ -40,13 +62,7 @@ export default class ApplicationSelect extends React.Component {
                 <Select
                     mode={this.props.mode}
                     labelInValue={!!this.props.mode && this.props.mode === "multiple"}
-                    value={
-                        this.state.loading
-                            ? null
-                            : (!!this.props.mode && this.props.mode === "multiple") ?
-                                this.valuesToOptions(this.props.value) :
-                                this.props.value.id
-                    }
+                    defaultValue={this.getInitialValues()}
                     placeholder="Sélectionnez une application"
                     showSearch
                     optionFilterProp="children"
@@ -55,7 +71,7 @@ export default class ApplicationSelect extends React.Component {
                         optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
                     }
                     onChange={this.onChange}
-                    style={{ width: '100%' }}
+                    style={{width: '100%'}}
                 >
                     {this.state.applications.map((application) =>
                         <Select.Option key={application.id} value={application.id}>
@@ -65,5 +81,10 @@ export default class ApplicationSelect extends React.Component {
                 </Select>
             </Spin>
         );
+    }
+}
+
+ApplicationSelect.defaultProps = {
+    onChange: () => {
     }
 }

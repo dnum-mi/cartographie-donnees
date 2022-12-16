@@ -20,6 +20,15 @@
     white-space: pre-line;
 }
 
+.SearchPage .content .home-highlights {
+    padding: 20px;
+}
+
+.SearchPage .content .home-highlights h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
 .SearchPage .content .right-col {
     width: 300px;
 }
@@ -76,4 +85,25 @@
 
 .SearchPage .search-header .download-search {
     margin-left: auto;
+}
+
+.mass-modification-section{
+    margin-bottom: 24px;
+}
+
+.mass-modification-section .ant-tag-checkable{
+    border: 1px solid #d9d9d9;
+    padding: 4px 15px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.mass-modification-section .ant-tag-checkable:hover{
+    border: 1px solid #40a9ff
+}
+
+
+.mass-modification-section .ant-tag-checkable-checked{
+    border: 1px solid transparent;
+    background-color: #1890ff;
 }

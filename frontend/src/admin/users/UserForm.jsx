@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types'
 import withTooltips from "../../hoc/tooltips/withTooltips";
 import {
@@ -44,8 +44,17 @@ const tailFormItemLayout = {
     },
 };
 
-const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications, tooltips}) => {
+const UserForm = ({ isNewUser, onSubmit, user = {}, withOwnedApplications, tooltips}) => {
     const [form] = Form.useForm();
+    const [passwordConfirmationRequired, setPasswordConfirmationRequired] = useState(false);
+
+    const onValuesChange = (changedValues, allValues) => {
+        const anyPassword = allValues.password
+            ? Object.values(allValues.password).filter(Boolean).length > 0
+            : false;
+        setPasswordConfirmationRequired(anyPassword);
+    };
+
     return (
         <Form
             {...formItemLayout}
@@ -55,6 +64,7 @@ const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications, to
             className="form-container"
             scrollToFirstError
             initialValues={user}
+            onValuesChange={onValuesChange}
         >
             <Form.Item
                 name="first_name"
@@ -92,10 +102,8 @@ const UserForm = ({ withPassword, onSubmit, user = {}, withOwnedApplications, to
                 <Checkbox />
             </Form.Item>
 
-            {withPassword && <PasswordFields />}
-
             {withOwnedApplications && <UserOwnership user={user} />}
-
+            <PasswordFields isNewUser={!!isNewUser} passwordConfirmationRequired={passwordConfirmationRequired}/>
 
             <Form.Item {...tailFormItemLayout}>
                 <Button type="primary" htmlType="submit">

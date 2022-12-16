@@ -1,0 +1,43 @@
+.mass-edition{
+    margin-bottom: 24px;
+}
+
+.mass-edition .ant-tag-checkable{
+    border: 1px solid #d9d9d9;
+    padding: 4px 15px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.mass-edition .ant-tag-checkable:hover{
+    background-color: #fafafa;
+    color: inherit;
+}
+
+
+.mass-edition .ant-tag-checkable-checked{
+    background-color: #e0e0e0;
+    color: inherit;
+}
+
+.mass-edition .ant-tag-checkable-checked:hover{
+    background-color: #c8c8c8;
+}
+
+.mass-edition-form{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.mass-edition-form > .field-select{
+    flex: 0 0 200px
+}
+
+.mass-edition-form > .value-select{
+    flex: 1 1 200px
+}
+
+.mass-edition-form > .submit-button{
+    flex: 0 0
+}

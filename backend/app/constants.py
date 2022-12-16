@@ -71,6 +71,7 @@ field_english_to_french_dic = {
     "search": "Recherche",
     "is_general_admin": "Administrateur général?",
     "is_simple_admin": "Administrateur?",
+    "highlights_index": "Rang dans la liste des données mise en avant",
 }
 
 field_french_to_english_dic = {
@@ -136,6 +137,7 @@ field_french_to_english_dic = {
     "Nombre de réutilisations": "reutilization_count",
     "Niveau de description de l'application": "application_description_level",
     "Niveau de description des données": "datasource_description_level",
+    "Rang dans la liste des données mise en avant": "highlights_index",
 }
 
 enumeration_french_to_english = {
@@ -195,11 +197,27 @@ DATASOURCE_ORIGINAL_FIELDS_ID = [
     'origin_name',
     'origin_applications',
     'is_reference',
+    'highlights_index',
     'application_context_email',
     'application_operator_count',
     'application_user_count',
     'application_monthly_connection_count',
     'application_historic',
+]
+
+DATASOURCE_ID_NO_COMMENT = [
+    field
+    for field in DATASOURCE_ORIGINAL_FIELDS_ID
+    if (field not in [
+        'reutilizations',
+        'tag_name',
+        'volumetry_comment',
+        'monthly_volumetry_comment',
+        'analysis_axis_name',
+        'origin_applications',
+        'is_reference',
+        'highlights_index',
+    ])
 ]
 
 # Ordered by order of appearance on datasource page
@@ -254,17 +272,3 @@ WILDCARDS_LABELS = {
     "email": "Email",
     "is_admin": "Administrateur général"
 }
-
-
-DATASOURCE_ID_NO_COMMENT = [
-    field for field in DATASOURCE_ORIGINAL_FIELDS_ID if
-    (field not in [
-        'reutilizations',
-        'tag_name',
-        'volumetry_comment',
-        'monthly_volumetry_comment',
-        'analysis_axis_name',
-        'origin_applications',
-        'is_reference',
-    ])
-]

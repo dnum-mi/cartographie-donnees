@@ -21,6 +21,12 @@ class EnumSelect extends React.Component {
         this.fetchEnumerationsFromApi();
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.category !== this.props.category){
+            this.fetchEnumerationsFromApi();
+        }
+    }
+
     fetchEnumerationsFromApi = () => {
         this.setState({
             loading: true,

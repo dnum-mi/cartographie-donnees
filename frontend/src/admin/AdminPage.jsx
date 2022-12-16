@@ -1,6 +1,6 @@
 import React from 'react';
-import { withRouter, Switch, Route } from 'react-router-dom';
-import { Menu } from 'antd';
+import {withRouter, Switch, Route} from 'react-router-dom';
+import {Menu} from 'antd';
 import './AdminPage.css';
 import ApplicationsRouter from "./applications/ApplicationsRouter";
 import DataSourcesRouter from "./data-sources/DataSourcesRouter";
@@ -20,6 +20,7 @@ class AdminPage extends React.Component {
             user_count: 0,
         }
     }
+
     componentDidMount() {
         this.get_count();
     }
@@ -34,14 +35,14 @@ class AdminPage extends React.Component {
     }
 
     get_count = () => {
-        countApplication().then((response)=> {
+        countApplication().then((response) => {
             this.setState({application_count: response.data});
         })
-        countDataSource().then((response)=> {
+        countDataSource().then((response) => {
             this.setState({data_source_count: response.data});
         })
         if (this.props.user.is_admin === true) {
-            countUser().then((response)=> {
+            countUser().then((response) => {
                 this.setState({user_count: response.data});
             })
         }
@@ -61,25 +62,25 @@ class AdminPage extends React.Component {
                     Données ({this.state.data_source_count})
                 </Menu.Item>
                 {this.props.user.is_admin && (
-                <Menu.Item key="enumerations">
-                    Filtres
-                </Menu.Item>
+                    <Menu.Item key="enumerations">
+                        Filtres
+                    </Menu.Item>
                 )}
                 {this.props.user.is_admin && (
-                <Menu.Item key="users">
-                    Administrateurs ({this.state.user_count})
-                </Menu.Item>
+                    <Menu.Item key="users">
+                        Administrateurs ({this.state.user_count})
+                    </Menu.Item>
                 )}
                 {this.props.user.is_admin && (
                     <Menu.Item key="settings">
                         Paramètres
                     </Menu.Item>
                 )}
-                {/*{this.props.user.is_admin && (
+                {this.props.user.is_admin && (
                     <Menu.Item key="kpi">
-                        KPI
+                        Indicateurs
                     </Menu.Item>
-                )}*/}
+                )}
 
             </Menu>
         );
@@ -92,44 +93,50 @@ class AdminPage extends React.Component {
                     key="applications"
                     path={this.props.match.url + '/applications'}
                 >
-                    <ApplicationsRouter user={this.props.user} count={this.get_count} />
+                    <ApplicationsRouter user={this.props.user} count={this.get_count}/>
                 </Route>
                 <Route
                     key="data-sources"
                     path={this.props.match.url + '/data-sources'}
                 >
-                    <DataSourcesRouter user={this.props.user} count={this.get_count} />
+                    <DataSourcesRouter user={this.props.user} count={this.get_count}/>
                 </Route>
                 {this.props.user.is_admin && (
-                <Route
-                    key="enumerations"
-                    path={this.props.match.url + '/enumerations'}
-                >
-                    <EnumerationsRouter/>
-                </Route>
+                    <Route
+                        key="enumerations"
+                        path={this.props.match.url + '/enumerations'}
+                    >
+                        <EnumerationsRouter/>
+                    </Route>
                 )}
                 {this.props.user.is_admin && (
-                <Route
-                    key="users"
-                    path={this.props.match.url + '/users'}
-                >
-                    <UsersRouter count={this.get_count} />
-                </Route>
+                    <Route
+                        key="users"
+                        path={this.props.match.url + '/users'}
+                    >
+                        <UsersRouter count={this.get_count}/>
+                    </Route>
                 )}
                 {this.props.user.is_admin && (
-                <Route
-                    key="settings"
-                    path={this.props.match.url + '/settings'}
-                >
-                    <SettingsRouter updateHomepage = {this.props.updateHomepage} homepageContent= {this.props.homepageContent}/>
-                </Route>
+                    <Route
+                        key="settings"
+                        path={this.props.match.url + '/settings'}
+                    >
+                        <SettingsRouter
+                            updateHomepage={this.props.updateHomepage}
+                            homepageContent={this.props.homepageContent}
+                            synonymsContent={this.props.synonymsContent}
+                        />
+                    </Route>
                 )}
                 {this.props.user.is_admin && (
                     <Route
                         key="kpi"
                         path={this.props.match.url + '/kpi'}
                     >
-                        <KPIPage/>
+                        <KPIPage
+                            application_count={this.state.application_count}
+                        />
                     </Route>
                 )}
 
@@ -153,7 +160,8 @@ class AdminPage extends React.Component {
                     <p>
                         Le moteur de recherche prend en compte les attributs suivants pour déterminer les données
                         pertinentes : Nom de la donnée, Description, Familles, Axes d'analyse, Type, Nom de l’application,
-                        Nom long de l'application, Organisation, Nom long de l'organisation, Finalités de l’application, Tags.
+                        Nom long de l'application, Organisation, Nom long de l'organisation, Finalités de l’application,
+                        Tags.
                     </p>
 
                     <h3>
@@ -195,8 +203,10 @@ class AdminPage extends React.Component {
                         Importer des administrateurs
                     </h3>
                     <p>
-                        Les administrateurs peuvent être entièrement importées par un administrateur général depuis le bouton
-                        "import" de la page administration des administrateurs. Pour importer les administrateurs, il faut
+                        Les administrateurs peuvent être entièrement importées par un administrateur général depuis le
+                        bouton
+                        "import" de la page administration des administrateurs. Pour importer les administrateurs, il
+                        faut
                         s'assurer qu'aucune donnée et qu'aucune application ne soit encore présente. Pour cela,
                         il est conseillé d'importer un fichier de données ne contenant que les en-têtes puis un fichier
                         d'application ne contenant que les en-têtes. Les administrateurs seront tous supprimés avant
@@ -212,7 +222,9 @@ class AdminPage extends React.Component {
                     <ul>
                         <li> La section "Page d'accueil" permet de modifier le texte affiché sur la page d'accueil.</li>
                         <li> La section "Info-bulles" permet de modifier les info-bulles présentes dans l'outil.
-                            Les info-bulles sont rangées dans des listes déroulantes par type de champ qu'elles décrivent.</li>
+                            Les info-bulles sont rangées dans des listes déroulantes par type de champ qu'elles
+                            décrivent.
+                        </li>
                     </ul>
                     <p>
                         Les paramètres peuvent être entièrement importés par un administrateur général depuis le bouton
@@ -241,15 +253,20 @@ class AdminPage extends React.Component {
                         Pour réimporter la base, il faut suivre les étapes suivantes dans l'ordre :
                     </p>
                     <ol>
-                        <li>Vider les données (il est conseillé d'importer un fichier de données ne contenant que les en-têtes)</li>
-                        <li>Vider les applications (il est conseillé d'importer un fichier d'application ne contenant que les en-têtes) </li>
+                        <li>Vider les données (il est conseillé d'importer un fichier de données ne contenant que les
+                            en-têtes)
+                        </li>
+                        <li>Vider les applications (il est conseillé d'importer un fichier d'application ne contenant
+                            que les en-têtes)
+                        </li>
                         <li>Importer les administrateurs</li>
                         <li>Importer les filtres</li>
                         <li>Importer les applications</li>
                         <li>Importer les données</li>
                     </ol>
                     <p>
-                        Les paramètres sont indépendants des autres données de l'outil et ne sont donc pas affectés par ces procédures.
+                        Les paramètres sont indépendants des autres données de l'outil et ne sont donc pas affectés par
+                        ces procédures.
                         Ils peuvent donc être complètements modifiés/importés séparément.
                     </p>
                     <h3>
@@ -276,7 +293,8 @@ class AdminPage extends React.Component {
                     </h3>
                     <p>
                         Certaines propriétés, visibles à l'export des applications, sont calculées à partir d'autres
-                        informations de la base de données. Voici la liste des règles de calcul utilisées pour ces champs.
+                        informations de la base de données. Voici la liste des règles de calcul utilisées pour ces
+                        champs.
                     </p>
                     <ul>
                         <li>
@@ -309,6 +327,67 @@ class AdminPage extends React.Component {
                             </ul>
                         </li>
                     </ul>
+
+
+                    <h3>
+                        Indicateurs de l'outil
+                    </h3>
+
+                    <h4>Indicateurs pour l'administration</h4>
+                    <ul>
+                        <li>
+                            Nombre moyen de données par application
+                        </li>
+                        <li>
+                            Nombre moyen de référentiels utilisés par application
+                        </li>
+                        <li>
+                            Nombre d'applications avec au moins un référentiel
+                        </li>
+                        <li>
+                            Nombre moyen de réutilisations par application
+                        </li>
+                        <li>
+                            Nombre d'applications avec au moins une réutilisation
+                        </li>
+                        <li>
+                            Niveau moyen de description sur l’ensemble des données
+                        </li>
+                        <li>
+                            Niveau moyen de description par application (Uniquement pour les applications contenant
+                            des données
+                        </li>
+                    </ul>
+
+                    <h4>Indicateurs de fréquentation</h4>
+                    <p>
+                        Les indicateurs de fréquentation sont calculés sur une période de temps à définir (par défaut 1
+                        an passé)
+                        et suivant les règles décrites ci-dessous:
+                    </p>
+                    <ul>
+                        <li>
+                            <b>Fiche donnée</b> : Les 50 fiches données les plus visitées.
+                        </li>
+                        <li>
+                            <b>Type de page</b> : Le nombre de visite par type de page (Recherche, Fiche donnée,
+                            Administration, Connexion). Les pages sont classées en fonction de la première partie de
+                            leur chemin d'accès: /search, /data-source, /admin, /login. Les visites de pages
+                            inexistantes sont également comptabilisé si la première partie du chemin d'accès est
+                            connue. Par exemple "/data-source/xxxx" sera compté comme une visite à une
+                            page de type fiche donnée même cette donnée n'existe pas mais "/xxxx" ne sera pas
+                            compté comme une visite de page.
+                        </li>
+                        <li>
+                            <b>Filtre</b> : Les 50 filtres de recherche les plus utilisées.
+                        </li>
+                        <li>
+                            <b>Terme de recherche</b> : Les 50 termes de recherche les plus utilisées. Les termes
+                            utilisés pour cet indicateur correspondent aux termes après traitement du langage par
+                            l'algorithme de recherche ("Véhicules" apparait comme "vehicule" par exemple).
+                        </li>
+                    </ul>
+
                     <h3>
                         Documentation de l'API
                     </h3>

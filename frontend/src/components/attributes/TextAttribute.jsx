@@ -1,5 +1,5 @@
 import React from "react";
-import {Form, Input, Spin, Typography} from "antd";
+import {Form, Input, InputNumber, Spin, Typography} from "antd";
 import {commonPropTypes, textPropTypes} from "./attributePropTypes";
 import {commonDefaultProps, textDefaultProps} from "./attributeDefaultProps";
 import {QuestionCircleOutlined} from "@ant-design/icons";
@@ -103,7 +103,42 @@ class TextAttribute extends React.Component {
                 required: !!this.props.required,
                 type: "email"
             }]
-        }  else {
+        } else if (this.props.attributeId === "application_historic") {
+            let min_value = 1950;
+            let max_value = 2050;
+            return [{
+                validator: (_, value) => {
+                    if (value === null){
+                        if (!!this.props.required){
+                            Promise.reject(new Error('Ce champ est requis!'))
+                        }
+                        return Promise.resolve()
+                    }
+                    if (value < min_value || value > max_value) {
+                        return Promise.reject(new Error('Veuillez sélectionner un nombre entre 1950 et l\'année en cours'))
+                    }
+                    return Promise.resolve()
+                },
+            }]
+
+        } else if (this.props.attributeId === "highlights_index") {
+            let min_value = 1;
+            let max_value = 10;
+            return [{
+                validator: (_, value) => {
+                    if (value === null){
+                        if (!!this.props.required){
+                            Promise.reject(new Error('Ce champ est requis!'))
+                        }
+                        return Promise.resolve()
+                    }
+                    if (value < min_value || value > max_value) {
+                        return Promise.reject(new Error('Veuillez sélectionner un nombre entre 1 et 10'))
+                    }
+                    return Promise.resolve()
+                },
+            }]
+        } else {
             return [{
                 required: !!this.props.required,
             }]
@@ -132,28 +167,26 @@ class TextAttribute extends React.Component {
                     disabled={mustAwaitApplicationSelection}
                 />
             );
+        } else if (this.props.inputType === "number") {
+            input = (
+                <InputNumber
+                    id={this.props.attributeId}
+                    placeholder={this.props.editionPlaceholder}
+                    className={this.attributeInputClassName()}
+                    min={0}
+                    size="small"
+                />
+            );
         } else {
-            const min_value = this.props.inputType === "number"
-                ?  this.props.attributeId === "application_historic"
-                    ? 1950
-                    : 0
-                : null
-
-            const max_value = this.props.attributeId === "application_historic"
-                ? 2050
-                : null
-
             input = (
                 <Input
                     id={this.props.attributeId}
-                    type={this.props.inputType}
                     placeholder={this.props.editionPlaceholder}
                     className={this.attributeInputClassName()}
-                    min={min_value}
-                    max={max_value}
                 />
             );
         }
+
         return (
             <div className="attribute-input-container">
                 <Spin spinning={spinning}>

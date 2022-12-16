@@ -84,7 +84,7 @@ class Application(SearchableMixin, BaseModel):
     @hybrid_property
     def application_description_level(self):
         if self.data_source_count == 0:
-            return 1
+            return 0
         else:
             return round(
                 mean([ds.datasource_description_level for ds in self.data_sources]),
@@ -192,6 +192,9 @@ class Application(SearchableMixin, BaseModel):
         self.historic = data.get('historic')
         if "owners" in data:
             self.owners = [User.query.get(owner['id']) for owner in data.get('owners')]
+
+    def update_from_key_value(self, key, value):
+        setattr(self, key, value)
 
     @staticmethod
     def from_dict(data):

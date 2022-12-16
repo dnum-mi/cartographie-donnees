@@ -3,6 +3,7 @@ import {applicationPropTypes, commonPropTypes} from "./attributePropTypes";
 import { commonDefaultProps } from "./attributeDefaultProps";
 import {Form} from 'antd'
 import ApplicationSelect from "../../data-source/ApplicationSelect";
+import {Link} from "react-router-dom";
 
 class ApplicationAttribute extends React.Component {
 
@@ -10,13 +11,11 @@ class ApplicationAttribute extends React.Component {
     const originApplications = this.props.value;
 
     if ( originApplications && originApplications.length > 0 ){
-      let returnStr = this.props.value[0].name;
-      if ( originApplications.length > 1 ) {
-        for (let i = 1; i < originApplications.length; i++) {
-          returnStr += ", " + originApplications[i].name;
-        }
-      }
-      return returnStr;
+      return this.props.value.map(
+          (app, index) => {
+            return <span>{index > 0 && ', '}<Link to={'/application/' + app.id}>{app.name}</Link></span>
+          }
+      )
     }
     return '-'
   }
@@ -35,7 +34,7 @@ class ApplicationAttribute extends React.Component {
     return (
       <div className="attribute-input-container">
         <Form.Item name={this.props.attributeId} initialValue={this.props.value} rules={this.rules()}>
-          <ApplicationSelect 
+          <ApplicationSelect
             mode = {this.props.applicationMode}
             limited = {this.props.applicationLimited}
           />

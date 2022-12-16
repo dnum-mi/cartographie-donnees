@@ -12,6 +12,7 @@ from app.models import SearchableMixin
 from app.constants import field_french_to_english_dic, field_english_to_french_dic, WILDCARDS_LABELS
 from app.exceptions import CSVFormatError
 from app.models import Application, DataSource, WildCard
+from app.search import remove_accent
 
 
 def typed_value_from_string(value):
@@ -98,6 +99,10 @@ def import_resource(resource_class, item_to_delete=None, **mandatory_fields):
 
             if "access_url" in item_dict:
                 item_dict["access_url"] = url_normalize(item_dict["access_url"])
+
+            if resource_class is WildCard and 'namespace' in item_dict and item_dict['namespace'] == 'synonyme':
+                item_dict['value'] = remove_accent(item_dict['value'])
+
             # Each row is converted into SQLAlchemy model instances
             item = resource_class(**item_dict)
             # Check for duplicate rows

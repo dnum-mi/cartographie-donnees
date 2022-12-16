@@ -1,19 +1,21 @@
 import React from 'react';
 import {withRouter} from 'react-router-dom';
-import {Button, DatePicker, Modal, Skeleton, Table, Tabs} from "antd";
+import {Button, DatePicker, Divider, Modal, Skeleton, Table, Tabs} from "antd";
 import {
     deleteYearBrowsingKPI,
+    exportModel,
     exportRoutingKPIUrl,
     exportSearchingKPIUrl,
-    exportModel,
+    fetchAdminKPI,
     fetchCountKPI,
     fetchRoutingKPI,
     fetchSearchingKPI
 } from "../../api";
 import "./KpiPage.css";
-import tabs_definition from "./kpi_tabs_definition";
+import tabs_definition from "./kpi_definition";
 import {DownloadOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
 import moment from "moment";
+import AdminKpi from "./AdminKpi";
 
 const {confirm} = Modal;
 const {RangePicker} = DatePicker;
@@ -56,11 +58,13 @@ class KpiPage extends React.Component {
         return Promise.all([
             fetchRoutingKPI(this.state.start_date, this.state.end_date),
             fetchSearchingKPI(this.state.start_date, this.state.end_date),
-            fetchCountKPI()
-        ]).then(([routing_kpi_res, searching_kpi_res, count_kpi_res]) => {
+            fetchCountKPI(),
+            fetchAdminKPI()
+        ]).then(([routing_kpi_res, searching_kpi_res, count_kpi_res, admin_kpi_res]) => {
             const kpis = {...routing_kpi_res.data, ...searching_kpi_res.data}
             this.setState({
                 kpis,
+                admin_kpi: admin_kpi_res.data,
                 count_kpi: count_kpi_res.data.count,
             })
         })
@@ -141,25 +145,34 @@ class KpiPage extends React.Component {
             this.state.loading
                 ? <Skeleton active/>
                 : <div className="KpiPage">
-                    <h1>Indicateur de performance du site</h1>
-                    <div className="KpiPageHeader">
-                        <div>Nombre total de lignes: {this.state.count_kpi}</div>
-                        <div>
-                            <Button onClick={this.onDeleteYear}>Supprimer données de plus d'un an</Button>
-                            <Button onClick={this.onExportKpis} icon={<DownloadOutlined/>} type="default">Export</Button>
-                        </div>
+                    <h1>Indicateurs de l'outil</h1>
+                    <div className={"KpiSection"}>
+                        <AdminKpi admin_kpi = {this.state.admin_kpi} application_count={this.props.application_count}/>
                     </div>
-                    <div className={"KpiPageBody"}>
-                        <RangePicker className={"DatePicker"}
-                                     value={[moment(this.state.start_date), moment(this.state.end_date)]}
-                                     onChange={this.onDateChange}
-                                     onOpenChange={this.onPickerClosed}
-                                     allowClear={false}/>
-                        {!this.state.loading_table
-                            ? <Tabs defaultActiveKey="routing-kpi">
-                                {this.getTabs()}
-                            </Tabs>
-                            : <Skeleton active/>}
+
+                    <div className={"KpiSection"}>
+                        <h3>Indicateurs de fréquentation</h3>
+                        <div className="KpiPageHeader">
+                            <div>Nombre total de lignes: {this.state.count_kpi}</div>
+                            <div>
+                                <Button onClick={this.onDeleteYear}>Supprimer données de plus d'un an</Button>
+                                <Button onClick={this.onExportKpis} icon={<DownloadOutlined/>}
+                                        type="default">Export</Button>
+                            </div>
+                        </div>
+                        <Divider/>
+                        <div className={"KpiPageBody"}>
+                            <RangePicker className={"DatePicker"}
+                                         value={[moment(this.state.start_date), moment(this.state.end_date)]}
+                                         onChange={this.onDateChange}
+                                         onOpenChange={this.onPickerClosed}
+                                         allowClear={false}/>
+                            {!this.state.loading_table
+                                ? <Tabs defaultActiveKey="routing-kpi">
+                                    {this.getTabs()}
+                                </Tabs>
+                                : <Skeleton active/>}
+                        </div>
                     </div>
                 </div>
         )
