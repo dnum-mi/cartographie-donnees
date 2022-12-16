@@ -24,5 +24,6 @@ def test_export_data_source_admin(client, admin_auth_header, sample_data_sources
                            "Type;Donnée référentielle;Origine;Application source;OpenData;" \
                            "Exposition;Sensibilité;Tag;Volumétrie;Commentaire sur la volumétrie;" \
                            "Production par mois;Commentaire sur la  production par mois;Mise à jour;" \
-                           "Conservation;Base/index;Nb tables;Table;Nb champs;Champ;Réutilisation Rang dans la liste des données mise en avant;"
+                           "Conservation;Base/index;Nb tables;Table;Nb champs;Champ;" \
+                           "Rang dans la liste des données mise en avant;Réutilisation"
 

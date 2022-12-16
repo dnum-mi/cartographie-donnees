@@ -12,8 +12,8 @@ def test_export_applications(client, admin_auth_header, sample_applications, sam
                            "Nb connexion par mois;Commentaire sur le nb connexion par mois;Historique;" \
                            "Date de validation;Nombre de données;Nombre de référentiels utilisés;" \
                            "Nombre de réutilisations;Niveau de description de l'application;Administrateurs"
-    assert csv_lines[1] == f"{sample_applications[0].name};;{sample_applications[0].goals};;{next((x.full_path for x in sample_organizations if x.id == sample_applications[0].organization_id), None)};;;;;;;;;;0;0;0;1;"
-    assert csv_lines[2] == f"{sample_applications[1].name};;{sample_applications[1].goals};;{next((x.full_path for x in sample_organizations if x.id == sample_applications[1].organization_id), None)};;;;;;;;;;0;0;0;1;"
+    assert csv_lines[1] == f"{sample_applications[0].name};;{sample_applications[0].goals};;{next((x.full_path for x in sample_organizations if x.id == sample_applications[0].organization_id), None)};;;;;;;;;;0;0;0;0;"
+    assert csv_lines[2] == f"{sample_applications[1].name};;{sample_applications[1].goals};;{next((x.full_path for x in sample_organizations if x.id == sample_applications[1].organization_id), None)};;;;;;;;;;0;0;0;0;"
 
 
 def test_export_applications_unauthorized(client):
