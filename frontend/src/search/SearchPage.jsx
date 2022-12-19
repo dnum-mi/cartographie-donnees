@@ -9,7 +9,7 @@ import queryTitles from "./query_titles";
 import {parseQuery, readString, listToString} from "./QueryUtils"
 
 import {
-    exportSearchDataSources,
+    exportSearchDataSources, fetchDataSourceHighlights,
     fetchSearchMetadata, massEditDataSource,
     searchAnalysisAxis,
     searchApplicationsOfDataSources,
@@ -71,7 +71,8 @@ class SearchPage extends React.Component {
             toExlude: "",
             showEditionSection: false,
             selectedDatasources: {},
-            resultDatasourceIds: []
+            resultDatasourceIds: [],
+            dataSourceHighlights: []
         };
         return { ...state, ...parseQuery(this.props.location.search) }
     }
@@ -93,8 +94,6 @@ class SearchPage extends React.Component {
     }
 
 
-
-
     getQuery(query) {
         return "?q=" + readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
             + "&family=" + listToString(this.state.selectedFamily)
@@ -107,8 +106,9 @@ class SearchPage extends React.Component {
     }
 
     componentDidMount() {
-        this.refreshFilters().then(
-            this.launchSearch)
+        this.refreshFilters()
+            .then(this.refreshHighlights)
+            .then(this.launchSearch)
     }
 
     componentDidUpdate(prevProps) {
@@ -139,6 +139,26 @@ class SearchPage extends React.Component {
     }
 
     setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve()));
+
+    refreshHighlights = () => {
+        return this.setStatePromise({
+            loading: true,
+            error: null,
+        }).then(() => fetchDataSourceHighlights())
+            .then((res_highlights) => {
+                return this.setStatePromise({
+                    dataSourceHighlights: res_highlights.data.results,
+                    loading: false,
+                    error: null
+                })
+            })
+            .catch((error) => {
+                return this.setState({
+                    loading: false,
+                    error,
+                });
+            });
+    };
 
     refreshDataSources = (query) => searchDataSources(query || '')
         .then((response) => this.setStatePromise({
@@ -401,7 +421,7 @@ class SearchPage extends React.Component {
                             Données mises en avant
                         </h3>
                         <div>
-                            {this.props.dataSourceHighlights.map((dataSource) => (
+                            {this.state.dataSourceHighlights.map((dataSource) => (
                                 <DataSourceHighlight
                                   key={dataSource.id}
                                   dataSource={dataSource}
