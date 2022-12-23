@@ -15,20 +15,30 @@ class MassEditionValueSelect extends React.Component {
         let is_required = false
         if (!!this.props.selectedMassEditionField) {
             if (this.props.selectedMassEditionField === "application") {
-                valueSelect = <ApplicationSelect limited={false}/>
                 is_required = true
+                valueSelect = <ApplicationSelect limited={false}/>
             } else if (["origin_applications", "reutilizations"].includes(this.props.selectedMassEditionField)) {
+                is_required = false
                 valueSelect = <ApplicationSelect mode={"multiple"}
                                                  limited={false}/>
             } else {
                 const config = attributes[this.props.selectedMassEditionField] || attributes["application"][this.props.selectedMassEditionField]
                 is_required = config.required
                 if (config.type === "boolean") {
-                    valueSelect = <Select options={[{label: "Vrai", value: true}, {label: "Faux", value: false}]}
-                                          placeholder="Valeur du champ"/>
+                    valueSelect = <Select
+                        options={[
+                            !config.required && {label: "-", value: null},
+                            {label: "Vrai", value: true},
+                            {label: "Faux", value: false},
+                        ]}
+                        placeholder="Valeur du champ"/>
                 } else if (config.type === "tag") {
-                    valueSelect = <EnumSelect category={config.tagCategory}
-                                              mode={config.tagMode === 'multiple' ? 'multiple' : null}/>
+                    valueSelect = <EnumSelect
+                        category={config.tagCategory}
+                        defaultValue={config.tagMode === 'multiple' ? []: null}
+                        mode={config.tagMode === 'multiple' ? 'multiple' : null}
+                        required={config.required}
+                    />
                 } else {
                     console.error("Field not found in attributes:", this.props.selectedMassEditionField)
                 }
