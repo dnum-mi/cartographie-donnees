@@ -150,6 +150,10 @@ class DataSource(SearchableMixin, BaseModel):
     owners = association_proxy('application', 'owners')
 
     @property
+    def referentiel_name_and_label(self):
+        return self.family_name_and_label if self.is_reference else []
+
+    @property
     def referentiel_name(self):
         return self.family_name if self.is_reference else []
 
@@ -168,6 +172,12 @@ class DataSource(SearchableMixin, BaseModel):
             if getattr(self, key) is not None and getattr(self, key) != []:
                 truthy_count += 1
         return truthy_count/len(DATASOURCE_ID_NO_COMMENT)
+
+    def get_enumeration_and_label_single(self, enumeration_id):
+        return {'value': getattr(self, enumeration_id).full_path, 'label': getattr(self, enumeration_id).label} if getattr(self, enumeration_id) else None
+
+    def get_enumeration_and_label_multiple(self, enumeration_id):
+        return [{'value': enum.full_path, 'label': enum.label} for enum in getattr(self, enumeration_id)]
 
     def get_enumeration_single(self, enumeration_id):
         return getattr(self, enumeration_id).full_path if getattr(self, enumeration_id) else None
@@ -205,6 +215,10 @@ class DataSource(SearchableMixin, BaseModel):
             setattr(self, enumeration_id, new_values)
 
     @property
+    def type_name_and_label(self):
+        return self.get_enumeration_and_label_single('type')
+
+    @property
     def type_name(self):
         return self.get_enumeration_single('type')
 
@@ -213,12 +227,20 @@ class DataSource(SearchableMixin, BaseModel):
         self.set_enumeration_single(type_name, 'type', Type, 'Le type', mandatory=True)
 
     @property
+    def family_name_and_label(self):
+        return self.get_enumeration_and_label_multiple('families')
+
+    @property
     def family_name(self):
         return self.get_enumeration_multiple('families')
 
     @family_name.setter
     def family_name(self, family_name):
         self.set_enumeration_multiple(family_name, 'families', Family, 'La famille', mandatory=True)
+
+    @property
+    def analysis_axis_name_and_label(self):
+        return self.get_enumeration_and_label_multiple('analysis_axis')
 
     @property
     def analysis_axis_name(self):
@@ -237,12 +259,20 @@ class DataSource(SearchableMixin, BaseModel):
         self.set_enumeration_multiple(tag_name, 'tags', Tag, 'Le tag')
 
     @property
+    def sensibility_name_and_label(self):
+        return self.get_enumeration_and_label_single('sensibility')
+
+    @property
     def sensibility_name(self):
         return self.get_enumeration_single('sensibility')
 
     @sensibility_name.setter
     def sensibility_name(self, sensibility_name):
         self.set_enumeration_single(sensibility_name, 'sensibility', Sensibility, 'La sensibilité')
+
+    @property
+    def open_data_name_and_label(self):
+        return self.get_enumeration_and_label_single('open_data')
 
     @property
     def open_data_name(self):
@@ -262,12 +292,20 @@ class DataSource(SearchableMixin, BaseModel):
                                     'La fréquence de mise à jour')
 
     @property
+    def exposition_name_and_label(self):
+        return self.get_enumeration_and_label_multiple('expositions')
+
+    @property
     def exposition_name(self):
         return self.get_enumeration_multiple('expositions')
 
     @exposition_name.setter
     def exposition_name(self, exposition_name):
         self.set_enumeration_multiple(exposition_name, 'expositions', Exposition, "L'exposition")
+
+    @property
+    def origin_name_and_label(self):
+        return self.get_enumeration_and_label_single('origin')
 
     @property
     def origin_name(self):
@@ -386,10 +424,14 @@ class DataSource(SearchableMixin, BaseModel):
             'tag_name': self.tag_name,
             'tags': [tag.to_dict() for tag in self.tags],
             'reutilization_name': self.reutilization_name,
+            'type': self.type_name_and_label,
             'type_name': self.type_name,
             'example': self.example,
+            'referentiel': self.referentiel_name_and_label,
             'referentiel_name': self.referentiel_name,
+            'sensibility': self.sensibility_name_and_label,
             'sensibility_name': self.sensibility_name,
+            'open_data': self.open_data_name_and_label,
             'open_data_name': self.open_data_name,
             'database_name': self.database_name,
             'database_table_name': self.database_table_name,
@@ -403,9 +445,12 @@ class DataSource(SearchableMixin, BaseModel):
             'update_frequency': self.update_frequency.to_dict() if self.update_frequency else None,
             'update_frequency_name': self.update_frequency_name,
             'conservation': self.conservation,
+            'analysis_axis': self.analysis_axis_name_and_label,
             'analysis_axis_name': self.analysis_axis_name,
             'nb_referentiels': self.nb_referentiels,
+            'exposition': self.exposition_name_and_label,
             'exposition_name': self.exposition_name,
+            'origin': self.origin_name_and_label,
             'origin_name': self.origin_name,
             'application': self.application.to_dict(populate_statistics=populate_statistics),
             'organization_name': self.application.organization_name,
