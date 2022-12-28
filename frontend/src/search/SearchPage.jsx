@@ -572,13 +572,20 @@ class SearchPage extends React.Component {
                 this.setState({loading: true})
                 const key = form_values["massEditionField"]
                 const value = form_values["massEditionValues"]
+                let type = undefined
+                if (Object.keys(form_values).includes("massEditionAddOrRemove")){
+                    form_values["massEditionAddOrRemove"]
+                        ? type = "add"
+                        : type = "delete"
+                }
                 massEditDataSource(
                     Object.keys(this.state.selectedDatasources).map(Number),
                     key === "organization_name"
                         ? "application"
                         : "datasource",
                     key,
-                    value
+                    value,
+                    type
                 ).then((res) => this.launchSearch()
                 ).then(() => {
                     this.setState({selectedDatasources: {}})
