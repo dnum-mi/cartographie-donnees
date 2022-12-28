@@ -13,7 +13,7 @@ import {
 } from "../../api";
 import "./KpiPage.css";
 import tabs_definition from "./kpi_definition";
-import {DownloadOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
+import {ExclamationCircleOutlined, UploadOutlined} from "@ant-design/icons";
 import moment from "moment";
 import AdminKpi from "./AdminKpi";
 
@@ -156,13 +156,13 @@ class KpiPage extends React.Component {
                     <div className={"KpiSection"}>
                         <h3>Indicateurs de fréquentation</h3>
                         <div className="KpiPageHeader">
-                            <div>Nombre total de lignes: {this.state.count_kpi}</div>
+                            <div>Nombre total de lignes : {this.state.count_kpi}</div>
                             <Space size={"small"} wrap>
                                 <Button onClick={this.onDeleteYear}>Supprimer données de plus d'un an</Button>
-                                <Button onClick={this.onExportNavigationKpis} icon={<DownloadOutlined/>}
+                                <Button onClick={this.onExportNavigationKpis} icon={<UploadOutlined/>}
                                         type="default">Historique navigation
                                 </Button>
-                                <Button onClick={this.onExportSearchKpis} icon={<DownloadOutlined/>}
+                                <Button onClick={this.onExportSearchKpis} icon={<UploadOutlined/>}
                                         type="default">Historique recherche
                                 </Button>
                             </Space>

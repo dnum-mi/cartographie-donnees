@@ -19,7 +19,7 @@ class AdminKpi extends React.Component {
 
     renderAdminKpi = (config) => {
         return <p>
-            {config.label}:
+            {config.label+" "}:
             <strong>
                 {config.is_percent
                     ? this.props.admin_kpi[config.key]*100 + "%"
