@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Divider, Form, Select, Tag} from "antd";
+import {Alert, Button, Divider, Form, Select, Tag} from "antd";
 import {CheckOutlined} from "@ant-design/icons";
 import "./MassEdition.css"
 import {defaultLabels} from "../hoc/tooltips/tooltipsConstants";
@@ -51,7 +51,7 @@ class MassEdition extends React.Component {
                     checked={this.props.showEditionSection}
                     onChange={this.props.onShowModificationSection}>
                     {this.props.showEditionSection
-                        ? "Annuler modification"
+                        ? "Fermer modification"
                         : "Modifier les données"
                     }
                 </CheckableTag>
@@ -98,6 +98,13 @@ class MassEdition extends React.Component {
                             <Divider type="vertical"/>
                             Données sélectionnées: {Object.keys(this.props.selectedDatasources).length}
                         </div>
+                        {this.props.massEditionWarning &&
+                            <Alert
+                                style={{marginTop: "24px"}}
+                                message={this.props.massEditionWarning}
+                                type="warning"
+                            />
+                        }
                     </div>
                 }
             </div>

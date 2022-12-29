@@ -32,6 +32,7 @@ import withTooltips from '../hoc/tooltips/withTooltips';
 import DataSourceHighlight from "./results/DataSourceHighlight";
 import withCurrentUser from "../hoc/user/withCurrentUser";
 import MassEdition from "./MassEdition";
+import attributes from "../data-source/attributes";
 
 const {Search} = Input;
 const {confirm} = Modal;
@@ -72,7 +73,8 @@ class SearchPage extends React.Component {
             showEditionSection: false,
             selectedDatasources: {},
             resultDatasourceIds: [],
-            dataSourceHighlights: []
+            dataSourceHighlights: [],
+            massEditionWarning: ""
         };
         return { ...state, ...parseQuery(this.props.location.search) }
     }
@@ -556,10 +558,6 @@ class SearchPage extends React.Component {
     }
 
     onSubmitMassEdition = (form_values) => {
-        console.log("submit mass edition")
-        console.log("modif", form_values)
-        console.log("datasources", this.state.selectedDatasources)
-
         confirm({
             title: 'Modification de plusieurs données',
             icon: <ExclamationCircleOutlined/>,
@@ -572,12 +570,19 @@ class SearchPage extends React.Component {
                 this.setState({loading: true})
                 const key = form_values["massEditionField"]
                 const value = form_values["massEditionValues"]
-                let type = undefined
+                let type = ""
                 if (Object.keys(form_values).includes("massEditionAddOrRemove")){
                     form_values["massEditionAddOrRemove"]
                         ? type = "add"
-                        : type = "delete"
+                        : type = "remove"
                 }
+                let required = false
+                if (!!attributes[key]){
+                    required = !!attributes[key].required
+                } else if (!!attributes["application"][key]){
+                    required = !!attributes["application"][key].required
+                }
+
                 massEditDataSource(
                     Object.keys(this.state.selectedDatasources).map(Number),
                     key === "organization_name"
@@ -585,9 +590,12 @@ class SearchPage extends React.Component {
                         : "datasource",
                     key,
                     value,
-                    type
-                ).then((res) => this.launchSearch()
-                ).then(() => {
+                    type,
+                    required
+                ).then((res) => {
+                    this.setState({massEditionWarning: res.data.warning})
+                    return this.launchSearch()
+                }).then(() => {
                     this.setState({selectedDatasources: {}})
                 }).catch((error) => this.setState({loading: false, error}));
             },
@@ -659,6 +667,7 @@ class SearchPage extends React.Component {
                                  onSubmitMassEdition={this.onSubmitMassEdition}
                                  loading={this.state.loading}
                                  totalCount={this.state.total_count_data_source}
+                                 massEditionWarning={this.state.massEditionWarning}
                     />
                 }
                 <Divider style={{marginTop: 0}}/>

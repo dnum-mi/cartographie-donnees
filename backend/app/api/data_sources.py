@@ -3,20 +3,21 @@ import datetime
 import json
 
 import unidecode
-from werkzeug.exceptions import BadRequest
 from flask import jsonify, request, current_app
 from flask_login import login_required, current_user
+from werkzeug.exceptions import BadRequest
+
 from app import db
-from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
-    get_enumeration_model_by_name, Origin, Tag, SearchingKPI
-from app.decorators import admin_required, admin_or_owner_required
+from app.api.applications import get_application_by_name
+from app.api.commons import import_resource, export_resource
 from app.api.enumerations import get_type_by_name, get_family_by_name, get_analysis_axis_by_name, \
     get_exposition_by_name, get_sensibily_by_name, get_open_data_by_name, \
     get_update_frequency_by_name, get_origin_by_name, get_tag_by_name, get_organization_by_name
-from app.api.applications import get_application_by_name, get_application
-from app.api.commons import import_resource, export_resource
+from app.constants import field_english_to_french_dic
+from app.decorators import admin_required, admin_or_owner_required
 from app.exceptions import CSVFormatError
-
+from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
+    get_enumeration_model_by_name, Origin, Tag, SearchingKPI
 from . import api
 from ..search.enums import Strictness
 
@@ -903,6 +904,8 @@ def mass_edit_data_sources():
                             type: string
                         value:
                             type: string
+                        type:
+                            type: string | undefined
       responses:
         200:
           content:
@@ -928,8 +931,8 @@ def mass_edit_data_sources():
             else:
                 raise BadRequest(f"key {json_key} is not editable in type application")
 
-            application_ids = db.session.query(DataSource.application_id)\
-                .filter(DataSource.id.in_(data_source_ids))\
+            application_ids = db.session.query(DataSource.application_id) \
+                .filter(DataSource.id.in_(data_source_ids)) \
                 .distinct(DataSource.application_id)
             application_list = Application.query.filter(Application.id.in_(application_ids)).all()
             for application in application_list:
@@ -989,13 +992,45 @@ def mass_edit_data_sources():
                 raise BadRequest(f"key {json_key} is not editable in type datasource")
 
             data_source_list = DataSource.query.filter(DataSource.id.in_(data_source_ids)).all()
-            for data_source in data_source_list:
-                data_source.update_from_key_value(edition_key, edition_value)
+            warning = ""
+
+            # Replacement
+            if req_json["type"] == "":
+                for data_source in data_source_list:
+                    data_source.update_from_key_value(edition_key, edition_value)
+
+            # Multiple add
+            elif req_json["type"] == "add":
+                for data_source in data_source_list:
+                    new_values = list(set(getattr(data_source, edition_key) + edition_value))
+                    data_source.update_from_key_value(edition_key, new_values)
+
+            # Multiple remove
+            elif req_json["type"] == "remove":
+                remove_failures = []
+                data_source_ids = []
+
+                for data_source in data_source_list:
+                    current_values = getattr(data_source, edition_key)
+                    new_values = [value for value in current_values if value not in edition_value]
+                    if req_json["required"] and len(new_values) == 0:
+                        remove_failures.append(data_source.id)
+                        continue
+                    data_source.update_from_key_value(edition_key, new_values)
+                    data_source_ids.append(data_source.id)
+
+                if len(remove_failures) > 0:
+                    warning = f"Le champ {field_english_to_french_dic[json_key]} est obligatoire. " \
+                              f"{len(remove_failures)} données n'ont pas été modifié pour préserver cette contrainte. " \
+                              f"Liste d'identifiants: {remove_failures}"
+
+            else:
+                raise BadRequest(f"type {req_json['type']} should be 'add', 'remove' or empty string")
 
             db.session.commit()
             DataSource.bulk_add_to_index(data_source_list)
 
-            return jsonify({"data_source_ids": data_source_ids})
+            return jsonify({"data_source_ids": data_source_ids, "warning": warning})
 
         else:
             raise BadRequest(f"edition_type {req_json['edition_type']} should be either datasource or application")

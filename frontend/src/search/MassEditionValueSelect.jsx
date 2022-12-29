@@ -25,8 +25,8 @@ class MassEditionValueSelect extends React.Component {
                                                  limited={false}/>
             } else {
                 const config = attributes[this.props.selectedMassEditionField] || attributes["application"][this.props.selectedMassEditionField]
-                is_required = config.required
                 if (config.type === "boolean") {
+                    is_required = config.required
                     valueSelect = <Select
                         options={[
                             !config.required && {label: "-", value: null},
@@ -35,13 +35,22 @@ class MassEditionValueSelect extends React.Component {
                         ]}
                         placeholder="Valeur du champ"/>
                 } else if (config.type === "tag") {
-                    valueSelect = <EnumSelect
-                        category={config.tagCategory}
-                        defaultValue={config.tagMode === 'multiple' ? [] : null}
-                        mode={config.tagMode === 'multiple' ? 'multiple' : null}
-                        required={config.required}
-                    />
-                    is_multiple = config.tagMode === 'multiple'
+                    if (config.tagMode === 'multiple'){
+                        is_multiple = true
+                        is_required = true
+                        valueSelect = <EnumSelect
+                            category={config.tagCategory}
+                            inivitalValue={[]}
+                            mode={'multiple'}
+                            required={config.required}
+                        />
+                    } else {
+                        is_required = config.required
+                        valueSelect = <EnumSelect
+                            category={config.tagCategory}
+                            required={config.required}
+                        />
+                    }
                 } else {
                     console.error("Field not found in attributes:", this.props.selectedMassEditionField)
                 }
@@ -54,7 +63,7 @@ class MassEditionValueSelect extends React.Component {
                                className={"value-select"}
                                rules={[{
                                    required: true,
-                                   message: "Merci de renseigner une valeur non nulle pour ce champ"
+                                   message: "Merci de renseigner une valeur non nulle"
                                }]}>
                         <Select
                             options={[
@@ -67,7 +76,7 @@ class MassEditionValueSelect extends React.Component {
                            className={"value-select"}
                            rules={[{
                                required: is_required,
-                               message: "Merci de renseigner une valeur non nulle  pour ce champ"
+                               message: "Merci de renseigner une valeur non nulle"
                            }]}>
                     {valueSelect}
                 </Form.Item>

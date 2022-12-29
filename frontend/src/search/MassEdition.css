@@ -27,7 +27,7 @@
 .mass-edition-form{
     display:flex;
     flex-wrap: wrap;
-    gap: 15px;
+    column-gap: 15px;
 }
 
 .mass-edition-form > .field-select{
