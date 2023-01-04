@@ -378,7 +378,7 @@ class AdminPage extends React.Component {
                             leur chemin d'accès : /search, /data-source, /admin, /login. Les visites de pages
                             inexistantes sont également comptabilisées si la première partie du chemin d'accès est
                             connue. Par exemple "/data-source/xxxx" sera compté comme une visite à une
-                            page de type fiche donnée même cette donnée n'existe pas, mais "/xxxx" ne sera pas
+                            page de type fiche donnée même si cette donnée n'existe pas ou a été supprimée, mais "/xxxx" ne sera pas
                             compté comme une visite de page.
                         </li>
                         <li>

@@ -499,7 +499,8 @@ def search_data_sources():
     query, request_args, strictness, exclusions = get_request_args_data_source(request)
 
     # Add query to DB for KPI
-    add_query_to_db(DataSource.__tablename__, query, request_args, strictness, exclusions)
+    if not current_user.is_authenticated or not current_user.is_admin:
+        add_query_to_db(DataSource.__tablename__, query, request_args, strictness, exclusions)
 
     # search and return results
     data_sources, total_count = DataSource.search_with_filter(
@@ -1021,7 +1022,8 @@ def mass_edit_data_sources():
 
                 if len(remove_failures) > 0:
                     warning = f"Le champ {field_english_to_french_dic[json_key]} est obligatoire. " \
-                              f"{len(remove_failures)} données n'ont pas été modifié pour préserver cette contrainte. " \
+                              f"{len(remove_failures)} {'données' if len(remove_failures)>1 else 'donnée'} " \
+                              f"n'ont pas été modifié pour préserver cette contrainte. " \
                               f"Liste d'identifiants: {remove_failures}"
 
             else:
