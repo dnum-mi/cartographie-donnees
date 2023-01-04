@@ -154,7 +154,7 @@ class KpiPage extends React.Component {
                     </div>
 
                     <div className={"KpiSection"}>
-                        <h3>Indicateurs de fréquentation</h3>
+                        <h3>Indicateurs de fréquentation (hors visites de l'administrateur général)</h3>
                         <div className="KpiPageHeader">
                             <div>Nombre total de lignes : {this.state.count_kpi}</div>
                             <Space size={"small"} wrap>
