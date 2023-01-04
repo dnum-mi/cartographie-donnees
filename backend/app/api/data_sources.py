@@ -944,8 +944,8 @@ def mass_edit_data_sources():
                 # Get all datasource of application
                 # reindex them
                 data_sources = DataSource.query.filter(DataSource.application_id == application.id).all()
-                DataSource.bulk_add_to_index(data_sources)
-                Application.add_to_index(application)
+                DataSource.bulk_add_to_index(data_sources, refresh='wait_for')
+                Application.add_to_index(application, refresh='wait_for')
 
             return jsonify({"application_ids": [row._asdict() for row in application_ids.all()]})
 
@@ -1030,7 +1030,7 @@ def mass_edit_data_sources():
                 raise BadRequest(f"type {req_json['type']} should be 'add', 'remove' or empty string")
 
             db.session.commit()
-            DataSource.bulk_add_to_index(data_source_list)
+            DataSource.bulk_add_to_index(data_source_list, refresh='wait_for')
 
             return jsonify({"data_source_ids": data_source_ids, "warning": warning})
 

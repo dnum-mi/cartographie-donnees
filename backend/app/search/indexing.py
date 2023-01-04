@@ -8,14 +8,14 @@ def create_record_payload(model):
     }
 
 
-def add_to_index(index, model):
+def add_to_index(index, model, **query_params):
     if not current_app.elasticsearch:
         return
     payload = create_record_payload(model)
-    current_app.elasticsearch.index(index=index, id=model.id, body=payload)
+    current_app.elasticsearch.index(index=index, id=model.id, body=payload, **query_params)
 
 
-def bulk_add_to_index(index, models):
+def bulk_add_to_index(index, models, **query_params):
     if current_app.elasticsearch:
         body = [
             [
@@ -32,7 +32,7 @@ def bulk_add_to_index(index, models):
         ]
         flattened_body = [x for array in body for x in array]
         if len(flattened_body):
-            current_app.elasticsearch.bulk(body=flattened_body)
+            current_app.elasticsearch.bulk(body=flattened_body, **query_params)
 
 
 def remove_all_from_index(index):

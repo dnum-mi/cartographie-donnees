@@ -72,12 +72,12 @@ class SearchableMixin(object):
             bulk_add_to_index(cls.__tablename__, cls.query.all())
 
     @classmethod
-    def add_to_index(cls, model):
-        add_to_index(cls.__tablename__, model)
+    def add_to_index(cls, model, **query_params):
+        add_to_index(cls.__tablename__, model, **query_params)
 
     @classmethod
-    def bulk_add_to_index(cls, models):
-        bulk_add_to_index(cls.__tablename__, models)
+    def bulk_add_to_index(cls, models, **query_params):
+        bulk_add_to_index(cls.__tablename__, models, **query_params)
 
     @classmethod
     def remove_from_index(cls, model):
