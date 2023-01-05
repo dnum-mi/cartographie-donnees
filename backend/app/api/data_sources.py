@@ -1020,12 +1020,15 @@ def mass_edit_data_sources():
                     data_source.update_from_key_value(edition_key, new_values)
                     data_source_ids.append(data_source.id)
 
-                if len(remove_failures) > 0:
+                if len(remove_failures) == 1:
                     warning = f"Le champ {field_english_to_french_dic[json_key]} est obligatoire. " \
-                              f"{len(remove_failures)} " \
-                              f"{'données n' + chr(39) + 'ont' if len(remove_failures) > 1 else 'donnée n' + chr(39) + 'a'} " \
-                              f"pas été modifié pour préserver cette contrainte. Liste d'identifiants: {remove_failures}"
+                              f"{len(remove_failures)} donnée n'a pas été modifiée pour préserver cette contrainte. " \
+                              f"Liste d'identifiants: {remove_failures}"
 
+                if len(remove_failures) > 1:
+                    warning = f"Le champ {field_english_to_french_dic[json_key]} est obligatoire. " \
+                              f"{len(remove_failures)} données n'ont pas été modifiées pour préserver cette contrainte. " \
+                              f"Liste d'identifiants: {remove_failures}"
             else:
                 raise BadRequest(f"type {req_json['type']} should be 'add', 'remove' or empty string")
 
