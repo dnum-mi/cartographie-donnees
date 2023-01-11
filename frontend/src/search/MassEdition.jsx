@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Divider, Form, Select, Tag} from "antd";
+import {Alert, Button, Divider, Form, Select, Tag} from "antd";
 import {CheckOutlined} from "@ant-design/icons";
 import "./MassEdition.css"
 import {defaultLabels} from "../hoc/tooltips/tooltipsConstants";
@@ -26,10 +26,15 @@ class MassEdition extends React.Component {
 
     formRef = React.createRef();
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.showEditionSection !== this.props.showEditionSection){
+            this.setState({selectedMassEditionField: null})
+        }
+    }
 
     onSelectField = (fieldId) => {
         this.setState({selectedMassEditionField: fieldId})
-        this.formRef.current.resetFields(["massEditionValues"])
+        this.formRef.current.resetFields(["massEditionValues", "massEditionAddOrRemove"])
     }
 
 
@@ -42,10 +47,11 @@ class MassEdition extends React.Component {
 
         return (
             <div className={"mass-edition"}>
-                <CheckableTag checked={this.props.showEditionSection}
-                              onChange={this.props.onShowModificationSection}>
+                <CheckableTag
+                    checked={this.props.showEditionSection}
+                    onChange={this.props.onShowModificationSection}>
                     {this.props.showEditionSection
-                        ? "Annuler modification"
+                        ? "Fermer modification"
                         : "Modifier les données"
                     }
                 </CheckableTag>
@@ -70,7 +76,6 @@ class MassEdition extends React.Component {
                                         placeholder="Champ à modifier"/>
                             </Form.Item>
                             <MassEditionValueSelect
-                                className={"value-select"}
                                 selectedMassEditionField={this.state.selectedMassEditionField}/>
                             <Button
                                 type="primary"
@@ -82,7 +87,7 @@ class MassEdition extends React.Component {
                                 Valider les modifications
                             </Button>
                         </Form>
-                        <p>
+                        <div>
                             <CheckableTag
                                 checked={Object.keys(this.props.selectedDatasources).length === this.props.totalCount}
                                 onChange={this.props.onCheckUncheckAll}>
@@ -92,7 +97,14 @@ class MassEdition extends React.Component {
                             </CheckableTag>
                             <Divider type="vertical"/>
                             Données sélectionnées: {Object.keys(this.props.selectedDatasources).length}
-                        </p>
+                        </div>
+                        {this.props.massEditionWarning &&
+                            <Alert
+                                style={{marginTop: "24px"}}
+                                message={this.props.massEditionWarning}
+                                type="warning"
+                            />
+                        }
                     </div>
                 }
             </div>

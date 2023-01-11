@@ -12,37 +12,75 @@ class MassEditionValueSelect extends React.Component {
 
     render() {
         let valueSelect = <Select disabled/>
+        let is_multiple = false
         let is_required = false
         if (!!this.props.selectedMassEditionField) {
             if (this.props.selectedMassEditionField === "application") {
-                valueSelect = <ApplicationSelect limited={false}/>
                 is_required = true
+                valueSelect = <ApplicationSelect limited={false}/>
             } else if (["origin_applications", "reutilizations"].includes(this.props.selectedMassEditionField)) {
+                is_required = false
+                is_multiple = true
                 valueSelect = <ApplicationSelect mode={"multiple"}
                                                  limited={false}/>
             } else {
                 const config = attributes[this.props.selectedMassEditionField] || attributes["application"][this.props.selectedMassEditionField]
-                is_required = config.required
                 if (config.type === "boolean") {
-                    valueSelect = <Select options={[{label: "Vrai", value: true}, {label: "Faux", value: false}]}
-                                          placeholder="Valeur du champ"/>
+                    is_required = config.required
+                    valueSelect = <Select
+                        options={[
+                            !config.required && {label: "-", value: null},
+                            {label: "Vrai", value: true},
+                            {label: "Faux", value: false},
+                        ]}
+                        placeholder="Valeur du champ"/>
                 } else if (config.type === "tag") {
-                    valueSelect = <EnumSelect category={config.tagCategory}
-                                              mode={config.tagMode === 'multiple' ? 'multiple' : null}/>
+                    if (config.tagMode === 'multiple'){
+                        is_multiple = true
+                        is_required = true
+                        valueSelect = <EnumSelect
+                            category={config.tagCategory}
+                            inivitalValue={[]}
+                            mode={'multiple'}
+                            required={config.required}
+                        />
+                    } else {
+                        is_required = config.required
+                        valueSelect = <EnumSelect
+                            category={config.tagCategory}
+                            required={config.required}
+                        />
+                    }
                 } else {
                     console.error("Field not found in attributes:", this.props.selectedMassEditionField)
                 }
             }
         }
         return (
-            <Form.Item name="massEditionValues"
-                       className={this.props.className}
-                       rules={[{
-                           required: is_required,
-                           message: "Merci de renseigner une valeur non nul pour ce champ"
-                       }]}>
-                {valueSelect}
-            </Form.Item>
+            <div className={"mass-edition-value-select"}>
+                {is_multiple &&
+                    <Form.Item name="massEditionAddOrRemove"
+                               className={"value-select"}
+                               rules={[{
+                                   required: true,
+                                   message: "Merci de renseigner une valeur non nulle"
+                               }]}>
+                        <Select
+                            options={[
+                                {label: "Ajouter", value: true},
+                                {label: "Supprimer", value: false},
+                            ]}
+                            placeholder="Ajouter/supprimer"/>
+                    </Form.Item>}
+                <Form.Item name="massEditionValues"
+                           className={"value-select"}
+                           rules={[{
+                               required: is_required,
+                               message: "Merci de renseigner une valeur non nulle"
+                           }]}>
+                    {valueSelect}
+                </Form.Item>
+            </div>
         )
     }
 }

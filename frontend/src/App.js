@@ -1,16 +1,16 @@
 import React from 'react';
-import { Layout } from 'antd';
+import {Layout} from 'antd';
 
 import Router from './navigation/Router';
 import './App.css';
-import {readMe, fetchWildCards, fetchDataSourceHighlights} from './api';
+import {readMe, fetchWildCards} from './api';
 import Loading from "./components/Loading";
 import Error from "./components/Error";
 import {UserProvider} from "./hoc/user/UserProvider"
 import {TooltipsProvider} from "./hoc/tooltips/TooltipsProvider"
 import Tooltips from './hoc/tooltips/Tooltips';
 
-const { Content, Footer } = Layout;
+const {Content, Footer} = Layout;
 
 class App extends React.Component {
     constructor(props) {
@@ -26,9 +26,7 @@ class App extends React.Component {
 
     componentDidMount() {
         this.refreshUser(true)
-            .then(
-                () => this.refreshWildcards()
-            );
+            .then(() => this.refreshWildcards());
     }
 
     setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve(newState)))
@@ -37,12 +35,11 @@ class App extends React.Component {
         return this.setStatePromise({
             loading: true,
             error: null,
-        }).then(() => Promise.all([fetchWildCards("tooltips"), fetchWildCards("homepage"), fetchWildCards("synonyme"), fetchDataSourceHighlights()]))
-            .then(([res_tooltips, res_homepage, res_synonyms, res_highlights]) => {
+        }).then(() => Promise.all([fetchWildCards("tooltips"), fetchWildCards("homepage"), fetchWildCards("synonyme")]))
+            .then(([res_tooltips, res_homepage, res_synonyms]) => {
                 this.setState({
                     tooltips_object: new Tooltips(res_tooltips.data.tooltips, this.refreshWildcards),
                     homepageContent: res_homepage.data.homepage,
-                    dataSourceHighlights: res_highlights.data.results,
                     synonymsContent: res_synonyms.data.synonyme.synonyme,
                     loading: false,
                     error: null
@@ -56,12 +53,12 @@ class App extends React.Component {
             });
     };
 
-    refreshUser = (keep_loading=false) => {
+    refreshUser = (keep_loading = false) => {
         return this.setStatePromise({
             loading: true,
             error: null,
         })
-            .then(()=> readMe())
+            .then(() => readMe())
             .then((r) => this.setStatePromise({
                 loading: keep_loading,
                 error: null,
@@ -105,7 +102,6 @@ class App extends React.Component {
                                     onLogin={this.refreshUser}
                                     homepageContent={this.state.homepageContent}
                                     synonymsContent={this.state.synonymsContent}
-                                    dataSourceHighlights={this.state.dataSourceHighlights}
                                     updateHomepage={this.updateHomepage}
                                     loading={this.state.loading}
                                 />

@@ -61,88 +61,98 @@ class DataSourceResult extends React.Component {
                                 {this.props.dataSource.application.organization_name}
                             </Tag>
                         ) : null}
-                        {this.props.dataSource.family_name.map((tag) => (
+                        {this.props.dataSource.families.map((family) => (
                             <Tag
-                                key={tag}
+                                key={family.full_path}
                                 className="onHover"
-                                onClick={() => this.props.onFilterSelect("selectedFamily", tag)}
+                                onClick={() => this.props.onFilterSelect("selectedFamily", family.full_path)}
                                 color="blue"
+                                title={family.label}
                             >
-                                {tag}
+                                {family.full_path}
                             </Tag>
                         ))}
                         <Tag
                             className="onHover"
-                            onClick={() => this.props.onFilterSelect("selectedType", this.props.dataSource.type_name)}
+                            onClick={() => this.props.onFilterSelect("selectedType", this.props.dataSource.type.value)}
                             color="red"
+                            title={this.props.dataSource.type.label}
                         >
-                            {this.props.dataSource.type_name}
+                            {this.props.dataSource.type.value}
                         </Tag>
                     </div>
                     <div className="attributes-two">
-                        {this.props.dataSource.referentiel_name.map((tag) => (
+                        {this.props.dataSource.referentiel.map((referentiel) => (
                             <Tag
-                                key={tag}
+                                key={referentiel.value}
                                 className="onHover"
-                                onClick={() => this.props.onFilterSelect("selectedReferentiel", tag)}
+                                onClick={() => this.props.onFilterSelect("selectedReferentiel", referentiel.value)}
                                 color="orange"
+                                title={referentiel.label}
                             >
-                                {tag}
+                                {referentiel.value}
                             </Tag>
                         ))}
-                        {this.props.dataSource.sensibility_name ? (
+                        {this.props.dataSource.sensibility ? (
                             <Tag
                                 className="onHover"
-                                onClick={() => this.props.onFilterSelect("selectedSensibility", this.props.dataSource.sensibility_name)}
+                                onClick={() => this.props.onFilterSelect("selectedSensibility", this.props.dataSource.sensibility.value)}
                                 color="lime"
+                                title={this.props.dataSource.sensibility.label}
                             >
-                                {this.props.dataSource.sensibility_name}
+                                {this.props.dataSource.sensibility.value}
                             </Tag>
                         ) : null}
                         {this.props.dataSource.open_data_name ? (
                             <Tag
                                 className="onHover"
-                                onClick={() => this.props.onFilterSelect("selectedOpenData", this.props.dataSource.open_data_name)}
+                                onClick={() => this.props.onFilterSelect("selectedOpenData", this.props.dataSource.open_data.value)}
                                 color="green"
+                                title={this.props.dataSource.open_data.label}
                             >
-                                {this.props.dataSource.open_data_name}
+                                {this.props.dataSource.open_data.value}
                             </Tag>
                         ) : null}
-                        {this.props.dataSource.exposition_name.map((exposition) => (
+                        {this.props.dataSource.exposition.map((exposition) => (
                             <Tag
-                                key={exposition}
+                                key={exposition.value}
                                 className="onHover"
                                 color="gold"
-                                onClick={() => this.props.onFilterSelect("selectedExposition", exposition)}
+                                onClick={() => this.props.onFilterSelect("selectedExposition", exposition.value)}
+                                title={exposition.label}
                             >
-                                {exposition}
+                                {exposition.value}
                             </Tag>
                         ))}
-                        {this.props.dataSource.origin_name ? ((
+                        {this.props.dataSource.origin ? ((
                             <Tag
                                 className="onHover"
-                                onClick={() => this.props.onFilterSelect("selectedOrigin", this.props.dataSource.origin_name)}
-                                color="geekblue">
-                                {this.props.dataSource.origin_name}
+                                onClick={() => this.props.onFilterSelect("selectedOrigin", this.props.dataSource.origin.value)}
+                                color="geekblue"
+                                title={this.props.dataSource.origin.label}>
+
+                                {this.props.dataSource.origin.value}
                             </Tag>
                         )) : null}
-                        {this.props.dataSource.analysis_axis_name.map((tag) => (
+                        {this.props.dataSource.analysis_axis.map((analysis_axis) => (
                             <Tag
-                                key={tag}
+                                key={analysis_axis.value}
                                 className="onHover"
-                                onClick={() => this.props.onFilterSelect("selectedAnalysisAxis", tag)}
+                                onClick={() => this.props.onFilterSelect("selectedAnalysisAxis", analysis_axis.value)}
                                 color="purple"
+                                title={analysis_axis.label}
                             >
-                                {tag}
+                                {analysis_axis.value}
                             </Tag>
                         ))}
-                        {this.props.dataSource.tag_name.map((tag) => (
+                        {this.props.dataSource.tags.map((tag) => (
                             <Tag
-                                key={tag}
+                                key={tag.value}
                                 className="onHover"
-                                onClick={() => this.props.onFilterSelect("selectedTag", tag)}
+                                onClick={() => this.props.onFilterSelect("selectedTag", tag.value)}
+                                title={tag.label}
                             >
-                                {tag}
+                                {tag.value}
                             </Tag>
                         ))}
                     </div>

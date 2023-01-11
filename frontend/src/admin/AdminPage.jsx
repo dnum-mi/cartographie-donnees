@@ -165,7 +165,7 @@ class AdminPage extends React.Component {
                     </p>
 
                     <h3>
-                        Importer des données
+                        Importer des données (format CSV UTF-8 BOM)
                     </h3>
                     <p>
                         Les données peuvent être entièrement importées par un administrateur général depuis le bouton "import"
@@ -174,7 +174,7 @@ class AdminPage extends React.Component {
                     </p>
 
                     <h3>
-                        Importer des applications
+                        Importer des applications (format CSV UTF-8 BOM)
                     </h3>
                     <p>
                         Les applications peuvent être entièrement importées par un administrateur général depuis le bouton
@@ -188,7 +188,7 @@ class AdminPage extends React.Component {
                     </p>
 
                     <h3>
-                        Importer des filtres
+                        Importer des filtres (format CSV UTF-8 BOM)
                     </h3>
                     <p>
                         Les filtres peuvent être entièrement importés par un administrateur général depuis le bouton "import"
@@ -200,10 +200,10 @@ class AdminPage extends React.Component {
                     </p>
 
                     <h3>
-                        Importer des administrateurs
+                        Importer des administrateurs (format CSV UTF-8 BOM)
                     </h3>
                     <p>
-                        Les administrateurs peuvent être entièrement importées par un administrateur général depuis le
+                        Les administrateurs peuvent être entièrement importés par un administrateur général depuis le
                         bouton
                         "import" de la page administration des administrateurs. Pour importer les administrateurs, il
                         faut
@@ -217,7 +217,7 @@ class AdminPage extends React.Component {
                         Paramètres
                     </h3>
                     <p>
-                        La page "Paramètres" est séparée en deux sections:
+                        La page "Paramètres" est séparée en deux sections :
                     </p>
                     <ul>
                         <li> La section "Page d'accueil" permet de modifier le texte affiché sur la page d'accueil.</li>
@@ -242,7 +242,7 @@ class AdminPage extends React.Component {
 
 
                     <h3>
-                        Réimporter la base de données
+                        Réimporter la base de données (format CSV UTF-8 BOM)
                     </h3>
                     <p>
                         Avant de réimporter la base, il faut assurer que l’ensemble des données de l'outil a bien été
@@ -267,13 +267,13 @@ class AdminPage extends React.Component {
                     <p>
                         Les paramètres sont indépendants des autres données de l'outil et ne sont donc pas affectés par
                         ces procédures.
-                        Ils peuvent donc être complètements modifiés/importés séparément.
+                        Ils peuvent donc être complètement modifiés/importés séparément.
                     </p>
                     <h3>
                         Identification des doublons dans l'import
                     </h3>
                     <p>
-                        A l'import des applications et des données, des doublons peuvent être identifiés.
+                        À l'import des applications et des données, des doublons peuvent être identifiés.
                         Si c'est le cas, les données seront tout de même importées, l'administrateur général sera averti
                         et il pourra modifier manuellement les données importées si besoin.
                     </p>
@@ -286,7 +286,7 @@ class AdminPage extends React.Component {
                         Deux noms sont considérés sémantiquement proches s'ils sont similaires à plus de 95%.
                         Ce ratio est calculé en fonction du nombre de sous-parties présents dans les deux chaînes
                         de caractères. Par exemple, les noms "Empreintes génétiques" et "Empreintes digitales"
-                        ont ratio de similarité de 73% et ne sont donc pas considérés comme proches.
+                        ont un ratio de similarité de 73% et ne sont donc pas considérés comme proches.
                     </p>
                     <h3>
                         Propriétés calculées des applications
@@ -324,6 +324,9 @@ class AdminPage extends React.Component {
                                     5 champs "application" : Contact, Nombre d'opérateurs, Nombre d'utilisateurs,
                                     Nombre de connexions mensuelles, Historique.
                                 </li>
+                                <li>
+                                    Le niveau de description de l'application est égal à 0 si l'application ne possède pas de donnée.
+                                </li>
                             </ul>
                         </li>
                     </ul>
@@ -354,35 +357,35 @@ class AdminPage extends React.Component {
                             Niveau moyen de description sur l’ensemble des données
                         </li>
                         <li>
-                            Niveau moyen de description par application (Uniquement pour les applications contenant
-                            des données
+                            Niveau moyen de description par application (uniquement pour les applications contenant
+                            des données)
                         </li>
                     </ul>
 
                     <h4>Indicateurs de fréquentation</h4>
                     <p>
-                        Les indicateurs de fréquentation sont calculés sur une période de temps à définir (par défaut 1
-                        an passé)
-                        et suivant les règles décrites ci-dessous:
+                        Les indicateurs de fréquentation sont calculés (hors visites de l'administrateur général)
+                        sur une période de temps à définir (par défaut 1 an passé)
+                        et suivant les règles décrites ci-dessous :
                     </p>
                     <ul>
                         <li>
-                            <b>Fiche donnée</b> : Les 50 fiches données les plus visitées.
+                            <b>Fiche donnée</b> : les 50 fiches données les plus visitées.
                         </li>
                         <li>
-                            <b>Type de page</b> : Le nombre de visite par type de page (Recherche, Fiche donnée,
+                            <b>Type de page</b> : le nombre de visite par type de page (Recherche, Fiche donnée,
                             Administration, Connexion). Les pages sont classées en fonction de la première partie de
-                            leur chemin d'accès: /search, /data-source, /admin, /login. Les visites de pages
-                            inexistantes sont également comptabilisé si la première partie du chemin d'accès est
+                            leur chemin d'accès : /search, /data-source, /admin, /login. Les visites de pages
+                            inexistantes sont également comptabilisées si la première partie du chemin d'accès est
                             connue. Par exemple "/data-source/xxxx" sera compté comme une visite à une
-                            page de type fiche donnée même cette donnée n'existe pas mais "/xxxx" ne sera pas
+                            page de type fiche donnée même si cette donnée n'existe pas ou a été supprimée, mais "/xxxx" ne sera pas
                             compté comme une visite de page.
                         </li>
                         <li>
-                            <b>Filtre</b> : Les 50 filtres de recherche les plus utilisées.
+                            <b>Filtre</b> : les 50 filtres de recherche les plus utilisés.
                         </li>
                         <li>
-                            <b>Terme de recherche</b> : Les 50 termes de recherche les plus utilisées. Les termes
+                            <b>Terme de recherche</b> : les 50 termes de recherche les plus utilisés. Les termes
                             utilisés pour cet indicateur correspondent aux termes après traitement du langage par
                             l'algorithme de recherche ("Véhicules" apparait comme "vehicule" par exemple).
                         </li>
