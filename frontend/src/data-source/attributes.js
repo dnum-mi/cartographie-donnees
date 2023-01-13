@@ -51,6 +51,7 @@ export default {
     attributeId: 'is_reference',
     label: "Donnée référentielle",
     type: 'boolean',
+    required: true
   },
   origin_name: {
     attributeId: 'origin_name',
