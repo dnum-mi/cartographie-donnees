@@ -68,6 +68,10 @@ def create_routing_kpi_item():
                             type: string
                           subpath:
                             type: string
+                          data_source_name:
+                            type: string
+                          application_name:
+                            type: string
     """
     try:
         json = request.get_json(force=True)
@@ -75,6 +79,16 @@ def create_routing_kpi_item():
         path = location.get("pathname").split("/")
         pathname = path[1]
         subpath = "/".join(path[2:])
+        data_source_name = None
+        application_name = None
+        if pathname == "data-source":
+            try:
+                ds_id = int(subpath)
+                data_source = DataSource.query.get(ds_id)
+                data_source_name = data_source.name
+                application_name = data_source.application_name
+            except ValueError:
+                pass
         user = json.get("user", {})
         routing_kpi = RoutingKPI.from_dict({
             "pathname": pathname,
@@ -82,7 +96,9 @@ def create_routing_kpi_item():
             "search": location.get("search"),
             "is_general_admin": user.get("is_general_admin"),
             "is_simple_admin": user.get("is_simple_admin"),
-            "date": datetime.datetime.now()
+            "date": datetime.datetime.now(),
+            "data_source_name": data_source_name,
+            "application_name": application_name
         })
         db.session.add(routing_kpi)
         db.session.commit()
@@ -290,23 +306,19 @@ def get_routing_kpi():
         )
 
         # Count number of visit for each datasource
-        main_query = (
-            db.session.query(RoutingKPI.subpath.label("data_source_id"), func.count(RoutingKPI.id).label("count")).
-            filter(RoutingKPI.id.in_(filter_by_date)).
-            group_by(RoutingKPI.pathname, RoutingKPI.subpath).
-            having(RoutingKPI.pathname == "data-source").subquery()
-        )
-
         kpis["datasource_count_visits"] = row_to_dict(
-            db.session.query(main_query.c.count, main_query.c.data_source_id, DataSource.name.label("data_source_name"),
-                             Application.name.label("application_name")).
-            join(DataSource, db.cast(DataSource.id, db.String) == main_query.c.data_source_id).
-            join(Application, Application.id == DataSource.application_id).
+            db.session.query(RoutingKPI.data_source_name,
+                             RoutingKPI.application_name,
+                             func.count(RoutingKPI.id).label("count")).
+            filter(RoutingKPI.id.in_(filter_by_date),
+                   RoutingKPI.data_source_name != "",
+                   RoutingKPI.application_name != "",
+                   RoutingKPI.pathname == "data-source").
+            group_by(RoutingKPI.pathname, RoutingKPI.data_source_name, RoutingKPI.application_name).
             order_by(desc("count")).
             limit(50).
             all()
         )
-
         return jsonify(kpis)
 
     except Exception as e:
@@ -419,7 +431,6 @@ def delete_kpi_year():
 
     except Exception as e:
         raise BadRequest(str(e))
-
 
 
 @api.route('/api/kpi/routing/export', methods=['GET'])
