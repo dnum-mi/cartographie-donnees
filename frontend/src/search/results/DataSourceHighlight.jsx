@@ -42,14 +42,13 @@ class DataSourceHighlight extends React.Component {
                     >
                         {this.props.dataSource.application.organization_name}
                     </Tag>) : null}
-                    {this.props.dataSource.families.map((family) => (<Tag
-                        key={family.full_path}
+                    {this.props.dataSource.family_name.map((tag) => (<Tag
+                        key={tag}
                         className="onHover"
-                        onClick={() => this.props.onFilterSelect("selectedFamily", family.full_path)}
+                        onClick={() => this.props.onFilterSelect("selectedFamily", tag)}
                         color="blue"
-                        title={family.label}
                     >
-                        {family.full_path}
+                        {tag}
                     </Tag>))}
                 </div>
                 <div className="DataSourceHighlightKpi">
