@@ -4,6 +4,7 @@ import {withRouter, Link} from "react-router-dom";
 import {Checkbox, Tag, Typography} from 'antd';
 import {ExportOutlined} from '@ant-design/icons';
 import './DataSourceResult.css';
+import withTooltips from "../../hoc/tooltips/withTooltips";
 
 const {Paragraph} = Typography;
 
@@ -14,6 +15,7 @@ class DataSourceResult extends React.Component {
     }
 
     render() {
+        const {tooltips} = this.props;
         return (
             <div className={"DataSourceResultContainer"}>
                 {this.props.checkable && <Checkbox checked={this.props.checked} onChange={this.onChecked}></Checkbox>}
@@ -46,7 +48,7 @@ class DataSourceResult extends React.Component {
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedApplication", this.props.dataSource.application.name)}
                                 color="magenta"
-                                title={this.props.dataSource.application.long_name}
+                                title={tooltips.get('application_name')}
                             >
                                 {this.props.dataSource.application.name}
                             </Tag>
@@ -67,6 +69,7 @@ class DataSourceResult extends React.Component {
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedFamily", tag)}
                                 color="blue"
+                                title={tooltips.get('family_name')}
                             >
                                 {tag}
                             </Tag>
@@ -75,6 +78,7 @@ class DataSourceResult extends React.Component {
                             className="onHover"
                             onClick={() => this.props.onFilterSelect("selectedType", this.props.dataSource.type_name)}
                             color="red"
+                            title={tooltips.get('type_name')}
                         >
                             {this.props.dataSource.type_name}
                         </Tag>
@@ -86,6 +90,7 @@ class DataSourceResult extends React.Component {
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedReferentiel", tag)}
                                 color="orange"
+                                title={tooltips.get('referentiel_name')}
                             >
                                 {tag}
                             </Tag>
@@ -95,6 +100,7 @@ class DataSourceResult extends React.Component {
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedSensibility", this.props.dataSource.sensibility_name)}
                                 color="lime"
+                                title={tooltips.get('sensibility_name')}
                             >
                                 {this.props.dataSource.sensibility_name}
                             </Tag>
@@ -104,6 +110,7 @@ class DataSourceResult extends React.Component {
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedOpenData", this.props.dataSource.open_data_name)}
                                 color="green"
+                                title={tooltips.get('open_data_name')}
                             >
                                 {this.props.dataSource.open_data_name}
                             </Tag>
@@ -114,6 +121,7 @@ class DataSourceResult extends React.Component {
                                 className="onHover"
                                 color="gold"
                                 onClick={() => this.props.onFilterSelect("selectedExposition", exposition)}
+                                title={tooltips.get('exposition_name')}
                             >
                                 {exposition}
                             </Tag>
@@ -122,7 +130,9 @@ class DataSourceResult extends React.Component {
                             <Tag
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedOrigin", this.props.dataSource.origin_name)}
-                                color="geekblue">
+                                color="geekblue"
+                                title={tooltips.get('origin_name')}
+                            >
                                 {this.props.dataSource.origin_name}
                             </Tag>
                         )) : null}
@@ -132,6 +142,7 @@ class DataSourceResult extends React.Component {
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedAnalysisAxis", tag)}
                                 color="purple"
+                                title={tooltips.get('analysis_axis_name')}
                             >
                                 {tag}
                             </Tag>
@@ -141,6 +152,7 @@ class DataSourceResult extends React.Component {
                                 key={tag}
                                 className="onHover"
                                 onClick={() => this.props.onFilterSelect("selectedTag", tag)}
+                                title={tooltips.get('tag_name')}
                             >
                                 {tag}
                             </Tag>
@@ -165,4 +177,4 @@ DataSourceResult.propTypes = {
     checked:PropTypes.bool
 }
 
-export default withRouter(DataSourceResult);
+export default withRouter(withTooltips(DataSourceResult));

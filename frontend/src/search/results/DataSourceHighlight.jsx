@@ -4,6 +4,7 @@ import {withRouter, Link} from "react-router-dom";
 import {Divider, Tag} from 'antd';
 import {ExportOutlined} from '@ant-design/icons';
 import './DataSourceResult.css';
+import withTooltips from "../../hoc/tooltips/withTooltips";
 
 class DataSourceHighlight extends React.Component {
 
@@ -47,6 +48,7 @@ class DataSourceHighlight extends React.Component {
                         className="onHover"
                         onClick={() => this.props.onFilterSelect("selectedFamily", tag)}
                         color="blue"
+                        title={this.props.tooltips.get("family_name")}
                     >
                         {tag}
                     </Tag>))}
@@ -71,4 +73,4 @@ DataSourceHighlight.propTypes = {
     onFilterSelect: PropTypes.func,
 }
 
-export default withRouter(DataSourceHighlight);
+export default withRouter(withTooltips(DataSourceHighlight));
