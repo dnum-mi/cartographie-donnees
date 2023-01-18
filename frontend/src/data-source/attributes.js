@@ -50,8 +50,7 @@ export default {
   is_reference: {
     attributeId: 'is_reference',
     label: "Donnée référentielle",
-    type: 'boolean',
-    required: true
+    type: 'boolean'
   },
   origin_name: {
     attributeId: 'origin_name',

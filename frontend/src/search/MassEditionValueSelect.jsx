@@ -26,15 +26,8 @@ class MassEditionValueSelect extends React.Component {
             } else {
                 const config = attributes[this.props.selectedMassEditionField] || attributes["application"][this.props.selectedMassEditionField]
                 if (config.type === "boolean") {
-                    is_required = config.required
                     valueSelect = <Select
-                        options={!config.required ?
-                            [
-                                {label: "-", value: null},
-                                {label: "Vrai", value: true},
-                                {label: "Faux", value: false}
-                            ] :
-                            [
+                        options={[
                                 {label: "Vrai", value: true},
                                 {label: "Faux", value: false}
                             ]}
