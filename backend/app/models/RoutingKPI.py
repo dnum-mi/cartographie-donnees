@@ -10,6 +10,8 @@ class RoutingKPI(BaseModel):
     is_general_admin = db.Column(db.Boolean, nullable=False)
     is_simple_admin = db.Column(db.Boolean, nullable=False)
     date = db.Column(db.DateTime, nullable=False)
+    data_source_name = db.Column(db.String, nullable=True)
+    application_name = db.Column(db.String, nullable=True)
 
     # see application validation_date
 
@@ -22,6 +24,8 @@ class RoutingKPI(BaseModel):
             is_general_admin=data.get("is_general_admin"),
             is_simple_admin=data.get("is_simple_admin"),
             date=data.get("date"),
+            data_source_name=data.get("data_source_name"),
+            application_name=data.get("application_name")
         )
         return routing_kpi
 
@@ -34,6 +38,8 @@ class RoutingKPI(BaseModel):
             'is_general_admin': self.is_general_admin,
             'is_simple_admin': self.is_simple_admin,
             'date': self.date,
+            'data_source_name': self.data_source_name,
+            'application_name': self.application_name,
         }
         return result
 
@@ -45,6 +51,8 @@ class RoutingKPI(BaseModel):
         self.is_general_admin = data.get('is_general_admin')
         self.is_simple_admin = data.get('is_simple_admin')
         self.date = data.get('date')
+        self.data_source_name = data.get("data_source_name"),
+        self.application_name = data.get("application_name")
 
     def to_export(self):
         routing_kpi_dict = self.to_dict()

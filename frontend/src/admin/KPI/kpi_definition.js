@@ -72,7 +72,7 @@ const tabs_definition = [
                 title: 'Fiche donnée (application)',
                 key: 'datasource_kpi_id',
                 render: (_, record) => (
-                    <a href={"/data-source/" + record.data_source_id.toString()}>{record.data_source_name} ({record.application_name})</a>
+                    <p>{record.data_source_name} ({record.application_name})</p>
                 ),
             },
             {

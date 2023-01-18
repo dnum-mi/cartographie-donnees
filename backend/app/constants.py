@@ -72,6 +72,7 @@ field_english_to_french_dic = {
     "is_general_admin": "Administrateur général?",
     "is_simple_admin": "Administrateur?",
     "highlights_index": "Rang dans la liste des données mise en avant",
+    "data_source_name": "Nom de la donnée"
 }
 
 field_french_to_english_dic = {
@@ -138,6 +139,7 @@ field_french_to_english_dic = {
     "Niveau de description de l'application": "application_description_level",
     "Niveau de description des données": "datasource_description_level",
     "Rang dans la liste des données mise en avant": "highlights_index",
+    "Nom de la donnée": "data_source_name"
 }
 
 enumeration_french_to_english = {

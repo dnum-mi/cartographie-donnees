@@ -378,15 +378,6 @@ components:
           type: string
         application_name:
           type: string
-        analysis:
-          type: array
-          items:
-            type: object
-            properties:
-              value:
-                type: string
-              label:
-                type: string
         analysis_axis_name:
           type: array
           items:
@@ -403,15 +394,6 @@ components:
           type: string
         example:
           type: string
-        exposition:
-          type: array
-          items:
-            type: object
-            properties:
-              value:
-                type: string
-              label:
-                type: string
         exposition_name:
           type: array
           items:
@@ -442,13 +424,6 @@ components:
           type: integer
         nb_reutilizations:
           type: integer
-        open_data:
-          type: object
-          properties:
-            value:
-              type: string
-            label:
-              type: string
         open_data_name:
           type: string
         organization_name:
@@ -461,24 +436,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ApplicationGet"
-        origin:
-          type: object
-          properties:
-            value:
-              type: string
-            label:
-              type: string
         origin_name:
           type: string
-        referentiel:
-          type: array
-          items:
-            type: object
-            properties:
-              value:
-                type: string
-              label:
-                type: string
         referentiel_name:
           type: array
           items:
@@ -491,13 +450,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ApplicationGet"
-        sensibility:
-          type: object
-          properties:
-            value:
-              type: string
-            label:
-              type: string
         sensibility_name:
           type: string
         tag_name:
@@ -510,13 +462,6 @@ components:
             $ref: "#/components/schemas/Tag"
         type_name:
           type: string
-        type:
-          type: object
-          properties:
-            value:
-              type: string
-            label:
-              type: string
         update_frequency:
           type: string
         update_frequency_name:

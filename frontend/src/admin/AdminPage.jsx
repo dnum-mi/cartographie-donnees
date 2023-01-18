@@ -55,11 +55,11 @@ class AdminPage extends React.Component {
                 onClick={this.handleClick}
                 defaultSelectedKeys={[this.currentPage()]}
             >
-                <Menu.Item key="applications">
-                    Applications ({this.state.application_count})
-                </Menu.Item>
                 <Menu.Item key="data-sources">
                     Données ({this.state.data_source_count})
+                </Menu.Item>
+                <Menu.Item key="applications">
+                    Applications ({this.state.application_count})
                 </Menu.Item>
                 {this.props.user.is_admin && (
                     <Menu.Item key="enumerations">
@@ -168,9 +168,9 @@ class AdminPage extends React.Component {
                         Importer des données (format CSV UTF-8 BOM)
                     </h3>
                     <p>
-                        Les données peuvent être entièrement importées par un administrateur général depuis le bouton "import"
+                        Les données peuvent être entièrement importées par un administrateur général depuis le bouton "Import"
                         de la page administration des données. Il est conseillé de sauvegarder préalablement les données
-                        de l'outil via le bouton "export" car l'ensemble des données sera écrasé lors de l’import.
+                        de l'outil via le bouton "Export" car l'ensemble des données sera écrasé lors de l’import.
                     </p>
 
                     <h3>
@@ -178,12 +178,10 @@ class AdminPage extends React.Component {
                     </h3>
                     <p>
                         Les applications peuvent être entièrement importées par un administrateur général depuis le bouton
-                        "import" de la page administration des applications. Pour importer les applications, il faut
-                        préalablement vider l’ensemble des données de l’outil. Pour cela, il est conseillé d'importer
-                        un fichier de données ne contenant que les en-têtes.
-                    </p>
-                    <p>
-                        Il est conseillé de sauvegarder préalablement les applications de l'outil via le bouton "export"
+                        "Import" de la page administration des applications. Pour importer les applications, il faut
+                        préalablement vider l’ensemble des données de l’outil.
+                        Pour cela importer un fichier vide de données au format CSV UTF-8 BOM.
+                        Il est conseillé de sauvegarder préalablement les applications de l'outil via le bouton "Export"
                         car l'ensemble des applications sera écrasé lors de l’import.
                     </p>
 
@@ -191,12 +189,12 @@ class AdminPage extends React.Component {
                         Importer des filtres (format CSV UTF-8 BOM)
                     </h3>
                     <p>
-                        Les filtres peuvent être entièrement importés par un administrateur général depuis le bouton "import"
+                        Les filtres peuvent être entièrement importés par un administrateur général depuis le bouton "Import"
                         de la page administration des filtres. Pour importer les filtres, il faut préalablement vider
-                        les données et applications de l’outil. Pour cela, il est conseillé d'importer un fichier de
-                        données ne contenant que les en-têtes puis un fichier d'application ne contenant que les
-                        en-têtes. Il est conseillé de sauvegarder préalablement les filtres de l'outil via le bouton
-                        "export" car l'ensemble des filtres sera écrasé lors de l’import.
+                        les données et applications de l’outil. Pour cela importer un fichier vide de données,
+                        puis un fichier vide d’applications au format CSV UTF-8 BOM.
+                        Il est conseillé de sauvegarder préalablement les filtres de l'outil via le bouton
+                        "Export" car l'ensemble des filtres sera écrasé lors de l’import.
                     </p>
 
                     <h3>
@@ -205,19 +203,18 @@ class AdminPage extends React.Component {
                     <p>
                         Les administrateurs peuvent être entièrement importés par un administrateur général depuis le
                         bouton
-                        "import" de la page administration des administrateurs. Pour importer les administrateurs, il
-                        faut
-                        s'assurer qu'aucune donnée et qu'aucune application ne soit encore présente. Pour cela,
-                        il est conseillé d'importer un fichier de données ne contenant que les en-têtes puis un fichier
-                        d'application ne contenant que les en-têtes. Les administrateurs seront tous supprimés avant
-                        d’importer les nouveaux administrateurs.
+                        "Import" de la page administration des administrateurs. Pour importer les administrateurs, il
+                        faut s'assurer qu'aucune donnée et qu'aucune application ne soit encore présente.
+                        Pour cela importer un fichier vide de données,
+                        puis un fichier vide d’applications au format CSV UTF-8 BOM.
+                        Les administrateurs seront tous supprimés avant d’importer les nouveaux administrateurs.
                     </p>
 
                     <h3>
                         Paramètres
                     </h3>
                     <p>
-                        La page "Paramètres" est séparée en deux sections :
+                        La page "Paramètres" est séparée en trois sections :
                     </p>
                     <ul>
                         <li> La section "Page d'accueil" permet de modifier le texte affiché sur la page d'accueil.</li>
@@ -225,14 +222,18 @@ class AdminPage extends React.Component {
                             Les info-bulles sont rangées dans des listes déroulantes par type de champ qu'elles
                             décrivent.
                         </li>
+                        <li>
+                            La section "Synonymes de recherche" permet de déclarer des synonymes,
+                            mots et expressions, pour la recherche.
+                        </li>
                     </ul>
                     <p>
                         Les paramètres peuvent être entièrement importés par un administrateur général depuis le bouton
-                        "import" de la page administration des paramètres.
+                        "Import" de la page administration des paramètres.
                         Chaque paramètre est stocké en base de données avec un identifiant composé d'une catégorie
                         "Namespace" et d'une clé prédéfinie.
                         Pour conserver les paramètres et leur identifiant associé, il est conseillé de sauvegarder
-                        préalablement les paramètres de l'outil via le bouton "export ", car l'ensemble des paramètres
+                        préalablement les paramètres de l'outil via le bouton "Export", car l'ensemble des paramètres
                         sera écrasé lors de l’import.
                         La colonne "Libellé" du fichier exporté est uniquement présente à titre indicatif et ne permet
                         pas de modifier les libellés des paramètres via l'import.
@@ -246,18 +247,16 @@ class AdminPage extends React.Component {
                     </h3>
                     <p>
                         Avant de réimporter la base, il faut assurer que l’ensemble des données de l'outil a bien été
-                        sauvegardé via le bouton "export" pour éviter toute perte de données. En effet, lors de
+                        sauvegardé via le bouton "Export" pour éviter toute perte de données. En effet, lors de
                         l'import, l’ensemble de la base sera supprimé.
                     </p>
                     <p>
                         Pour réimporter la base, il faut suivre les étapes suivantes dans l'ordre :
                     </p>
                     <ol>
-                        <li>Vider les données (il est conseillé d'importer un fichier de données ne contenant que les
-                            en-têtes)
+                        <li>Vider les données (importer un fichier vide au format CSV UTF-8 BOM)
                         </li>
-                        <li>Vider les applications (il est conseillé d'importer un fichier d'application ne contenant
-                            que les en-têtes)
+                        <li>Vider les applications (importer un fichier vide au format CSV UTF-8 BOM)
                         </li>
                         <li>Importer les administrateurs</li>
                         <li>Importer les filtres</li>
@@ -283,16 +282,16 @@ class AdminPage extends React.Component {
                         noms sont sémantiquement proches.
                     </p>
                     <p>
-                        Deux noms sont considérés sémantiquement proches s'ils sont similaires à plus de 95%.
+                        Deux noms sont considérés sémantiquement proches s'ils sont similaires à plus de 95 %.
                         Ce ratio est calculé en fonction du nombre de sous-parties présents dans les deux chaînes
                         de caractères. Par exemple, les noms "Empreintes génétiques" et "Empreintes digitales"
-                        ont un ratio de similarité de 73% et ne sont donc pas considérés comme proches.
+                        ont un ratio de similarité de 73 % et ne sont donc pas considérés comme proches.
                     </p>
                     <h3>
-                        Propriétés calculées des applications
+                        Indicateurs calculés des applications
                     </h3>
                     <p>
-                        Certaines propriétés, visibles à l'export des applications, sont calculées à partir d'autres
+                        Certains indicateurs, visibles à l'export des applications, sont calculés à partir d'autres
                         informations de la base de données. Voici la liste des règles de calcul utilisées pour ces
                         champs.
                     </p>

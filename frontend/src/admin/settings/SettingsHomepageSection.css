@@ -15,6 +15,10 @@
     font-weight: bold;
 }
 
+.SettingsHomepageSection label::after{
+    margin: 0 8px 0 5px
+}
+
 .SettingsHomepageSection Input:disabled{
     margin: 0;
     background: white;

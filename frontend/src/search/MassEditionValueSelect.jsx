@@ -26,16 +26,14 @@ class MassEditionValueSelect extends React.Component {
             } else {
                 const config = attributes[this.props.selectedMassEditionField] || attributes["application"][this.props.selectedMassEditionField]
                 if (config.type === "boolean") {
-                    is_required = config.required
                     valueSelect = <Select
                         options={[
-                            !config.required && {label: "-", value: null},
-                            {label: "Vrai", value: true},
-                            {label: "Faux", value: false},
-                        ]}
+                                {label: "Vrai", value: true},
+                                {label: "Faux", value: false}
+                            ]}
                         placeholder="Valeur du champ"/>
                 } else if (config.type === "tag") {
-                    if (config.tagMode === 'multiple'){
+                    if (config.tagMode === 'multiple') {
                         is_multiple = true
                         is_required = true
                         valueSelect = <EnumSelect
