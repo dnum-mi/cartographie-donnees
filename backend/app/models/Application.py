@@ -1,11 +1,12 @@
-from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import validates
+from statistics import mean
+
+from sqlalchemy.orm import validates, object_session
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from app import db
-from app.models import SearchableMixin, User, BaseModel, Organization
-
-from app.search import remove_accent
-
+from app.models import User, BaseModel, Organization, SearchableMixin
 import datetime
+
 
 ownerships = db.Table(
     'ownerships',
@@ -16,13 +17,15 @@ ownerships = db.Table(
 
 
 class Application(SearchableMixin, BaseModel):
-    __searchable__ = ['name', 'potential_experimentation', "goals", 'organization_name']
+    __search_index_fields__ = ['name', "goals", 'organization_name', 'long_name']
+    __text_search_fields__ = ['name', "goals", 'organization_name', 'long_name']
+    __search_count__ = ['organization_name']
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False, unique=True)
+    long_name = db.Column(db.String)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
     goals = db.Column(db.Text, nullable=False)
-    potential_experimentation = db.Column(db.Text)
     access_url = db.Column(db.Text)
     operator_count = db.Column(db.Integer)
     operator_count_comment = db.Column(db.String)
@@ -31,25 +34,62 @@ class Application(SearchableMixin, BaseModel):
     monthly_connection_count = db.Column(db.Integer)
     monthly_connection_count_comment = db.Column(db.String)
     context_email = db.Column(db.Text)
-    owners = db.relationship('User', secondary=ownerships, lazy='subquery',
-                             backref=db.backref('applications', lazy=True))
+    owners = db.relationship('User', secondary=ownerships, lazy='joined', backref=db.backref('applications', lazy='select'))
     validation_date = db.Column(db.DateTime, nullable=True)
     historic = db.Column(db.Integer, nullable=True)
     data_sources = db.relationship('DataSource', backref='application', lazy='dynamic', foreign_keys='DataSource.application_id')
-    origin_data_sources = db.relationship('DataSource', backref='origin_application', lazy='dynamic', foreign_keys='DataSource.origin_application_id')
+
+    @hybrid_property
+    def references(self):
+        return [ds for ds in self.data_sources if ds.is_reference]
+
+    @property
+    def organization_long_name(self):
+        if self.organization.label is not None:
+            return self.organization.label
+        else:
+            return self.organization.value
 
     @property
     def organization_name(self):
-        return self.organization.value
+        return self.organization.full_path
 
     @organization_name.setter
     def organization_name(self, organization_name):
         if not organization_name:
             raise ValueError("L'organisation est un champ obligatoire.")
-        organization_id = Organization.query.filter_by(value=organization_name).first()
-        if not organization_id:
+        organizations = [org for org in Organization.query.all() if org.full_path == organization_name]
+        if len(organizations) == 0:
             raise ValueError("L'organisation '{}' n'existe pas.".format(organization_name))
-        self.organization_id = organization_id.id
+        self.organization_id = organizations[0].id
+
+    @hybrid_property
+    def data_source_count(self):
+        return self.data_sources.count()
+
+    @hybrid_property
+    def referentiel_count(self):
+        return self.data_sources.filter_by(is_reference=True).count()
+
+    @hybrid_property
+    def reutilization_count(self):
+        from app.models.DataSource import DataSource, association_reutilization_table
+        return object_session(self) \
+            .query(association_reutilization_table) \
+            .distinct(association_reutilization_table.c.application_id) \
+            .join(DataSource) \
+            .filter(DataSource.application_id == self.id) \
+            .count()
+
+    @hybrid_property
+    def application_description_level(self):
+        if self.data_source_count == 0:
+            return 0
+        else:
+            return round(
+                mean([ds.datasource_description_level for ds in self.data_sources]),
+                2
+            )
 
     @validates('access_url')
     def validate_access_url(self, key, access_url):
@@ -87,46 +127,57 @@ class Application(SearchableMixin, BaseModel):
         else:
             return context_email
 
-    def to_dict(self, populate_data_sources=False, populate_owners=True):
+    def to_dict(self, populate_data_sources=False, populate_owners=True, populate_statistics=False):
         result = {
             'id': self.id,
             'name': self.name,
-            'potential_experimentation': self.potential_experimentation,
-            'organization_name': self.organization_name,
+            'long_name': self.long_name,
             'goals': self.goals,
             'access_url': self.access_url,
-            'operator_count': self.operator_count,
-            'user_count': self.user_count,
-            'monthly_connection_count': self.monthly_connection_count,
-            'operator_count_comment': self.operator_count_comment,
-            'user_count_comment': self.user_count_comment,
-            'monthly_connection_count_comment': self.monthly_connection_count_comment,
+            'organization_name': self.organization_name,
+            'organization_long_name': self.organization_long_name,
             'context_email': self.context_email,
+            'operator_count': self.operator_count,
+            'operator_count_comment': self.operator_count_comment,
+            'user_count': self.user_count,
+            'user_count_comment': self.user_count_comment,
+            'monthly_connection_count': self.monthly_connection_count,
+            'monthly_connection_count_comment': self.monthly_connection_count_comment,
+            'historic': self.historic,
             'validation_date': self.validation_date.strftime("%d/%m/%Y") if self.validation_date else None,
-            'historic': self.historic
         }
 
+        if populate_statistics:
+            # Those statistics are expensive to compute
+            result = {
+                **result,
+                'data_source_count': self.data_source_count,
+                'referentiel_count': self.referentiel_count,
+                'reutilization_count': self.reutilization_count,
+                'application_description_level': self.application_description_level,
+            }
         if populate_data_sources:
-            _list = [(data_source, remove_accent(data_source.name)) for data_source in self.data_sources]
-            _list.sort(key=lambda tup: tup[1])
-            data_sources = [data_source[0].to_dict() for data_source in _list]
-            result['data_sources'] = data_sources
+            result['data_sources'] = [
+                data_source.to_dict()
+                for data_source in sorted(self.data_sources, key=lambda ds: str.lower(ds.name))
+            ]
         if populate_owners:
-            _list = [(user, remove_accent(user.last_name)) for user in self.owners]
-            _list.sort(key=lambda tup: tup[1])
-            users = [user[0].to_dict() for user in _list]
-            result['owners'] = users
+            result['owners'] = [
+                owner.to_dict()
+                for owner in sorted(self.owners, key=lambda user: str.lower(user.last_name))
+            ]
         return result
 
     def to_export(self):
-        application_dict = self.to_dict(populate_owners=True)
+        application_dict = self.to_dict(populate_owners=True, populate_statistics=True)
         application_dict['owners'] = ",".join([owner['email'] for owner in application_dict['owners']])
         del application_dict["id"]
+        del application_dict["organization_long_name"]
         return application_dict
 
     def update_from_dict(self, data):
         self.name = data.get('name')
-        self.potential_experimentation = data.get('potential_experimentation')
+        self.long_name = data.get('long_name')
         self.organization_id = data.get('organization_id')
         self.goals = data.get('goals')
         self.access_url = data.get('access_url')
@@ -142,12 +193,15 @@ class Application(SearchableMixin, BaseModel):
         if "owners" in data:
             self.owners = [User.query.get(owner['id']) for owner in data.get('owners')]
 
+    def update_from_key_value(self, key, value):
+        setattr(self, key, value)
+
     @staticmethod
     def from_dict(data):
         application = Application(
             id=data.get('id'),
             name=data.get('name'),
-            potential_experimentation=data.get('potential_experimentation'),
+            long_name=data.get('long_name'),
             organization_id=data.get('organization_id'),
             goals=data.get('goals'),
             access_url=data.get('access_url'),
@@ -168,6 +222,13 @@ class Application(SearchableMixin, BaseModel):
     @classmethod
     def filter_import_dict(cls, import_dict):
         new_import_dict = super().filter_import_dict(import_dict)
+
+        # Remove fields added in export
+        added_fields = ['data_source_count','referentiel_count','reutilization_count','application_description_level']
+        for key in added_fields:
+            if key in new_import_dict:
+                del new_import_dict[key]
+
         if import_dict['owners']:
             # Transform owners string into an array of emails
             owner_emails = import_dict['owners'].split(',')
@@ -177,7 +238,7 @@ class Application(SearchableMixin, BaseModel):
                 user = User.query.filter_by(email=owner_email).first()
                 if user is None:
                     raise ValueError("L'adresse email {} ne correspond "
-                                     "à aucun utilisateur".format(owner_email))
+                                     "à aucun administrateur".format(owner_email))
                 owners_ids.append(user)
             new_import_dict['owners'] = owners_ids
         else:
@@ -222,7 +283,6 @@ class Application(SearchableMixin, BaseModel):
 
     @validates('historic')
     def validate_historic(self, key, historic):
-        print(historic)
         if not historic:
             return historic
         elif isinstance(historic, int):

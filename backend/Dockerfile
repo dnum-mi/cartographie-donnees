@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.8-alpine
 ARG http_proxy
 ARG https_proxy
 ARG no_proxy
@@ -35,6 +35,7 @@ RUN ssl="$(npm config get strict-ssl)" ; [ "x$ssl" = "xfalse" ] && export NODE_T
 # Build the frontend
 COPY frontend/src src
 COPY frontend/public public
+ENV NODE_OPTIONS --openssl-legacy-provider
 RUN npm run build --production
 
 # Remove the node modules
@@ -48,14 +49,15 @@ RUN set -ex && [ -z "$PYPI_URL" ] || pip_args=" --index-url $PYPI_URL " ; \
     [ -z "$PYPI_HOST" ] || pip_args="$pip_args --trusted-host $PYPI_HOST " ; \
     echo "$no_proxy" |tr ',' '\n' | sort -u |grep "^$PYPI_HOST$" || \
     [ -z "$http_proxy" ] || pip_args="$pip_args --proxy $http_proxy " ; \
+    venv/bin/pip install $pip_args --upgrade pip && \
     venv/bin/pip install $pip_args -r requirements.txt && \
     venv/bin/pip install $pip_args gunicorn
 
 # Init db and serve the backend
 COPY backend/app app
 COPY backend/migrations migrations
-COPY backend/backend.py backend/config.py backend/boot.sh ./
-RUN chmod +x boot.sh
+COPY backend/backend.py backend/config.py backend/docker_boot.sh ./
+RUN chmod +x docker_boot.sh
 
 ENV FLASK_APP backend.py
 
@@ -63,4 +65,4 @@ RUN chown -R --verbose backend:backend ./
 USER backend
 
 EXPOSE 5000
-ENTRYPOINT ["./boot.sh"]
+ENTRYPOINT ["./docker_boot.sh"]

@@ -1,0 +1,3 @@
+Nom;Description;Application;Réutilisation;Famille;Tag;Type;Exemple;Sensibilité;OpenData;Base/index;Table;Nb tables;Champ;Nb champs;Volumétrie;Commentaire sur la volumétrie;Production par mois;Commentaire sur la  production par mois;Mise à jour;Conservation;Axes d'analyse;Exposition;Origine;Application source;Donnée référentielle;Rang dans la liste des données mise en avant
+Data source 1;Long nom de donnée 1;App 1;;family1;;type1;;;;;;;;;;;;;;;;;;;;
+Data source 2;Long nom de donnée 2;App 2;;family99;;type1;;;;;;;;;;;;;;;;;;;;

@@ -18,7 +18,6 @@ class EnumerationCategory extends React.Component {
             newValue: '',
             newValueInputKey: Math.random(),
             items: [],
-            error:null,
         };
     }
     componentDidMount() {
@@ -41,48 +40,49 @@ class EnumerationCategory extends React.Component {
                     loading: false,
                     error,
                 });
-                this.props.error(error)
+                this.props.onError(error)
             });
     };
     createItem = () => {
-        if (this.state.newValue != ''){
+        if (this.state.newValue){
             this.setState({
-                loading: false
+                loading: true
             });
             createEnumeration({
                 category: this.props.category,
-                value: this.state.newValue,
+                full_path: this.state.newValue,
             })
                 .then(() => {
                     this.setState({
                         loading: false
                     });
-                    this.props.error()
                     this.fetchEnumerationsFromApi();
                 })
                 .catch((error) => {
                     this.setState({
                         loading: false
                     });
-                    this.props.error(error)
+                    this.props.onError(error)
                 });
         }
     };
 
     deleteEnumerationApi = (id) => {
+        this.setState({
+            loading: true
+        });
         deleteEnumeration(this.props.category, id)
         .then((response) => {
             this.setState({
                 loading: false
             });
-            this.props.error()
             this.fetchEnumerationsFromApi();
         })
         .catch((error) => {
             this.setState({
                 loading: false
             });
-            this.props.error(error)
+            this.props.onError(error)
         });
     }
 
@@ -95,7 +95,13 @@ class EnumerationCategory extends React.Component {
                 {this.state.items.map((item) => {
                     item["category"] = this.props.category;
                     return (
-                        <EnumerationItem key={item.id} item={item} onDelete={this.deleteEnumerationApi} error={this.props.error} fetch={this.fetchEnumerationsFromApi}/>
+                        <EnumerationItem
+                          key={item.id}
+                          item={item}
+                          onDelete={this.deleteEnumerationApi}
+                          onError={this.props.onError}
+                          fetch={this.fetchEnumerationsFromApi}
+                        />
                     )})}
                 <div className="actions">
                     <Input

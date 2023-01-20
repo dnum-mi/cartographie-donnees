@@ -1,0 +1,234 @@
+{
+    "data": [
+        {
+            "namespace": "tooltips",
+            "key": "organization_name",
+            "value": "MOA propriétaire de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "referentiel_name",
+            "value": "Type de référentiel s’il s’agit d’une donnée référentielle (par opposition aux données opérationnelles)"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "name",
+            "value": "Libellé fonctionnel de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "description",
+            "value": "Description fonctionnelle de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "example",
+            "value": "Exemple de donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "family_name",
+            "value": "Famille fonctionnelle de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "analysis_axis_name",
+            "value": "Types de référentiels utilisés pour classifier la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "type_name",
+            "value": "Type de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "is_reference",
+            "value": "xxxxx"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "origin_name",
+            "value": "Origine fonctionnelle de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "origin_applications",
+            "value": "Applications sources"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "open_data_name",
+            "value": "La donnée est-elle publiable en Open Data ?"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "exposition_name",
+            "value": "Type de mises à disposition"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "sensibility_name",
+            "value": "Sensibilité des données identifiantes"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "tag_name",
+            "value": "Tags de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "volumetry",
+            "value": "Nombre de lignes ou d’objets unitaires exploités (images, fichiers, documents…)"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "monthly_volumetry",
+            "value": "Nombre de lignes ou d’objets unitaires créés par mois"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "update_frequency_name",
+            "value": "Fréquence des mises à jour de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "conservation",
+            "value": "Durée de conservation de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "database_name",
+            "value": "Nom de la base ou index"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "database_table_name",
+            "value": "Nom de la table"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "database_table_count",
+            "value": "Nombre de tables dans la base contenant la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "fields",
+            "value": "Noms des champs dans la table"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "field_count",
+            "value": "Nombre de champs dans la table"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_goals",
+            "value": "Finalité de l\"application"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_name",
+            "value": "Libellé fonctionnel de l'application"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_long_name",
+            "value": "Libellé détaillé de l'application"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "access_url",
+            "value": "xxxx"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_organization",
+            "value": "MOA propriétaire de l'application"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_context_email",
+            "value": "Contact du gestionnaire de la donnée"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "data_source_count",
+            "value": "xxxxx"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_operator_count",
+            "value": "Nombre d’opérateurs de l’application (saisie, maj des données)"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_user_count",
+            "value": "Nombre d’utilisateurs de l’application en consultation"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_monthly_connection_count",
+            "value": "Nombre de connexions d’utilisateurs uniques de l’application par mois"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_historic",
+            "value": "Année création des données les plus anciennes"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "application_validation_date",
+            "value": "Validité de la présente cartographie pour publication"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "first_name",
+            "value": "Prénom de l'administrateur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "last_name",
+            "value": "Nom de l'administrateur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "email",
+            "value": "L'email de l'administrateur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "is_admin",
+            "value": "L'utilisateur est-il administrateur général ?"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "volumetry_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "monthly_volumetry_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "operator_count_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "user_count_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "monthly_connection_count_comment",
+            "value": "Commentaire sur cette valeur"
+        },
+        {
+            "namespace": "tooltips",
+            "key": "highlights_index",
+            "value": "Rang dans la liste des données mise en avant"
+        }
+    ]
+}

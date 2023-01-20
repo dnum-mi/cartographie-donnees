@@ -1,27 +1,57 @@
-import os
-from werkzeug.exceptions import BadRequest
-from flask import jsonify, request
+import copy
+import datetime
+import json
+
+import unidecode
+from flask import jsonify, request, current_app
 from flask_login import login_required, current_user
-from io import TextIOWrapper
-from sqlalchemy import func
-from app import app, db
-from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, UpdateFrequency, Origin, Tag
-from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
-from app.api.enumerations import get_type_by_name, get_family_by_name, get_classification_by_name, \
-    get_exposition_by_name, get_referentiel_by_name, get_sensibily_by_name, get_open_data_by_name, \
-    get_update_frequency_by_name, get_origin_by_name, get_tag_by_name
+from werkzeug.exceptions import BadRequest
+
+from app import db
 from app.api.applications import get_application_by_name
 from app.api.commons import import_resource, export_resource
-from app.constants import field_french_to_english_dic
+from app.api.enumerations import get_type_by_name, get_family_by_name, get_analysis_axis_by_name, \
+    get_exposition_by_name, get_sensibily_by_name, get_open_data_by_name, \
+    get_update_frequency_by_name, get_origin_by_name, get_tag_by_name, get_organization_by_name
+from app.constants import field_english_to_french_dic
+from app.decorators import admin_required, admin_or_owner_required
 from app.exceptions import CSVFormatError
+from app.models import DataSource, Application, Type, Family, Organization, Exposition, Sensibility, OpenData, \
+    get_enumeration_model_by_name, Origin, Tag, SearchingKPI
+from . import api
+from ..search.enums import Strictness
 
-from app.search import remove_accent
 
-
-@app.route('/api/data-sources', methods=['GET'])
+@api.route('/api/data-sources', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def fetch_data_sources():
+    """Obtenir des données
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir des données
+        description: Endpoint retournant une liste paginée de données. L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les données donc l'application appartenant à l'utilisateur.
+        parameters:
+            - pageDataSrc
+            - countDataSrc
+
+        responses:
+            '200':
+              description: Les données correspondantes incluant l'application associées à la donnée.
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/DataSource"
+                            total_count:
+                                type: integer
+
+    """
     page = int(request.args.get('page', 1, type=int))
     count = int(request.args.get('count', 10, type=int))
     base_query = DataSource.query
@@ -29,13 +59,48 @@ def fetch_data_sources():
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     datasources = base_query.all()
     total_count = base_query.count()
-    _list = [(data_source.id, remove_accent(data_source.name)) for data_source in datasources]
-    _list.sort(key=lambda tup: tup[1])
-    datasources = [DataSource.query.filter_by(id=id).one() for id, _ in _list][(page - 1) * count:page * count]
+    datasources = sorted(datasources, key=lambda ds: str.lower(unidecode.unidecode(ds.name)))
+    datasources = datasources[(page - 1) * count:page * count]
     return jsonify(dict(
         total_count=total_count,
         results=[datasource.to_dict() for datasource in datasources]
     ))
+
+
+@api.route('/api/data-sources/highlights', methods=['GET'])
+def fetch_highlighted_data_sources():
+    """Obtenir les données mises en avant
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir les données mises en avant
+        description: Endpoint retournant une liste des données mises en avant par l'administrateur général. Aucune authentification n'est requise.
+        responses:
+            '200':
+              description: Les données mises en avant incluant l'application associées à la donnée.
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/DataSource"
+                            total_count:
+                                type: integer
+
+    """
+    highlighted_data_sources = DataSource.query \
+        .filter(DataSource.highlights_index.isnot(None)) \
+        .order_by(DataSource.highlights_index.asc()) \
+        .all()
+    return jsonify(dict(
+        total_count=len(highlighted_data_sources),
+        results=[datasource.to_dict() for datasource in highlighted_data_sources]
+    ))
+
 
 def get_reutilizations(reutilizations):
     if reutilizations:
@@ -43,19 +108,51 @@ def get_reutilizations(reutilizations):
     else:
         return []
 
-@app.route('/api/data-sources', methods=['POST'])
+
+def get_origin_applications(origin_applications):
+    if origin_applications:
+        return [get_application_by_name(json.get("name"), return_id=False) for json in origin_applications]
+    else:
+        return []
+
+
+@api.route('/api/data-sources', methods=['POST'])
 @login_required
-@admin_or_any_owner_required
+@admin_or_owner_required
 def create_data_source():
+    """Créer une donnée
+    ---
+    post:
+        tags:
+            - Donnees
+        summary: Créer une donnée
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut créer des données que pour des applications dont il est propriétaire.
+
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataSource"
+
+
+        responses:
+            '200':
+              description: La donnée créé.
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/DataSource"
+
+    """
     try:
         json = request.get_json()
         json["application_id"] = get_application_by_name(json.get("application").get("name"))
-        json["origin_application_id"] = get_application_by_name(json.get("origin_application").get("name")) if json.get("origin_application") else None
+        json["origin_applications"] = get_origin_applications(json.get("origin_applications"))
         json["type_id"] = get_type_by_name(json.get("type_name"))
         json["families"] = get_family_by_name(json.get("family_name"))
-        json["classifications"] = get_classification_by_name(json.get("classification_name"))
+        json["analysis_axis"] = get_analysis_axis_by_name(json.get("analysis_axis_name"))
         json["expositions"] = get_exposition_by_name(json.get("exposition_name"))
-        json["referentiel_id"] = get_referentiel_by_name(json.get("referentiel_name"))
         json["sensibility_id"] = get_sensibily_by_name(json.get("sensibility_name"))
         json["open_data_id"] = get_open_data_by_name(json.get("open_data_name"))
         json["update_frequency_id"] = get_update_frequency_by_name(json.get("update_frequency_name"))
@@ -71,32 +168,146 @@ def create_data_source():
         raise BadRequest(str(e))
 
 
-@app.route('/api/data-sources/export_search', methods=['GET'])
+@api.route('/api/data-sources/export_search', methods=['GET'])
 def export_data_source_request():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    data_sources, total, total_count = get_data_sources(query, 1, 10000, fields, values)
+    """Exporter les données de recherche
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Exporter les données de recherche
+        description: Export de toutes les données (limite 10 000) en format CSV.
+        parameters:
+            - searchQuery
+            - family
+            - type
+            - organization
+            - application
+            - referentiel
+            - sensibility
+            - open_data
+            - exposition
+            - origin
+            - tag
+            - strictness
+            - toExclude
+
+        responses:
+            '200':
+              description: Donnée exportée.
+              content:
+                application/csv:
+                    schema:
+                        $ref: "#/components/schemas/DataSourceCSV"
+
+    """
+    query, request_args, strictness, exclusions = get_request_args_data_source(request)
+    data_sources, total_count = DataSource.search_with_filter(query, request_args, strictness, 1, 10000, exclusions)
     return export_resource(DataSource, "data_sources_request.csv", data_sources)
 
-@app.route('/api/data-sources/export/<application_id>', methods=['GET'])
+
+@api.route('/api/data-sources/export/<application_id>', methods=['GET'])
 @login_required
 @admin_or_owner_required
 def export_data_source_of_application(application_id):
-    application = Application.query.get(application_id)
-    data_sources, total, total_count = get_data_sources("", 1, 10000, ["application_name"], [application.name])
-    return export_resource(DataSource, "data_sources_of_%s.csv" % (application.name), data_sources)
+    """Exporter les données d'une application
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Exporter les données d'une application
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut exporter des données que pour des applications dont il est propriétaire.
+        parameters:
+            - pathApplicationId
 
-@app.route('/api/data-sources/export', methods=['GET'])
+        responses:
+            '200':
+              description: Données exportées.
+              content:
+                application/csv:
+                    schema:
+                        $ref: "#/components/schemas/DataSourceCSV"
+
+    """
+    application = Application.query.get(application_id)
+    return export_resource(DataSource, f"data_sources_of_{application.name}.csv", application.data_sources)
+
+
+@api.route('/api/data-sources/export', methods=['GET'])
 @login_required
 @admin_required
 def export_data_sources():
+    """Exporter toutes les données
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Exporter toutes les données
+        description: L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+        responses:
+            '200':
+              description: Données exportées.
+              content:
+                application/csv:
+                    schema:
+                        $ref: "#/components/schemas/DataSourceCSV"
+
+    """
     return export_resource(DataSource, "data_sources.csv")
 
 
-@app.route('/api/data-sources/import_by_application/<application_id>', methods=['POST', 'PUT'])
+@api.route('/api/data-sources/import_by_application/<application_id>', methods=['POST', 'PUT'])
 @login_required
 @admin_or_owner_required
 def import_data_sources_by_application(application_id):
+    """Importer les données d'une application
+    ---
+    post:
+        tags:
+            - Donnees
+        summary: Importer les données d'une application
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut créer des données que pour des applications dont il est propriétaire.
+
+        parameters:
+            - pathApplicationId
+        requestBody:
+          description: Le CSV des données
+          required: true
+          content:
+            application/csv:
+              schema:
+                $ref: "#/components/schemas/DataSourceCSV"
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+
+    put:
+        tags:
+            - Filtres
+        summary: Remplacer les données d'une application
+        description: L'authentification est requise. Si l'utilisateur n'est pas admin mais est propriétaire d'application, il ne peut modifier des données que pour des applications dont il est propriétaire.
+
+        parameters:
+            - pathApplicationId
+        requestBody:
+          description: Le CSV des données
+          required: true
+          content:
+            application/csv:
+              schema:
+                $ref: "#/components/schemas/DataSourceCSV"
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+
+    """
     application_id = int(application_id)
     application = Application.query.get(application_id)
     mandatory_fields = {"application_name": application.name}
@@ -108,19 +319,58 @@ def import_data_sources_by_application(application_id):
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/data-sources/import', methods=['POST'])
+@api.route('/api/data-sources/import', methods=['POST'])
 @login_required
 @admin_required
 def import_data_sources():
+    """Importer toutes les données
+    ---
+    post:
+        tags:
+            - Donnees
+        summary: Importer toutes les données
+        description: Toutes les données actuelles sont remplacées par cet import. L'authentification est requise. L'utilisateur doit être administrateur principal.
+
+        requestBody:
+          description: Le CSV des données
+          required: true
+          content:
+            application/csv:
+              schema:
+                $ref: "#/components/schemas/DataSourceCSV"
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+
+    """
     try:
-        import_resource(DataSource)
+        warning = import_resource(DataSource)
     except CSVFormatError as e:
         raise BadRequest(e.message)
+    if warning:
+        return jsonify({'code': 200, **warning})
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/data-sources/reindex')
+@api.route('/api/data-sources/reindex')
 def reindex_data_sources():
+    """Réindexer les données
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Réindexer les données
+      description: Synchronisation de l'index elasticsearch correspondant aux données avec la base de données.
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+    """
     DataSource.reindex()
     return jsonify(dict(description='OK', code=200))
 
@@ -142,301 +392,477 @@ def convert_dict(dic):
             new_dict[key] = value
     return new_dict
 
-def get_fields_values(family=None, type=None, organization=None, application=None, referentiel=None,
-                     sensibility=None, open_data=None, exposition=None, origin=None, classification=None, tag=None):
-    fields = []
-    values = []
-    if family:
-        fields.append("family_name")
-        _list = []
-        for element in family:
-            _list.append(element)
-        values.append(_list)
-    if type:
-        fields.append("type_name")
-        values.append(type)
-    if organization:
-        fields.append("organization_name")
-        values.append(organization)
-    if application:
-        fields.append("application_name")
-        values.append(application)
-    if referentiel:
-        fields.append("referentiel_name")
-        values.append(referentiel)
-    if sensibility:
-        fields.append("sensibility_name")
-        values.append(sensibility)
-    if open_data:
-        fields.append("open_data_name")
-        values.append(open_data)
-    if exposition:
-        fields.append("exposition_name")
-        _list = []
-        for element in exposition:
-            _list.append(element)
-        values.append(_list)
-    if origin:
-        fields.append("origin_name")
-        values.append(origin)
-    if classification:
-        fields.append("classification_name")
-        _list = []
-        for element in classification:
-            _list.append(element)
-        values.append(_list)
-    if tag:
-        fields.append("tag_name")
-        _list = []
-        for element in tag:
-            _list.append(element)
-        values.append(_list)
-    return fields, values
 
-def get_data_sources(query, page, count, fields, values):
-    return DataSource.search_with_filter(query, fields, values, page, count)
+def get_fields_values(request_args):
+    filtered_dict = {
+        k: v
+        for k, v in request_args.items()
+        if len(v) > 0
+    }
+    dict_with_children = copy.deepcopy(filtered_dict)
+    fields = list(filtered_dict.keys())
+    for key in fields:
+        cls = get_enumeration_model_by_name(key)
+        all_records = cls.query.all()
+        for value in filtered_dict[key]:
+            instance = [record for record in all_records if record.full_path == value][0]
+            children_full_paths = instance.get_children_full_paths_recursively()
+            for full_path in children_full_paths:
+                dict_with_children[key].append(full_path)
+    return [f'{field}_name' for field in fields], list(dict_with_children.values())
+
 
 def get_request_args_data_source(request):
+    filters_list = ['family', 'type', 'organization', 'application', 'referentiel', 'sensibility', 'open_data',
+                    'exposition', 'origin', 'analysis_axis', 'tag']
+
     query = request.args.get('q', '', type=str)
-    family = request.args.get('family', '', type=str)
-    family = [] if not family else family.split(";")
-    type = request.args.get('type', '', type=str)
-    organization = request.args.get('organization', '', type=str)
-    application = request.args.get('application', '', type=str)
-    referentiel = request.args.get('referentiel', '', type=str)
-    sensibility = request.args.get('sensibility', '', type=str)
-    open_data = request.args.get('open_data', '', type=str)
-    exposition = request.args.get('exposition', '', type=str)
-    exposition = [] if not exposition else exposition.split(";")
-    origin = request.args.get('origin', '', type=str)
-    classification = request.args.get('classification', '', type=str)
-    classification = [] if not classification else classification.split(";")
-    tag = request.args.get('tag', '', type=str)
-    tag = [] if not tag else tag.split(";")
-    return query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag
+    strictness = request.args.get('strictness', '', type=str)
+    strictness = Strictness(strictness)
+    exclusions = request.args.get('toExclude', '', type=str)
+    to_return = {}
+    for filter in filters_list:
+        temp = request.args.get(filter, '', type=str)
+        temp = [] if not temp else temp.split(";")
+        to_return[filter] = temp
+    return query, to_return, strictness, exclusions
 
 
-@app.route('/api/data-sources/search', methods=['GET'])
+def add_query_to_db(index, query, request_args, strictness, exclusions):
+    # Get elasticsearch string query tokens after analyzer
+    text_separator = " "
+    raw_text_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": query})["tokens"]
+    text_query = text_separator.join([element["token"] for element in raw_text_tokens])
+
+    raw_exclusions_tokens = current_app.elasticsearch.indices.analyze(index=index, body={"text": exclusions})["tokens"]
+    exclusions_token = text_separator.join([element["token"] for element in raw_exclusions_tokens])
+
+    query_parameters = {
+        "text_query": text_query,
+        "text_operator": strictness.value,
+        "exclusion": exclusions_token,
+        "filters_query": json.dumps({
+            k: v for k, v in request_args.items() if len(v) > 0
+        }, ensure_ascii=False),
+        "date": datetime.datetime.now()
+    }
+    searching_kpi = SearchingKPI.from_dict(query_parameters)
+    db.session.add(searching_kpi)
+    db.session.commit()
+
+
+@api.route('/api/data-sources/search', methods=['GET'])
 def search_data_sources():
+    """Obtenir des données avec recherche limitée
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir des données avec recherche limitée
+        description: Endpoint retournant une liste paginée de données basée sur une recherche.
+
+        parameters:
+            - searchQuery
+            - pageDataSrc
+            - countDataSrc
+            - family
+            - type
+            - organization
+            - application
+            - referentiel
+            - sensibility
+            - open_data
+            - exposition
+            - origin
+            - tag
+            - strictness
+            - toExclude
+
+        responses:
+            '200':
+              description: Les données correspondante incluant l'application associées à la donnée.
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/DataSource"
+                            total_count:
+                                type: integer
+
+    """
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    data_sources, total, total_count = get_data_sources(query, page, count, fields, values)
+    query, request_args, strictness, exclusions = get_request_args_data_source(request)
+
+    # Add query to DB for KPI
+    if not current_user.is_authenticated or not current_user.is_admin:
+        add_query_to_db(DataSource.__tablename__, query, request_args, strictness, exclusions)
+
+    # search and return results
+    data_sources, total_count = DataSource.search_with_filter(
+        query, request_args, strictness, page, count, exclusions)
     return jsonify(dict(
         total_count=total_count,
         results=[data_source.to_dict() for data_source in data_sources]
     ))
 
+
+@api.route('/api/data-sources/search-metadata', methods=['GET'])
+def get_search_metadata():
+    """Obtenir les métadata de la recherche: décompte de données par énumération et ids des données trouvées par la recherche
+    ---
+    get:
+        tags:
+            - Donnees
+        summary: Obtenir les métadata de la recherche
+
+        parameters:
+            - searchQuery
+            - family
+            - type
+            - organization
+            - application
+            - referentiel
+            - sensibility
+            - open_data
+            - exposition
+            - origin
+            - tag
+            - strictness
+            - toExclude
+
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            count_by_enum:
+                                $ref: "#/components/schemas/EnumCount"
+                            data_source_ids:
+                                type: array
+                                items:
+                                    type: integer
+
+    """
+    query, request_args, strictness, exclusions = get_request_args_data_source(request)
+    count_dict, total_count, data_source_ids = DataSource.query_count(query, request_args, strictness, exclusions)
+    return jsonify(dict(
+        count_by_enum=count_dict,
+        data_source_ids=data_source_ids
+    ))
+
+
+@api.route('/api/data-sources/count', methods=['GET'])
 @login_required
-@admin_or_owner_required
-@app.route('/api/data-sources/count', methods=['GET'])
 def count_data_sources():
+    """Nombre de données
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Nombre de données
+      description: Recevoir le nombre total de données existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les donnnées dont l'utilisateur est propriétaire de l'application.
+
+      responses:
+        200:
+          content:
+            text/plain:
+                schema:
+                    type: integer
+    """
     base_query = DataSource.query
     if not current_user.is_admin:
         base_query = base_query.filter(DataSource.owners.any(id=current_user.id))
     return str(base_query.count())
 
-@app.route('/api/data-sources/families', methods=['GET'])
+
+@api.route('/api/data-sources/families', methods=['GET'])
 def fetch_data_source_families():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'family_name')
-    dic = []
-    for family in Family.query.all():
-        unaccent = remove_accent(family.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": family.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des familles
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des familles
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Family.get_tree_dict())
 
 
-@app.route('/api/data-sources/types', methods=['GET'])
+@api.route('/api/data-sources/types', methods=['GET'])
 def fetch_data_source_types():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'type_name')
-    dic = []
-    for type in Type.query.all():
-        unaccent = remove_accent(type.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": type.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des types
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des types
 
-@app.route('/api/data-sources/applications', methods=['GET'])
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Type.get_tree_dict())
+
+
+@api.route('/api/data-sources/applications', methods=['GET'])
 def fetch_data_source_applications():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'application_name')
-    dic = []
-    for application in Application.query.all():
-        unaccent = remove_accent(application.name)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": application.name, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre d'applications
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre d'applications
+      description: Les applications ne peuvent pas avoir de children.
 
-@app.route('/api/data-sources/organizations', methods=['GET'])
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/ApplicationTreeElems"
+    """
+    return jsonify([
+        {
+            'id': application.id,
+            'label': application.long_name,
+            'value': application.name,
+            'full_path': application.name,
+            'children': [],
+        }
+        for application in Application.query.all()
+    ])
+
+
+@api.route('/api/data-sources/organizations', methods=['GET'])
 def fetch_data_source_organizations():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values,  'organization_name')
-    dic = []
-    for organization in Organization.query.all():
-        unaccent = remove_accent(organization.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": organization.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des organisations
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des organisations
 
-@app.route('/api/data-sources/referentiels', methods=['GET'])
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Organization.get_tree_dict())
+
+
+@api.route('/api/data-sources/referentiels', methods=['GET'])
 def fetch_data_source_referentiels():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'referentiel_name')
-    dic = []
-    for referentiel in Family.query.all():
-        unaccent = remove_accent(referentiel.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": referentiel.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des référentiels
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des référentiels
 
-@app.route('/api/data-sources/sensibilities', methods=['GET'])
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Family.get_tree_dict())
+
+
+@api.route('/api/data-sources/sensibilities', methods=['GET'])
 def fetch_data_source_sensibilities():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'sensibility_name')
-    dic = []
-    for sensibility in Sensibility.query.all():
-        unaccent = remove_accent(sensibility.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": sensibility.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des sensibilités
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des sensibilités
 
-@app.route('/api/data-sources/open-data', methods=['GET'])
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Sensibility.get_tree_dict())
+
+
+@api.route('/api/data-sources/open-data', methods=['GET'])
 def fetch_data_source_open_data():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'open_data_name')
-    dic = []
-    for open_data in OpenData.query.all():
-        unaccent = remove_accent(open_data.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": open_data.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des open data
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des open data
 
-@app.route('/api/data-sources/expositions', methods=['GET'])
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(OpenData.get_tree_dict())
+
+
+@api.route('/api/data-sources/expositions', methods=['GET'])
 def fetch_data_source_expositions():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'exposition_name')
-    dic = []
-    for exposition in Exposition.query.all():
-        unaccent = remove_accent(exposition.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": exposition.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des expositions
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des expositions
 
-@app.route('/api/data-sources/origins', methods=['GET'])
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Exposition.get_tree_dict())
+
+
+@api.route('/api/data-sources/origins', methods=['GET'])
 def fetch_data_source_origins():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'origin_name')
-    dic = []
-    for origin in Origin.query.all():
-        unaccent = remove_accent(origin.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": origin.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des origines
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des origines
 
-@app.route('/api/data-sources/classifications', methods=['GET'])
-def fetch_data_source_classifications():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'classification_name')
-    dic = []
-    for referentiel in Family.query.all():
-        unaccent = remove_accent(referentiel.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": referentiel.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Origin.get_tree_dict())
 
-@app.route('/api/data-sources/tags', methods=['GET'])
+
+@api.route('/api/data-sources/analysis-axis', methods=['GET'])
+def fetch_data_source_analysis_axis():
+    """Obtenir les éléments de l'arbre des axes d'analyse
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des axes d'analyse
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Family.get_tree_dict())
+
+
+@api.route('/api/data-sources/tags', methods=['GET'])
 def fetch_data_source_tags():
-    query, family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag = get_request_args_data_source(request)
-    fields, values = get_fields_values(family, type, organization, application, referentiel, sensibility, open_data, exposition, origin, classification, tag)
-    field_count = DataSource.query_count(query, fields, values, 'tag_name')
-    dic = []
-    for tag in Tag.query.all():
-        unaccent = remove_accent(tag.value)
-        count = 0
-        for d in field_count:
-            if d["value"] == unaccent:
-                count = d["count"]
-        dic.append({"value": tag.value, "count": count})
-    dic.sort(key=lambda d: d["count"], reverse=True)
-    return jsonify(dic)
+    """Obtenir les éléments de l'arbre des tags
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir les éléments de l'arbre des tags
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/TreeElems"
+    """
+    return jsonify(Tag.get_tree_dict())
 
 
-@app.route('/api/data-sources/<data_source_id>', methods=['GET'])
+@api.route('/api/data-sources/<data_source_id>', methods=['GET'])
 def read_data_source(data_source_id):
+    """Obtenir une donnée
+    ---
+    get:
+      tags:
+        - Donnees
+      summary: Obtenir une donnée
+      parameters:
+      - data_source_id
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/DataSource"
+    """
     data_source = get_data_source(data_source_id)
-    return jsonify(data_source.to_dict())
+    return jsonify(data_source.to_dict(populate_statistics=True))
 
 
-@app.route('/api/data-sources/<data_source_id>', methods=['PUT'])
+@api.route('/api/data-sources/<data_source_id>', methods=['PUT'])
 @login_required
 @admin_or_owner_required
 def update_data_source(data_source_id):
+    """Modifier une donnée
+    ---
+    put:
+      tags:
+        - Donnees
+      summary: Modifier une donnée
+      description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de modifier les données donc l'application appartenant à l'utilisateur.
+
+      parameters:
+      - data_source_id
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataSource"
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/DataSource"
+    """
     try:
         data_source = get_data_source(data_source_id)
         json = request.get_json()
         json["application_id"] = get_application_by_name(json.get("application").get("name"))
-        json["origin_application_id"] = get_application_by_name(json.get("origin_application").get("name")) if json.get("origin_application") else None
+        json["origin_applications"] = get_origin_applications(json.get("origin_applications"))
         json["families"] = get_family_by_name(json.get("family_name"))
-        json["classifications"] = get_classification_by_name(json.get("classification_name"))
+        json["analysis_axis"] = get_analysis_axis_by_name(json.get("analysis_axis_name"))
         json["reutilizations"] = get_reutilizations(json.get("reutilizations"))
         json["tags"] = get_tag_by_name(json.get("tag_name"))
         json["type_id"] = get_type_by_name(json.get("type_name"))
         json["expositions"] = get_exposition_by_name(json.get("exposition_name"))
-        json["referentiel_id"] = get_referentiel_by_name(json.get("referentiel_name"))
         json["sensibility_id"] = get_sensibily_by_name(json.get("sensibility_name"))
         json["open_data_id"] = get_open_data_by_name(json.get("open_data_name"))
         json["update_frequency_id"] = get_update_frequency_by_name(json.get("update_frequency_name"))
@@ -449,12 +875,198 @@ def update_data_source(data_source_id):
     except Exception as e:
         raise BadRequest(str(e))
 
-@app.route('/api/data-sources/<data_source_id>', methods=['DELETE'])
+
+@api.route('/api/data-sources/mass-edition', methods=['PUT'])
+@login_required
+@admin_required
+def mass_edit_data_sources():
+    """Modifier plusieurs données
+    ---
+    put:
+      tags:
+        - Donnees
+      summary: Modifier plusieurs données
+      description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de modifier les données donc l'application appartenant à l'utilisateur.
+
+      requestBody:
+          required: true
+          content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        data_source_ids:
+                            type: array
+                            items:
+                                type: integer
+                        edition_type:
+                            type: string
+                        key:
+                            type: string
+                        value:
+                            type: string
+                        type:
+                            type: string | undefined
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        data_source_ids:
+                            type: array
+                            items:
+                                type: integer
+    """
+    try:
+        req_json = request.get_json()
+        data_source_ids = req_json["data_source_ids"]
+        json_key = req_json["key"]
+        json_value = req_json["value"]
+
+        if req_json["edition_type"] == "application":
+            if json_key == "organization_name":
+                edition_key = "organization_id"
+                edition_value = get_organization_by_name(json_value)
+            else:
+                raise BadRequest(f"key {json_key} is not editable in type application")
+
+            application_ids = db.session.query(DataSource.application_id) \
+                .filter(DataSource.id.in_(data_source_ids)) \
+                .distinct(DataSource.application_id)
+            application_list = Application.query.filter(Application.id.in_(application_ids)).all()
+            for application in application_list:
+                application.update_from_key_value(edition_key, edition_value)
+            db.session.commit()
+
+            for application in application_list:
+                # Get all datasource of application
+                # reindex them
+                data_sources = DataSource.query.filter(DataSource.application_id == application.id).all()
+                DataSource.bulk_add_to_index(data_sources, refresh='wait_for')
+                Application.add_to_index(application, refresh='wait_for')
+
+            return jsonify({"application_ids": [row._asdict() for row in application_ids.all()]})
+
+        elif req_json["edition_type"] == "datasource":
+            if json_key == "application":
+                edition_key = "application_id"
+                edition_value = get_application_by_name(json_value.get("name"))
+            elif json_key == "origin_applications":
+                edition_key = "origin_applications"
+                edition_value = get_origin_applications(json_value)
+            elif json_key == "family_name":
+                edition_key = "families"
+                edition_value = get_family_by_name(json_value)
+            elif json_key == "analysis_axis_name":
+                edition_key = "analysis_axis"
+                edition_value = get_analysis_axis_by_name(json_value)
+            elif json_key == "reutilizations":
+                edition_key = "reutilizations"
+                edition_value = get_reutilizations(json_value)
+            elif json_key == "tag_name":
+                edition_key = "tags"
+                edition_value = get_tag_by_name(json_value)
+            elif json_key == "type_name":
+                edition_key = "type_id"
+                edition_value = get_type_by_name(json_value)
+            elif json_key == "exposition_name":
+                edition_key = "expositions"
+                edition_value = get_exposition_by_name(json_value)
+            elif json_key == "sensibility_name":
+                edition_key = "sensibility_id"
+                edition_value = get_sensibily_by_name(json_value)
+            elif json_key == "open_data_name":
+                edition_key = "open_data_id"
+                edition_value = get_open_data_by_name(json_value)
+            elif json_key == "update_frequency_name":
+                edition_key = "update_frequency_id"
+                edition_value = get_update_frequency_by_name(json_value)
+            elif json_key == "origin_name":
+                edition_key = "origin_id"
+                edition_value = get_origin_by_name(json_value)
+            elif json_key == "is_reference":
+                edition_key = "is_reference"
+                edition_value = json_value
+            else:
+                raise BadRequest(f"key {json_key} is not editable in type datasource")
+
+            data_source_list = DataSource.query.filter(DataSource.id.in_(data_source_ids)).all()
+            warning = ""
+
+            # Replacement
+            if req_json["type"] == "":
+                for data_source in data_source_list:
+                    data_source.update_from_key_value(edition_key, edition_value)
+
+            # Multiple add
+            elif req_json["type"] == "add":
+                for data_source in data_source_list:
+                    new_values = list(set(getattr(data_source, edition_key) + edition_value))
+                    data_source.update_from_key_value(edition_key, new_values)
+
+            # Multiple remove
+            elif req_json["type"] == "remove":
+                remove_failures = []
+                data_source_ids = []
+
+                for data_source in data_source_list:
+                    current_values = getattr(data_source, edition_key)
+                    new_values = [value for value in current_values if value not in edition_value]
+                    if req_json["required"] and len(new_values) == 0:
+                        remove_failures.append(data_source.id)
+                        continue
+                    data_source.update_from_key_value(edition_key, new_values)
+                    data_source_ids.append(data_source.id)
+
+                if len(remove_failures) == 1:
+                    warning = f"Le champ {field_english_to_french_dic[json_key]} est obligatoire. " \
+                              f"{len(remove_failures)} donnée n'a pas été modifiée pour préserver cette contrainte. " \
+                              f"Liste d'identifiants: {remove_failures}"
+
+                if len(remove_failures) > 1:
+                    warning = f"Le champ {field_english_to_french_dic[json_key]} est obligatoire. " \
+                              f"{len(remove_failures)} données n'ont pas été modifiées pour préserver cette contrainte. " \
+                              f"Liste d'identifiants: {remove_failures}"
+            else:
+                raise BadRequest(f"type {req_json['type']} should be 'add', 'remove' or empty string")
+
+            db.session.commit()
+            DataSource.bulk_add_to_index(data_source_list, refresh='wait_for')
+
+            return jsonify({"data_source_ids": data_source_ids, "warning": warning})
+
+        else:
+            raise BadRequest(f"edition_type {req_json['edition_type']} should be either datasource or application")
+    except Exception as e:
+        raise BadRequest(str(e))
+
+
+@api.route('/api/data-sources/<data_source_id>', methods=['DELETE'])
 @login_required
 @admin_or_owner_required
 def delete_data_source(data_source_id):
+    """Supprimer une donnée
+    ---
+    delete:
+      tags:
+        - Donnees
+      summary: Supprimer une donnée
+      description: L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint permet uniquement de supprimer les données donc l'application appartenant à l'utilisateur.
+
+      parameters:
+      - dataSourceId
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+    """
     data_source = get_data_source(data_source_id)
-    data_source.delete()
+    db.session.delete(data_source)
     db.session.commit()
     DataSource.remove_from_index(data_source)
     return jsonify(dict(description='OK', code=200))

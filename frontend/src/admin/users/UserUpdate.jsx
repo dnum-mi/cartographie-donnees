@@ -78,13 +78,14 @@ class UserUpdate extends React.Component {
             <Spin tip="Envoi en cours..." spinning={this.state.loading}>
                 <div className="UserUpdate">
                     <h1>
-                        Mise à jour de l'utilisateur
+                        Mise à jour de l'administrateur
                     </h1>
-                    {this.state.error && <Error error={this.state.error} />}
+                    <Error error={this.state.error} />
                     <div>
                         <UserForm
                             user={this.state.user}
                             onSubmit={this.submitForm}
+                            withOwnedApplications
                         />
                     </div>
                 </div>

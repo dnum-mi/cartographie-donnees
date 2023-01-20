@@ -20,7 +20,7 @@ class ApplicationResult extends React.Component {
                     Finalités de l'application : <span>{this.props.application.goals}</span>
                 </Paragraph>
                 <div className="attributes">
-                    <Tag color="volcano">{this.props.application.organization_name}</Tag>
+                    <Tag color="volcano" title={this.props.application.organization_long_name}>{this.props.application.organization_name}</Tag>
                 </div>
             </div>
         );

@@ -1,0 +1,99 @@
+Valeur;Nom long;Catégorie
+Personnes physiques;;Famille
+Personnes physiques > Données biométriques;;Famille
+Personnes physiques > Données médicales;;Famille
+Entreprises / Organisations / Administrations;;Famille
+Événements;;Famille
+Titres / Documents administratifs;;Famille
+Documents de connaissances;;Famille
+Données géographiques;;Famille
+Données socio-démographiques;;Famille
+Immobilier;;Famille
+Services / Compétences;;Famille
+Finance / Budget;;Famille
+Réglementation / Loi;;Famille
+Données organisationnelles;;Famille
+Langage;;Famille
+Matériels;;Famille
+Matériels > Véhicules;;Famille
+Matériels > Armes;;Famille
+Matériels > Autres matériels;;Famille
+MI;Ministère de l'Intérieur;Organisation
+MI > DSR;Délégation à la Sécurité Routière;Organisation
+MI > DSR > SDPUR;Sous-Direction de la Protection des Usagers de la Route;Organisation
+MI > DGGN;Direction Générale de la Gendarmerie Nationale;Organisation
+MI > DGCL;Direction Générale des Collectivités Locales;Organisation
+MI > DGEF;Direction Générale des Etrangers en France;Organisation
+MI > OFII;Office Français de l'Immigration et de l'Intégration;Organisation
+MI > IGA;Inspection Générale de l'Administration;Organisation
+MI > DGSCGC;Direction Générale de la Sécurité Civile et de la Gestion des Crises;Organisation
+INSEE;Institut National de la Statistique et des Etudes Economiques;Organisation
+MI > DGPN;Direction Générale de la Police nationale;Organisation
+MI > DSR > SDERPC;Sous-Direction de l'Education Routière et du Permis de Conduire;Organisation
+MI > DSR > DCA;Département du Contrôle Automatisé;Organisation
+MI > DSR > ONISR;Observatoire National Interministériel de la Sécurité Routière;Organisation
+MI > DGSCGC > COGIC;Centre Opérationnel de Gestion Interministérielle des Crises;Organisation
+MI > DGPN > DCCRS;Direction Centrale des Compagnies Républicaines de Sécurité;Organisation
+MI > DGPN > DCPJ;Direction Centrale de la Police Judiciaire;Organisation
+MI > DGPN > DCSP;Direction Centrale de la Sécurité publique;Organisation
+UTAC;Union Technique de l'Automobile, du motocycle et du Cycle;Organisation
+MI > ANTS;Agence Nationale des Titres Sécurisés;Organisation
+MI > ANTAI;Agence Nationale de Traitement Automatisé des Infractions;Organisation
+MI > DSR > DCI;Département de la Communication et de l'Information;Organisation
+MI > SG;Secrétariat Général;Organisation
+MI > SG > DEPAFI;Direction de l’Évaluation de la Performance, de l'Achat, des Finances et de l'Immobilier;Organisation
+MI > SG > DLPAJ;Direction des Libertés Publiques et des Affaires Juridiques;Organisation
+MI > DGPN > SSMSI;Service Statistique Ministériel de la Sécurité Intérieure;Organisation
+MI > SG > SCAE;Service Central des Armes et Explosifs;Organisation
+MI > DGPN > IGPN;Inspection Générale de la Police Nationale;Organisation
+MI > SG > DNUM;Direction du Numérique;Organisation
+MI > SG > DNUM > SDITN;Sous-Direction de l'Innovation et de la Transformation Numérique;Organisation
+MI > SG > DNUM > SDITN > BLD;Laboratoire de Valorisation des Données;Organisation
+MI > SG > DNUM > SDCAST;Sous-Direction de Coordination des Acteurs SIC et Services Transverses;Organisation
+MI > SG > DNUM > SDCAST > BST;Bureau des Services Transverses;Organisation
+MI > SG > DMAT;Direction de la Modernisation et de l'Administration Territoriale;Organisation
+MI > DGPN > DRCPN;Direction des Ressources et des Compétences de la Police Nationale;Organisation
+MI > SG > DEPAFI > SDAI;Sous-Direction des Affaires Immobilières;Organisation
+MI > SG > DEPAFI > SDAI > BSPS;Bureau de la Synthèse, du Patrimoine et de la Stratégie;Organisation
+MI > SG > DEPAFI > SAFM;Service des Affaires Financières Ministériel;Organisation
+MI > SG > DEPAFI > SAFM > SDPF;Sous-Direction de la Performance Financière;Organisation
+MI > SG > DEPAFI > SAFM > SDPF > BSIF;Bureau du Système d'Information Financière;Organisation
+MI > SG > DEPAFI > SAFM > SDPF > BPOF;Bureau du Pilotage et de l'Organisation Financière;Organisation
+DINUM;Direction Interministérielle du Numérique;Organisation
+MI > SG > DEPAFI > SAFM > SDPF > BMRF;Bureau de la Maîtrise des Risques Financiers;Organisation
+MI > SG > DRH;Direction des Ressources Humaines;Organisation
+Structurée;;Type
+Image;;Type
+Langage / Son;;Type
+Texte / Document;;Type
+Code;;Type
+Autre fichier;;Type
+Log;;Type
+RGPD;;Sensibilité
+Sensible;;Sensibilité
+Déjà exposée;;OpenData
+Exposable;En l'état ou sous réserve de traitements (agrégation, suppression de champs…);OpenData
+Non exposable;;OpenData
+Webservice;;Exposition
+API;;Exposition
+Fichier plat;;Exposition
+Infocentre;;Exposition
+Application;;Origine
+Saisie;;Origine
+Référentiel;;Origine
+Capteur / IOT;;Origine
+Calculée;;Origine
+Au besoin;;Mise à jour
+Jamais;;Mise à jour
+Quotidienne;;Mise à jour
+Hebdomadaire;;Mise à jour
+Mensuelle;;Mise à jour
+Bimestrielle;;Mise à jour
+Trimestrielle;;Mise à jour
+Semestrielle;;Mise à jour
+Annuelle;;Mise à jour
+Autre;;Mise à jour
+Fraude;;Tag
+Démarche en ligne;;Tag
+data.gouv.fr;;Tag
+api.gouv.fr;;Tag

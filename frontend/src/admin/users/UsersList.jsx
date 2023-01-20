@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
-import { Button, Pagination, Modal, Upload } from 'antd';
+import {Button, Modal, Upload, Skeleton} from 'antd';
 import { PlusOutlined, ExclamationCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 
 import { fetchUsers, exportUsersUrl, importUsers, exportModel } from "../../api";
@@ -60,7 +60,16 @@ class UsersList extends React.Component {
 
     renderContent() {
         if (this.state.loading) {
-            return <Loading />;
+            return (
+                <div>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                </div>
+            )
         }
         if (this.state.error) {
             return <Error error={this.state.error} />;
@@ -70,10 +79,10 @@ class UsersList extends React.Component {
 
       uploadfile({ onSuccess, onError, file }) {
         confirm({
-            title: 'Import des utilisateurs',
+            title: 'Import des administrateurs',
             icon: <ExclamationCircleOutlined />,
-            content: "Vous êtes sur le point de remplacer les utilisateurs. Cette action est irréversible ! \
-            Il ne doit pas y avoir d'application car cette table est liée aux utilisateurs\
+            content: "Vous êtes sur le point de remplacer les administrateurs. Cette action est irréversible ! \
+            Il ne doit pas y avoir d'application car cette table est liée aux administrateurs\
             Vous pouvez comparer votre fichier avec la base actuelle en téléchargeant le fichier CSV à l'aide du bouton\
             d'export.",
                 onOk: () => {
@@ -104,28 +113,28 @@ class UsersList extends React.Component {
         };
 
     export = () => {
-        exportModel(exportUsersUrl, "Utilisateurs.csv");
+        exportModel(exportUsersUrl, "Administrateurs.csv");
     }
 
     render() {
         return (
             <div className="UsersList">
                 <h1>
-                    Liste des utilisateurs
+                    Liste des administrateurs
                 </h1>
                 <div className="actions">
                     <Link to={this.props.match.url + '/create'}>
                         <Button type="primary" icon={<PlusOutlined />}>
-                            Créer un utilisateur
+                            Créer un administrateur
                         </Button>
                     </Link>
-                    <Button onClick={this.export} icon={<DownloadOutlined />} type="default">Export</Button>
+                    <Button onClick={this.export} icon={<UploadOutlined />} type="default">Export</Button>
                     <Upload
                         customRequest={this.uploadfile.bind(this)}
                         maxCount={1}
                         showUploadList={false}
                     >
-                        <Button icon={<UploadOutlined />} type="default">Import</Button>
+                        <Button icon={<DownloadOutlined />} type="default">Import</Button>
                     </Upload>
                 </div>
                 {this.renderContent()}

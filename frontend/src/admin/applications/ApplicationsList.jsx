@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
-import { Button, Pagination, Modal, Upload } from 'antd';
+import {Button, Pagination, Modal, Upload, Skeleton} from 'antd';
 import { PlusOutlined, ExclamationCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 
 import { fetchApplications, exportApplicationUrl, importApplication, exportModel } from "../../api";
@@ -8,6 +8,7 @@ import Loading from "../../components/Loading";
 import Error from "../../components/Error";
 import './ApplicationsList.css';
 import ApplicationResult from "../../search/results/ApplicationResult";
+import Warning from "../../components/Warning";
 
 const { confirm } = Modal;
 
@@ -22,6 +23,7 @@ class ApplicationsList extends React.Component {
             page: 1,
             count: 50,
             applications: [],
+            warning: null
         }
     }
 
@@ -62,14 +64,50 @@ class ApplicationsList extends React.Component {
 
     renderContent() {
         if (this.state.loading) {
-            return <Loading />;
+            return (
+                <div>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                </div>
+            )
         }
         if (this.state.error) {
             return <Error error={this.state.error} />;
         }
-        return this.state.applications.map((application) => (
-            <ApplicationResult application={application} />
-        ));
+        return (
+            <>
+                {
+                    this.state.warning && <Warning description={this.state.warning.description}
+                                                   message={this.state.warning.message}
+                                                   warningType={this.state.warning.warningType}
+                                                   inputType={"application"}/>
+                }
+                {
+                    this.state.applications.map((application) => (
+                        <ApplicationResult
+                            key={application.id}
+                            application={application}
+                        />
+                    ))
+                }
+            </>
+        )
+    }
+
+    renderPagination() {
+        return (
+            <Pagination
+                showSizeChanger
+                current={this.state.page}
+                pageSize={this.state.count}
+                total={this.state.total_count}
+                onChange={this.onChange.bind(this)}
+            />
+        )
     }
 
       uploadfile({ onSuccess, onError, file }) {
@@ -88,7 +126,8 @@ class ApplicationsList extends React.Component {
                     const formData = new FormData();
                     formData.append("file", file);
                     importApplication(formData)
-                    .then(() => {
+                    .then((r) => {
+                        this.checkForWarningMessage(r)
                         onSuccess(null, file);
                         this.props.count();
                         this.fetchApplicationsFromApi();
@@ -111,6 +150,22 @@ class ApplicationsList extends React.Component {
         exportModel(exportApplicationUrl, "Applications.csv");
     }
 
+    checkForWarningMessage = (r) => {
+        if(r.data.warning_type){
+            this.setState({
+                warning:
+                    {
+                        description: r.data.description,
+                        message: r.data.message,
+                        warningType: r.data.warning_type
+                    }
+            })
+        }
+        else {
+            this.setState({warning: null})
+        }
+    }
+
     render() {
         return (
             <div className="ApplicationsList">
@@ -119,29 +174,25 @@ class ApplicationsList extends React.Component {
                 </h1>
                 {this.props.user.is_admin && (
                 <div className="actions">
-                    <Link to={this.props.match.url + '/create'}>
+                    <Link to={'/application/create'}>
                         <Button type="primary" icon={<PlusOutlined />}>
                             Créer une application
                         </Button>
                     </Link>
-                    <Button onClick={this.export} icon={<DownloadOutlined />} type="default">Export</Button>
+                    <Button onClick={this.export} icon={<UploadOutlined />} type="default">Export</Button>
                     <Upload
                         customRequest={this.uploadfile.bind(this)}
                         maxCount={1}
                         showUploadList={false}
                     >
-                        <Button icon={<UploadOutlined />} type="default">Import</Button>
+                        <Button icon={<DownloadOutlined />} type="default">Import</Button>
                     </Upload>
                 </div>
                 )}
+                {this.renderPagination()}
+                <br/>
                 {this.renderContent()}
-                <Pagination
-                    showSizeChanger
-                    current={this.state.page}
-                    pageSize={this.state.count}
-                    total={this.state.total_count}
-                    onChange={this.onChange.bind(this)}
-                />
+                {this.renderPagination()}
             </div>
         );
     }

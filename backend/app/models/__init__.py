@@ -21,3 +21,58 @@ from .DataSource import DataSource
 
 # Associations
 from .Application import ownerships
+
+# Other
+from .WildCard import WildCard
+from .RoutingKPI import RoutingKPI
+from .SearchingKPI import SearchingKPI
+
+
+def get_enumeration_model_by_name(name):
+    if name.lower() == "type":
+        return Type
+    elif name.lower() == "family":
+        return Family
+    elif name.lower() == "organization":
+        return Organization
+    elif name.lower() == "sensibility":
+        return Sensibility
+    elif name.lower() == "analysis_axis":
+        return Family
+    elif name.lower() == "exposition":
+        return Exposition
+    elif name.lower() == "referentiel":
+        return Family
+    elif name.lower() == "open_data":
+        return OpenData
+    elif name.lower() == "update_frequency":
+        return UpdateFrequency
+    elif name.lower() == "origin":
+        return Origin
+    elif name.lower() == "tag":
+        return Tag
+
+
+def get_enumeration_type_by_name(name):
+    if name.lower() == "type":
+        return 'single'
+    elif name.lower() == "family":
+        return 'multiple'
+    elif name.lower() == "organization":
+        return 'single'
+    elif name.lower() == "sensibility":
+        return 'single'
+    elif name.lower() == "analysis_axis":
+        return 'multiple'
+    elif name.lower() == "exposition":
+        return 'multiple'
+    elif name.lower() == "referentiel":
+        return 'single'
+    elif name.lower() == "open_data":
+        return 'single'
+    elif name.lower() == "update_frequency":
+        return 'single'
+    elif name.lower() == "origin":
+        return 'single'
+    elif name.lower() == "tag":
+        return 'multiple'

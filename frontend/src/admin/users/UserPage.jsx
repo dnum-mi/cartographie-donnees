@@ -56,7 +56,7 @@ class UserPage extends React.Component {
 
     showDeleteConfirm = () => {
         confirm({
-            title: 'Êtes-vous sûr de vouloir supprimer cet utilisateur ?',
+            title: 'Êtes-vous sûr de vouloir supprimer cet administrateur ?',
             icon: <ExclamationCircleOutlined />,
             content: 'Cette action est irréversible.',
             okText: 'Oui',
@@ -85,7 +85,7 @@ class UserPage extends React.Component {
         return (
             <div>
                 <h1 className="typePage">
-                    Fiche de l'utilisateur
+                    Fiche de l'administrateur
                 </h1>
                 <h1>
                     {this.state.user.first_name + ' ' + this.state.user.last_name}

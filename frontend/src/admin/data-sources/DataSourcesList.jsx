@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
-import { Button, Pagination, Modal, Upload } from 'antd';
+import {Button, Pagination, Modal, Upload, Skeleton} from 'antd';
 import { PlusOutlined, ExclamationCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 
 import { fetchDataSources, exportDataSourceUrl, importDataSource, exportModel } from "../../api";
@@ -8,6 +8,7 @@ import Loading from "../../components/Loading";
 import Error from "../../components/Error";
 import './DataSourcesList.css';
 import DataSourceResult from "../../search/results/DataSourceResult";
+import Warning from "../../components/Warning";
 
 const { confirm } = Modal;
 
@@ -22,6 +23,7 @@ class DataSourcesList extends React.Component {
             page: 1,
             count: 50,
             dataSources: [],
+            warning: null
         }
     }
 
@@ -61,14 +63,52 @@ class DataSourcesList extends React.Component {
 
     renderContent() {
         if (this.state.loading) {
-            return <Loading />;
+            return (
+                <div>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                    <Skeleton loading={true} active >
+                    </Skeleton>
+                </div>
+            )
+            // return <Loading />;
         }
         if (this.state.error) {
             return <Error error={this.state.error} />;
         }
-        return this.state.dataSources.map((dataSource) => (
-            <DataSourceResult dataSource={dataSource} />
-        ));
+        return (
+            <>
+                {
+                    this.state.warning && <Warning description={this.state.warning.description}
+                                                   message={this.state.warning.message}
+                                                   warningType={this.state.warning.warningType}
+                                                   inputType={"data_source"}/>
+                }
+                {
+                    this.state.dataSources.map((dataSource) => (
+                        <DataSourceResult
+                            key={dataSource.id}
+                            dataSource={dataSource}
+                        />
+                    ))
+                }
+            </>
+
+        )
+    }
+
+    renderPagination() {
+        return (
+            <Pagination
+                showSizeChanger
+                current={this.state.page}
+                pageSize={this.state.count}
+                total={this.state.total_count}
+                onChange={this.onChange.bind(this)}
+            />
+        )
     }
 
       uploadfile({ onSuccess, onError, file }) {
@@ -86,7 +126,8 @@ class DataSourcesList extends React.Component {
                     const formData = new FormData();
                     formData.append("file", file);
                     importDataSource(formData)
-                    .then(() => {
+                    .then((r) => {
+                        this.checkForWarningMessage(r)
                         onSuccess(null, file);
                         this.props.count();
                         this.fetchDataSourcesFromApi();
@@ -109,6 +150,22 @@ class DataSourcesList extends React.Component {
        exportModel(exportDataSourceUrl, 'Donnees.csv');
     }
 
+    checkForWarningMessage = (r) => {
+        if(r.data.warning_type){
+            this.setState({
+                warning:
+                    {
+                        description: r.data.description,
+                        message: r.data.message,
+                        warningType: r.data.warning_type
+                    }
+            })
+        }
+        else {
+            this.setState({warning: null})
+        }
+    }
+
     render() {
         return (
             <div className="DataSourcesList">
@@ -116,28 +173,24 @@ class DataSourcesList extends React.Component {
                     Liste des données
                 </h1>
                 <div className="actions">
-                    <Link to={this.props.match.url + '/create'}>
+                    <Link to={"/data-source/create"}>
                         <Button type="primary" icon={<PlusOutlined />}>
                             Créer une donnée
                         </Button>
                     </Link>
-                    {this.props.user.is_admin && (<Button onClick={this.export} icon={<DownloadOutlined />} type="default">Export</Button>)}
+                    {this.props.user.is_admin && (<Button onClick={this.export} icon={<UploadOutlined />} type="default">Export</Button>)}
                     {this.props.user.is_admin && (<Upload
                         customRequest={this.uploadfile.bind(this)}
                         maxCount={1}
                         showUploadList={false}
                     >
-                        <Button icon={<UploadOutlined />} type="default">Import</Button>
+                        <Button icon={<DownloadOutlined />} type="default">Import</Button>
                     </Upload>)}
                 </div>
+                {this.renderPagination()}
+                <br/>
                 {this.renderContent()}
-                <Pagination
-                    showSizeChanger
-                    current={this.state.page}
-                    pageSize={this.state.count}
-                    total={this.state.total_count}
-                    onChange={this.onChange.bind(this)}
-                />
+                {this.renderPagination()}
             </div>
         );
     }

@@ -1,0 +1,18 @@
+.SettingsHeader{
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+    background: #F9F8FC;
+}
+
+.SettingsHeader .actions {
+    margin: 20px 0;
+}
+
+.SettingsHeader .actions Button {
+    margin-right: 10px;
+}
+
+.settingsAlert {
+    margin-bottom: 10px;
+}

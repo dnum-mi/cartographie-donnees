@@ -5,7 +5,7 @@ import { Spin } from 'antd';
 import UserForm from './UserForm';
 import { createUser } from "../../api";
 import Error from "../../components/Error";
-
+import withTooltips from "../../hoc/tooltips/withTooltips"
 
 class UserCreation extends React.Component {
 
@@ -37,11 +37,11 @@ class UserCreation extends React.Component {
             <Spin tip="Envoi en cours..." spinning={this.state.loading}>
                 <div className="UserCreation">
                     <h1>
-                        Création d'un utilisateur
+                        Création d'un administrateur
                     </h1>
-                    {this.state.error && <Error error={this.state.error} />}
+                    <Error error={this.state.error} />
                     <div>
-                        <UserForm withPassword onSubmit={this.submitForm} />
+                        <UserForm isNewUser onSubmit={this.submitForm}/>
                     </div>
                 </div>
             </Spin>
@@ -49,4 +49,4 @@ class UserCreation extends React.Component {
     }
 }
 
-export default withRouter(UserCreation);
+export default withRouter(withTooltips(UserCreation));

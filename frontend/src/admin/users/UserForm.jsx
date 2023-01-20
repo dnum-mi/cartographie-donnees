@@ -1,5 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, {useState} from 'react';
+import PropTypes from 'prop-types'
+import withTooltips from "../../hoc/tooltips/withTooltips";
 import {
     Form,
     Input,
@@ -9,6 +10,7 @@ import {
 import '../../components/forms.css';
 import PasswordFields from "../../components/PasswordFields";
 import EmailField from "../../components/EmailField";
+import UserOwnership from "./UserOwnership";
 
 const formItemLayout = {
     labelCol: {
@@ -42,8 +44,16 @@ const tailFormItemLayout = {
     },
 };
 
-const UserForm = ({ withPassword, onSubmit, user = {} }) => {
+const UserForm = ({ isNewUser, onSubmit, user = {}, withOwnedApplications, tooltips}) => {
     const [form] = Form.useForm();
+    const [passwordConfirmationRequired, setPasswordConfirmationRequired] = useState(false);
+
+    const onValuesChange = (changedValues, allValues) => {
+        const anyPassword = allValues.password
+            ? Object.values(allValues.password).filter(Boolean).length > 0
+            : false;
+        setPasswordConfirmationRequired(anyPassword);
+    };
 
     return (
         <Form
@@ -54,15 +64,16 @@ const UserForm = ({ withPassword, onSubmit, user = {} }) => {
             className="form-container"
             scrollToFirstError
             initialValues={user}
+            onValuesChange={onValuesChange}
         >
             <Form.Item
                 name="first_name"
                 label="Prénom"
-                tooltip="Prénom de l'utilisateur"
+                tooltip={tooltips.get("first_name")}
                 rules={[
                     {
                         required: true,
-                        message: 'Merci de renseigner le prénom de l\'utilisateur',
+                        message: 'Merci de renseigner le prénom de l\'administrateur',
                     },
                 ]}
             >
@@ -71,27 +82,28 @@ const UserForm = ({ withPassword, onSubmit, user = {} }) => {
             <Form.Item
                 name="last_name"
                 label="Nom"
-                tooltip="Nom de l'utilisateur"
+                tooltip={tooltips.get("last_name")}
                 rules={[
                     {
                         required: true,
-                        message: 'Merci de renseigner le nom de l\'utilisateur',
+                        message: 'Merci de renseigner le nom de l\'administrateur',
                     },
                 ]}
             >
                 <Input />
             </Form.Item>
-            <EmailField tooltip="L'email de l'utilisateur" required={true} name="email"/>
+            <EmailField tooltip={tooltips.get("last_name")} required={true} name="email"/>
             <Form.Item
                 name="is_admin"
-                label="Administrateur ?"
-                tooltip="L'utilisateur est-il administrateur ?"
+                label="Administrateur général"
+                tooltip={tooltips.get("is_admin")}
                 valuePropName="checked"
             >
                 <Checkbox />
             </Form.Item>
 
-            {withPassword && <PasswordFields />}
+            {withOwnedApplications && <UserOwnership user={user} />}
+            <PasswordFields isNewUser={!!isNewUser} passwordConfirmationRequired={passwordConfirmationRequired}/>
 
             <Form.Item {...tailFormItemLayout}>
                 <Button type="primary" htmlType="submit">
@@ -106,4 +118,4 @@ UserForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
 }
 
-export default UserForm;
+export default withTooltips(UserForm);

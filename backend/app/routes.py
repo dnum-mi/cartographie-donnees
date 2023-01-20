@@ -1,23 +1,24 @@
 import os
 
-from app import app
-from app.api import data_sources, applications, enumerations, auth, users
+from flask import Blueprint, current_app
+
+main = Blueprint('main', __name__)
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<string:path>')
-@app.route('/admin/<string:path>')
-@app.route('/admin/users/<string:path>')
-@app.route('/admin/users/<string:path>/update')
-@app.route('/application/<string:path>')
-@app.route('/data-source/<string:path>')
-@app.route('/admin/data-sources/<string:path>')
-@app.route('/admin/data-sources/<string:path>/update')
-@app.route('/admin/applications/<string:path>')
-@app.route('/admin/applications/<string:path>/update')
-@app.route('/reset-password/<string:path>')
+@main.route('/', defaults={'path': ''})
+@main.route('/<string:path>')
+@main.route('/admin/<string:path>')
+@main.route('/admin/users/<string:path>')
+@main.route('/admin/users/<string:path>/update')
+@main.route('/application/<string:path>')
+@main.route('/data-source/<string:path>')
+@main.route('/admin/data-sources/<string:path>')
+@main.route('/admin/data-sources/<string:path>/update')
+@main.route('/admin/applications/<string:path>')
+@main.route('/admin/applications/<string:path>/update')
+@main.route('/reset-password/<string:path>')
 def catch_all(path):
-    static_file_path = os.path.join(app.static_folder, path)
+    static_file_path = os.path.join(current_app.static_folder, path)
     if os.path.isfile(static_file_path):
-        return app.send_static_file(path)
-    return app.send_static_file('index.html')
+        return current_app.send_static_file(path)
+    return current_app.send_static_file('index.html')

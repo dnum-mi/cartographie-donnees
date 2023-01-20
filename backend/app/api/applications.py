@@ -1,18 +1,24 @@
 from datetime import datetime
 
+import unidecode
+from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 from flask import jsonify, request
 from flask_login import login_required, current_user
-from sqlalchemy import func
-from app import app, db
-from app.models import Application, DataSource, ownerships
-from app.decorators import admin_required, admin_or_owner_required, admin_or_any_owner_required
+from dateutil.parser import parse
+from datetime import timezone
+
+from app.models import Application, DataSource
+from app.decorators import admin_required, admin_or_owner_required
 from app.api.enumerations import get_organization_by_name
 from app.exceptions import CSVFormatError
 from app.api.commons import import_resource, export_resource
 
-from app.search import remove_accent
+from . import api
+from .. import db
+from ..search.enums import Strictness
 
+from url_normalize import url_normalize
 
 def get_application_by_name(name, line=None, return_id=True):
     value = Application.query.filter_by(name=name).first()
@@ -29,10 +35,42 @@ def get_application_by_name(name, line=None, return_id=True):
             raise AssertionError("L'application '%s' n'existe pas." % (name))
 
 
-@app.route('/api/applications', methods=['GET'])
+@api.route('/api/applications', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def fetch_applications():
+    """Obtenir des applications
+    ---
+    get:
+        tags:
+            - Applications
+        summary: Obtenir des applications
+        description: Endpoint retournant une liste paginée d'applications. L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
+
+        parameters:
+            - name: page
+              in: query
+              description: La page d'applications voulue
+              required: false
+              schema:
+                type: integer
+                default: 1
+
+            - name: count
+              in: query
+              description: Le nombre d'applications par page
+              required: false
+              schema:
+                type: integer
+                default: 10
+
+        responses:
+            '200':
+              description: Une liste paginée d'applications
+              content:
+                application/json::
+                    schema:
+                        $ref: "#/components/schemas/ApplicationWithDataSourcesGet"
+    """
     page = int(request.args.get('page', 1, type=int))
     count = int(request.args.get('count', 10, type=int))
     base_query = Application.query
@@ -40,24 +78,42 @@ def fetch_applications():
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     applications = base_query.all()
     total_count = base_query.count()
-    _list = [(application.id, remove_accent(application.name)) for application in applications]
-    _list.sort(key=lambda tup: tup[1])
-    applications = [Application.query.filter_by(id=id).one() for id, _ in _list][(page - 1) * count:page * count]
+    applications = sorted(applications, key=lambda appli: str.lower(unidecode.unidecode(appli.name)))
+    applications = applications[(page - 1) * count:page * count]
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
     ))
 
 
-@app.route('/api/applications', methods=['POST'])
+@api.route('/api/applications', methods=['POST'])
 @login_required
 @admin_required
 def create_application():
+    """Créer une nouvelle application
+    ---
+    post:
+      tags:
+        - Applications
+      summary: Créer une nouvelle application
+      requestBody:
+          description: Un objet JSON contenant les données de la nouvelle application
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationPost"
+      responses:
+        200:
+          description: L'objet application qui vient d'être créé
+          content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ApplicationGet"
+    """
     try:
         json = request.get_json()
-        if json.get("validation_date"):
-            json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
-        json["organization_id"] = get_organization_by_name(json["organization_name"])
+        normalize_application(json)
         application = Application.from_dict(json)
         db.session.add(application)
         db.session.commit()
@@ -67,8 +123,22 @@ def create_application():
         raise BadRequest(str(e))
 
 
-@app.route('/api/applications/reindex')
+@api.route('/api/applications/reindex')
 def reindex_applications():
+    """Réindexer les applications
+    ---
+    get:
+      tags:
+        - Applications
+      summary: Réindexer les applications
+      description: Synchronisation de l'index elasticsearch correspondant aux applications avec la base de données.
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/JsonResponse200"
+    """
     Application.reindex()
     return jsonify(dict(description='OK', code=200))
 
@@ -81,49 +151,132 @@ def get_application(application_id):
     return Application.query.get_or_404(app_id)
 
 
-def convert_dict(dic):
-    new_dict = {}
-    for key, value in dic.items():
-        if not value:
-            new_dict[key] = None
-        else:
-            new_dict[key] = value
-    return new_dict
-
-
-@app.route('/api/applications/export', methods=['GET'])
+@api.route('/api/applications/export', methods=['GET'])
 @login_required
 @admin_required
 def export_applications():
+    """Exporter les applications
+    ---
+    get:
+      tags:
+        - Applications
+      summary: Exporter les applications
+      description: Export en CSV de toutes les applications
+      responses:
+        200:
+          description: Les applications en format CSV
+          content:
+                application/csv:
+                    schema:
+                        $ref: "#/components/schemas/ApplicationCSV"
+    """
     return export_resource(Application, "applications.csv")
 
 
-
-@app.route('/api/applications/import', methods=['POST'])
+@api.route('/api/applications/import', methods=['POST'])
 @login_required
 @admin_required
 def import_applications():
+    """Importer les applications
+    ---
+    post:
+      tags:
+        - Applications
+      summary: Importer les applications
+      description: Importer et remplacer toutes les applications à partir d'un CSV
+      requestBody:
+          description: Le CSV contenant les applications
+          required: true
+          content:
+            application/csv:
+              schema:
+                $ref: "#/components/schemas/ApplicationCSV"
+      responses:
+        200:
+          content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+    """
     try:
-        import_resource(Application)
+        warning = import_resource(Application)
     except CSVFormatError as e:
         raise BadRequest(e.message)
+    except IntegrityError as e:
+        raise BadRequest(e.args)
+    if warning:
+        return jsonify({'code': 200, **warning})
     return jsonify(dict(description='OK', code=200))
 
 
-@app.route('/api/applications/search_limited', methods=['GET'])
+@api.route('/api/applications/search_limited', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def search_applications_limited():
+    """Obtenir des applications avec recherche limitée
+    ---
+    get:
+        tags:
+            - Applications
+        summary: Obtenir des applications avec recherche limitée
+        description: Endpoint retournant une liste paginée d'applications basée sur une recherche. L'authentification est requise. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
+
+        parameters:
+            - name: page
+              in: query
+              description: La page d'applications voulue
+              required: false
+              schema:
+                type: integer
+                default: 1
+
+            - name: count
+              in: query
+              description: Le nombre d'applications par page
+              required: false
+              schema:
+                type: integer
+                default: 1000
+
+            - name: q
+              in: query
+              description: Le string de la recherche
+              required: false
+              schema:
+                type: string
+                default: ''
+
+            - name: organization
+              in: query
+              description: Filtre par organization
+              required: false
+              schema:
+                type: string
+
+        responses:
+            '200':
+              description: Une liste paginée d'applications
+              content:
+                application/json::
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                description: Résultats de la recherche
+                                items:
+                                    $ref: "#/components/schemas/ApplicationGet"
+                            total_count:
+                                type: integer
+                                description: Nombre totale de résultats
+    """
     page = int(request.args.get('page', 1))
     count = int(request.args.get('count', 1000))
     query = request.args.get('q', '', type=str)
     organization = request.args.get('organization', '', type=str)
-    fields = []
-    values = []
+    request_args = {}
     if organization:
-        fields.append("organization")
-        values.append(organization)
-    applications, total, total_count = Application.search_with_filter(query, fields, values, page, count)
+        request_args["organization"] = [organization]
+    applications, total_count = Application.search_with_filter(query, request_args, Strictness.ANY_WORDS, page, count)
     if not current_user.is_admin:
         application_of_user = []
         for application in applications:
@@ -136,37 +289,151 @@ def search_applications_limited():
         results=[application.to_dict() for application in application_of_user]
     ))
 
-@app.route('/api/applications/search', methods=['GET'])
+
+@api.route('/api/applications/search', methods=['GET'])
 @login_required
-@admin_or_any_owner_required
 def search_applications():
+    """Obtenir des applications avec recherche
+    ---
+    get:
+        tags:
+            - Applications
+        summary: Obtenir des applications avec recherche
+        description: Endpoint retournant une liste paginée d'applications basée sur une recherche.
+
+        parameters:
+            - name: page
+              in: query
+              description: La page d'applications voulue
+              required: false
+              schema:
+                type: integer
+                default: 1
+
+            - name: count
+              in: query
+              description: Le nombre d'applications par page
+              required: false
+              schema:
+                type: integer
+                default: 1000
+
+            - name: q
+              in: query
+              description: Le string de la recherche
+              required: false
+              schema:
+                type: string
+                default: ''
+
+            - name: organization
+              in: query
+              description: Filtre par organization
+              required: false
+              schema:
+                type: string
+
+        responses:
+            '200':
+              description: Une liste paginée d'applications
+              content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            results:
+                                type: array
+                                description: Résultats de la recherche
+                                items:
+                                    $ref: "#/components/schemas/ApplicationGet"
+                            total_count:
+                                type: integer
+                                description: Nombre total de résultats
+    """
     page = int(request.args.get('page', 1))
     count = int(request.args.get('count', 1000))
     query = request.args.get('q', '', type=str)
     organization = request.args.get('organization', '', type=str)
-    fields = []
-    values = []
+    request_args = {}
     if organization:
-        fields.append("organization")
-        values.append(organization)
-    applications, total, total_count = Application.search_with_filter(query, fields, values, page, count)
+        request_args["organization"] = [organization]
+    applications, total_count = Application.search_with_filter(query, request_args, Strictness.ANY_WORDS, page, count)
     return jsonify(dict(
         total_count=total_count,
         results=[application.to_dict() for application in applications]
     ))
 
-@app.route('/api/applications/count', methods=['GET'])
+
+@api.route('/api/applications/count', methods=['GET'])
+@login_required
 def count_applications():
+    """Nombre d'applications
+    ---
+    get:
+      tags:
+        - Applications
+      summary: Nombre d'applications
+      description: Recevoir le nombre total d'applications existantes. Si l'utilisateur est propriétaire d'application, ce endpoint retourne uniquement les applications appartenant à l'utilisateur.
+
+      responses:
+        200:
+          content:
+            text/plain:
+                schema:
+                    type: integer
+    """
     base_query = Application.query
     if not current_user.is_admin:
         base_query = base_query.filter(Application.owners.any(id=current_user.id))
     return str(base_query.count())
 
-@app.route('/api/applications/organizations', methods=['GET'])
+
+@api.route('/api/applications/organizations', methods=['GET'])
 def fetch_application_organizations():
+    """Organisation des applications
+    ---
+    get:
+      tags:
+        - Applications
+      summary: Organisation des applications
+      description: Liste des organisations (MOA) reliées aux applications correspondant à la recherche.
+      parameters:
+            - name: page
+              in: query
+              required: false
+              schema:
+                type: integer
+                default: 1
+
+            - name: q
+              in: query
+              description: Le string de la recherche
+              required: false
+              schema:
+                type: string
+                default: ''
+
+      responses:
+        200:
+          content:
+            application/json:
+                schema:
+                    type: array
+                    items:
+                        type: object
+                        description: Organisation
+                        properties:
+                            value:
+                                type: string
+                                example: MI > DSR > SDPUR
+                            count:
+                                type: integer
+                                example: 6
+
+    """
     page = request.args.get('page', 1, type=int)
     query = request.args.get('q', '', type=str)
-    applications, total = Application.search(query, page, 500)
+    applications, _ = Application.search_with_filter(query, {}, Strictness.ANY_WORDS, page, 500)
     organizations = [application.organization_name for application in applications]
     organization_dict = {}
     for organization in organizations:
@@ -178,22 +445,77 @@ def fetch_application_organizations():
     return jsonify(organizations)
 
 
-@app.route('/api/applications/<application_id>', methods=['GET'])
+@api.route('/api/applications/<application_id>', methods=['GET'])
 def read_application(application_id):
+    """Obtenir une application
+    ---
+    get:
+        tags:
+            - Applications
+        summary: Obtenir une application
+        description: Endpoint retournant une application par son ID.
+
+        parameters:
+            - name: application_id
+              in: path
+              required: true
+              schema:
+                type: integer
+
+        responses:
+            '200':
+              description: L'application correspondante incluant toutes les données associées à cette application.
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ApplicationWithDataSourcesGet"
+
+    """
     application = get_application(application_id)
-    return jsonify(application.to_dict(populate_data_sources=True))
+    return jsonify(application.to_dict(
+        populate_data_sources=True,
+        populate_statistics=True,
+        populate_owners=True,
+    ))
 
 
-@app.route('/api/applications/<application_id>', methods=['PUT'])
+@api.route('/api/applications/<application_id>', methods=['PUT'])
 @login_required
 @admin_or_owner_required
 def update_application(application_id):
+    """Mettre à jour une application
+    ---
+    put:
+        tags:
+            - Applications
+        summary: Mettre à jour une application
+        description: L'authentification est requise. L'utilisateur doit être propriétaire d'application.
+        parameters:
+            - name: application_id
+              in: path
+              required: true
+              schema:
+                type: integer
+        requestBody:
+          description: Le JSON de l'application mis à jour
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationGet"
+
+        responses:
+            '200':
+              description: L'application mis à jour.
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ApplicationGet"
+    """
     try:
         application = get_application(application_id)
         json = request.get_json()
-        if json.get("validation_date"):
-            json["validation_date"] = datetime.strptime(json["validation_date"], '%d/%m/%Y').date()
-        json["organization_id"] = get_organization_by_name(json["organization_name"])
+        normalize_application(json)
         application.update_from_dict(json)
         db.session.commit()
         db.session.refresh(application)
@@ -208,10 +530,33 @@ def update_application(application_id):
         raise BadRequest(str(e))
 
 
-@app.route('/api/applications/<application_id>', methods=['DELETE'])
+@api.route('/api/applications/<application_id>', methods=['DELETE'])
 @login_required
 @admin_required
 def delete_application(application_id):
+    """Supprimer une application
+    ---
+    delete:
+        tags:
+            - Applications
+        summary: Supprimer une application
+        description: L'authentification est requise. L'utilisateur doit être administrateur général.
+        parameters:
+            - name: application_id
+              in: path
+              required: true
+              schema:
+                type: integer
+
+        responses:
+            '200':
+              content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/JsonResponse200"
+            '400':
+                description: Vérifier que l'application n'héberge aucune donnée avant la suppression.
+    """
     application = get_application(application_id)
     source = db.session.query(DataSource).filter(DataSource.application_id == application_id).first()
     if not source:
@@ -220,5 +565,16 @@ def delete_application(application_id):
         Application.remove_from_index(application)
         return jsonify(dict(description='OK', code=200))
     else:
-        raise BadRequest(f"Impossible de supprimer cette application, vérifier que celle-ci n'héberge aucunes données avant la suppression.\n"
-                          f"La donnée \'{source.name}\' semble toujours hébergée par l'application ")
+        raise BadRequest(
+            f"Impossible de supprimer cette application, vérifier que celle-ci n'héberge aucunes données avant la suppression.\n"
+            f"La donnée \'{source.name}\' semble toujours hébergée par l'application ")
+
+
+def normalize_application(json):
+    if json.get("validation_date"):
+        timestamp = parse(json["validation_date"])
+        corrected_timezone = timestamp.replace(tzinfo=timezone.utc).astimezone(tz=None)
+        json["validation_date"] = corrected_timezone.date()
+    json["organization_id"] = get_organization_by_name(json["organization_name"])
+    if json.get("access_url"):
+        json["access_url"] = url_normalize(json["access_url"])

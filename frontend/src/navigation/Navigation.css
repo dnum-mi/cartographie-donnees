@@ -1,15 +1,33 @@
-.App .header .container {
-    max-width: 1500px;
-    padding: 0 10px;
-    margin: 0 auto;
+.App .header {
+    background-color: white;
+    box-shadow: rgba(22, 22, 22, 0.25) 0 2px 4px;
+    height: 110px;
+    line-height: 110px;
+}
+
+.App .header .container.navigation-container {
     display: flex;
     justify-content: space-between;
 }
 
 .App .header .container .home {
     margin-right: 20px;
+    color: #383838;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.App .header .container .home:hover {
+    color: #383838;
+    outline: none;
+    text-decoration: none;
+}
+
+.App .header .container .home .home-title {
+    margin-left: 20px;
 }
 
 .App .header .ant-button {
     margin-left: 20px;
+    padding: 10px;
 }

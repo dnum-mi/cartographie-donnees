@@ -1,11 +1,12 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Button } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Button, Divider, Modal } from 'antd';
+import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 
-import { deleteEnumeration, updateEnumeration } from "../../api";
+import { updateEnumeration } from "../../api";
 import './EnumerationItem.css';
 
+const { confirm } = Modal;
 
 class EnumerationItem extends React.Component {
 
@@ -15,6 +16,8 @@ class EnumerationItem extends React.Component {
             loading: false,
             value: this.props.item.value,
             edit: false,
+            valueLong: this.props.item.label,
+            editLong: false,
         };
     }
 
@@ -23,11 +26,25 @@ class EnumerationItem extends React.Component {
     }
 
     updateEnumerationFromApi() {
-        updateEnumeration(this.props.item.id, {category: this.props.item.category, value: this.state.value})
+        this.setState({
+            loading: true,
+        });
+        updateEnumeration(this.props.item.id, {
+            category: this.props.item.category,
+            full_path: this.state.value,
+            label: this.state.valueLong
+        })
             .then(() => {
+                this.setState({
+                    loading: false,
+                });
+                this.props.fetch();
             })
             .catch((error) => {
-                this.props.error(error);
+                this.setState({
+                    loading: false,
+                });
+                this.props.onError(error);
                 this.props.fetch()
             });
     }
@@ -35,43 +52,117 @@ class EnumerationItem extends React.Component {
 
     handleDoubleClick = (e) => {
         this.setState({
-          edit: true,
-          value: e.target.textContent
+            edit: true,
+            value: e.target.textContent
         });
     }
     handleBlur = (e) => {
         this.setState({
-          edit: false,
-          value: this.props.item.value
+            edit: false,
+            value: this.props.item.value
         });
     }
 
-    handleEnter = (e) =>{
-    if(e.code === "Enter" || e.charCode === 13 || e.which === 13){
-        this.updateEnumerationFromApi()
-        this.setState({
-            edit: false
+    handleEnter = (e) => {
+        if (e.code === "Enter" || e.charCode === 13 || e.which === 13) {
+            this.updateEnumerationFromApi()
+            this.setState({
+                edit: false
             });
         }
     }
 
-    render() {
-        if (this.state.edit){
-            var balise = <input
-                value={this.state.value}
-                onBlur={this.handleBlur}
-                onKeyPress={this.handleEnter}
-                onChange={(e) => this.setState({
-                    value: e.target.value,
-                })}
-                type="text"
-          />
+    handleDoubleClickLong = (e) => {
+        if (this.props.item.category != "Organisation") {
+            this.setState({
+                editLong: true,
+                valueLong: e.target.textContent
+            });
+        } else {
+            this.setState({
+                editLong: true,
+                valueLong: !!this.props.item.label ? e.target.textContent : ""
+            });
         }
-        else{
-            var balise = <span
-            onClick={this.handleDoubleClick}
-          >{this.state.value}
-          </span>
+    }
+    handleBlurLong = (e) => {
+        this.setState({
+            editLong: false,
+            valueLong: this.props.item.value
+        });
+    }
+
+    handleEnterLong = (e) => {
+        if (e.code === "Enter" || e.charCode === 13 || e.which === 13) {
+            this.updateEnumerationFromApi()
+            this.setState({
+                editLong: false
+            });
+        }
+    }
+
+    showConfirmationDelete = () => {
+        var self = this;
+        return confirm({
+            title: 'Etes vous sûr de vouloir supprimer ce filtre ?',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Cette action est irreversible',
+            okText: 'Oui',
+            okType: 'danger',
+            cancelText: 'Annuler',
+            onOk() {
+                self.deleteEnumerationFromApi()
+            },
+            onCancel() {
+                //do nothing
+            },
+        });
+    }
+
+    render() {
+        let balise;
+        if (this.state.edit) {
+            balise = (
+                <input
+                    value={this.state.value}
+                    onBlur={this.handleBlur}
+                    onKeyPress={this.handleEnter}
+                    onChange={(e) => this.setState({
+                        value: e.target.value,
+                    })}
+                    type="text"
+                />
+            )
+        } else {
+            balise = (
+                <span onClick={this.handleDoubleClick}>
+                    {this.props.item.full_path}
+                </span>
+            );
+        }
+        let baliseLong;
+        if (this.state.editLong) {
+            baliseLong = (
+                <input
+                    value={this.state.valueLong}
+                    onBlur={this.handleBlurLong}
+                    onKeyPress={this.handleEnterLong}
+                    onChange={(e) => this.setState({
+                        valueLong: e.target.value,
+                    })}
+                    type="text"
+                    style={{ "width": "500px" }}
+                />
+            )
+        } else {
+            baliseLong = !!this.props.item.label ?
+                (
+                    <span onClick={this.handleDoubleClickLong}>
+                        {this.props.item.label}
+                    </span>
+                ) :
+                <a onClick={this.handleDoubleClickLong}>Ajouter un nom long</a>
+
         }
 
         return (
@@ -80,11 +171,13 @@ class EnumerationItem extends React.Component {
                     <Button
                         type="link"
                         title={"Supprimer le filtre \"" + this.state.value + "\""}
-                        icon={<DeleteOutlined/>}
+                        icon={<DeleteOutlined />}
                         loading={this.state.loading}
-                        onClick={() => this.deleteEnumerationFromApi()}
+                        onClick={this.showConfirmationDelete}
                     />
                     {balise}
+                    <Divider type="vertical" />
+                    {this.props.item.category == "Organisation" ? baliseLong : null}
                 </div>
             </div>
         );

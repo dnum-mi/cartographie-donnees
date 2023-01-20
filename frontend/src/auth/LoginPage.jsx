@@ -7,6 +7,7 @@ import { login as doLogin } from '../auth/index';
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 import EmailField from "../components/EmailField";
+import withTooltips from '../hoc/tooltips/withTooltips';
 
 const layout = {
     labelCol: { span: 8 },
@@ -26,13 +27,18 @@ class LoginPage extends React.Component {
     }
 
     onFinish = ({ email, password }) => {
+        this.setState({
+            error: null,
+        });
         login(email, password)
             .then((response) => {
                 doLogin(response.data.token);
                 return this.props.onLogin();
             })
             .then(() => {
-                this.props.history.push('/');
+                !!this.props.user.id
+                    ? this.props.history.push('/admin')
+                    : this.props.history.push('/')
             })
             .catch((error) => {
                 this.setState({
@@ -56,8 +62,9 @@ class LoginPage extends React.Component {
                     name="basic"
                     onFinish={this.onFinish}
                     onFinishFailed={() => {}}
+                    data-test="login-form"
                 >
-                <EmailField tooltip="L'email de l'utilisateur" required={true} name="email"/>
+                    <EmailField tooltip={this.props.tooltips.get("email")} required={true} name="email"/>
 
                     <Form.Item
                         label="Mot de passe"
@@ -68,11 +75,11 @@ class LoginPage extends React.Component {
                             validationTrigger: 'onBlur'
                         }]}
                     >
-                        <Input.Password/>
+                        <Input.Password data-test="password" />
                     </Form.Item>
 
                     <Form.Item {...tailLayout}>
-                        <Button type="primary" htmlType="submit">
+                        <Button type="primary" htmlType="submit" data-test="login-btn">
                             Se connecter
                         </Button>
                     </Form.Item>
@@ -83,14 +90,10 @@ class LoginPage extends React.Component {
                         </Link>
                     </Form.Item>
                 </Form>
-                {this.state.error && (
-                    <Error error={{
-                        message: 'Votre adresse email ou votre mot de passe sont incorrects.'
-                    }} />
-                )}
+                <Error error={this.state.error} />
             </div>
         );
     }
 }
 
-export default withRouter(LoginPage);
+export default withRouter(withTooltips(LoginPage));

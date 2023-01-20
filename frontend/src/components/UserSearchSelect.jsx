@@ -15,7 +15,7 @@ class UserSearchSelect extends React.Component {
                 search={searchUsers}
                 itemToOption={this.userToOption}
                 optionToItem={this.optionToUser}
-                placeholder="Recherchez un utilisateur"
+                placeholder="Recherchez un administrateur"
                 value={this.props.value}
                 defaultValue={this.props.defaultValue}
                 mode={this.props.mode}

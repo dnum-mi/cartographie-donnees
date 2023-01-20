@@ -1,15 +1,17 @@
 import React from 'react';
 import queryString from 'query-string'
-import { withRouter } from 'react-router-dom';
-import { Spin } from 'antd';
+import {withRouter} from 'react-router-dom';
+import {Spin} from 'antd';
 
-import DataSourceForm from './DataSourceForm';
-import { createDataSource } from "../../api";
-import { readApplication } from '../../api';
+import {createApplication, createDataSource, updateApplication, updateDataSource} from "../../api";
+import {readApplication} from '../../api';
 import Error from "../../components/Error";
 
 import './DataSourceCreation.css';
-
+import withCurrentUser from "../../hoc/user/withCurrentUser.jsx";
+import DataSourcePage from "../../data-source/DataSourcePage";
+import emptyDataSource from "../../data-source/emptyDataSource.json"
+const _ = require('lodash');
 
 class DataSourceCreation extends React.Component {
 
@@ -21,7 +23,7 @@ class DataSourceCreation extends React.Component {
             error: null,
             application_id: application_id,
         };
-        if (application_id != undefined){
+        if (application_id != undefined) {
             this.readApplicationFromApi();
         }
     }
@@ -47,36 +49,77 @@ class DataSourceCreation extends React.Component {
             });
     }
 
-    submitForm = (dataSource) => {
-        this.setState({ loading: true });
-        createDataSource(dataSource)
-            .then(() => {
-                this.props.count();
-                this.props.history.push('/admin/data-sources');
-            })
-            .catch((error) => {
+    handleSubmit = (dataSource) => {
+        this.setState({
+            loading: true,
+            error: null,
+        });
+        if (dataSource.application.id) {
+            updateApplication(
+                dataSource.application.id,
+                dataSource.application,
+            ).then((response) => {
+                createDataSource(
+                    dataSource,
+                ).then((results) => {
+                    this.props.history.push("/data-source/" + results.data.id)
+                }).catch((error) => {
+                    this.setState({
+                        loading: false,
+                        error,
+                    });
+                })
+            }).catch((error) => {
                 this.setState({
                     loading: false,
                     error,
                 });
-            });
+            })
+        } else {
+            createApplication(
+                dataSource.application
+            ).then((response) => {
+                dataSource.application.id = response.data.id
+                if (dataSource.name) {
+                    createDataSource(
+                        dataSource,
+                    ).then((results) => {
+                        this.props.history.push("/data-source/" + results.data.id)
+                    }).catch((error) => {
+                        this.setState({
+                            loading: false,
+                            error,
+                        });
+                    })
+                } else {
+                    this.props.history.push("/application/" + response.data.id)
+                }
+            }).catch((error) => {
+                this.setState({
+                    loading: false,
+                    error,
+                });
+            })
+        }
     };
 
     render() {
+
         let dataSource = {}
-        if (this.state.application){
+        if (this.state.application) {
             dataSource["application_name"] = this.state.application.name;
             dataSource["application"] = this.state.application;
+        }
+        let initialDataSource = _.cloneDeep(emptyDataSource)
+        if (this.props.initialDataSource) {
+            initialDataSource = this.props.initialDataSource
         }
         return (
             <Spin tip="Envoi en cours..." spinning={this.state.loading}>
                 <div className="DataSourceCreation">
-                    <h1>
-                        Création d'une donnée
-                    </h1>
-                    {this.state.error && <Error error={this.state.error} />}
+                    <Error error={this.state.error}/>
                     <div>
-                        <DataSourceForm onSubmit={this.submitForm} dataSource={dataSource}/>
+                        <DataSourcePage forceEdit={true} dataSource={initialDataSource} handleSubmit={this.handleSubmit} fromAppCreation={this.props.fromAppCreation} fromDataSourceCreation={this.props.fromDataSourceCreation}/>
                     </div>
                 </div>
             </Spin>
@@ -84,4 +127,4 @@ class DataSourceCreation extends React.Component {
     }
 }
 
-export default withRouter(DataSourceCreation);
+export default withCurrentUser(withRouter(DataSourceCreation));

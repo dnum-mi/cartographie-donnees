@@ -1,0 +1,35 @@
+.KpiSection{
+    background: white;
+    border-radius: 2px;
+    border: 1px solid #d9d9d9;
+    padding: 20px 20px;
+    margin-bottom: 20px;
+}
+
+.KpiSection:last-child{
+    margin-bottom: 0;
+}
+
+.AdminKpi p{
+    margin-left:20px
+}
+
+.AdminKpi strong{
+    margin-left: 5px
+}
+
+.KpiPageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+
+.KpiPageBody{
+    color: rgba(0, 0, 0, 0.85);
+}
+
+.KpiPageBody .DatePicker{
+    margin: 10px 0;
+}

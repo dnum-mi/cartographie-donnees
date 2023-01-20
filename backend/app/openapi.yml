@@ -1,0 +1,726 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Cartographie des donnees MI
+servers:
+  - url: http://localhost:5000
+paths:
+tags:
+  - name: Applications
+  - name: Authentification
+  - name: Donnees
+  - name: Filtres
+  - name: Utilisateurs
+  - name: Wildcards
+  - name: Indicateurs
+
+components:
+
+  parameters:
+    searchQuery:
+      name: q
+      in: query
+      explode: false
+      style: matrix
+      description: String de recherche
+      schema:
+        type: array
+        items:
+          type: string
+    pageDataSrc:
+      name: page
+      in: query
+      description: La page de données voulue
+      schema:
+        type: integer
+        default: 1
+    countDataSrc:
+      name: count
+      in: query
+      description: Le nombre de données par page
+      schema:
+        type: integer
+        default: 10
+    family:
+      name: family
+      in: query
+      description: Filtre de familles
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    type:
+      name: type
+      in: query
+      description: Filtre de types
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    organization:
+      name: organization
+      in: query
+      description: Filtre des organisations
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    application:
+      name: application
+      in: query
+      description: Filtre des applications
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    referentiel:
+      name: referentiel
+      in: query
+      description: Filtre des référentiels
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    sensibility:
+      name: sensibility
+      in: query
+      description: Filtre de la sensibilité
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    open_data:
+      name: open_data
+      in: query
+      description: Filtre de l'open data
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    exposition:
+      name: exposition
+      in: query
+      description: Filtre de l'exposition
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    origin:
+      name: origin
+      in: query
+      description: Filtre des origines
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    tag:
+      name: tag
+      in: query
+      description: Filtre des tags
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    strictness:
+      name: strictness
+      in: query
+      description: Règle sur la sévérité de la recherche
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    toExclude:
+      name: toExclude
+      in: query
+      description: Mots à exclure de la recherche
+      explode: false
+      style: matrix
+      schema:
+        type: array
+        items:
+          type: string
+    pathApplicationId:
+      name: application_id
+      description: L'identifiant de l'application
+      in: path
+      schema:
+        type: integer
+    dataSourceId:
+      name: data_source_id
+      description: L'identifiant de la donnée
+      in: path
+      schema:
+        type: integer
+
+  schemas:
+    ApplicationPost:
+      type: object
+      required:
+        - id
+        - name
+        - organization_id
+        - goals
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        long_name:
+          type: string
+        organization_id:
+          type: integer
+        goals:
+          type: string
+        access_url:
+          type: string
+        operator_count:
+          type: integer
+        user_count:
+          type: integer
+        operator_count_comment:
+          type: string
+        user_count_comment:
+          type: string
+        monthly_connection_count:
+          type: integer
+        monthly_connection_count_comment:
+          type: string
+        context_email:
+          type: string
+        historic:
+          type: integer
+
+    ApplicationGet:
+      type: object
+      required:
+        - name
+        - goals
+        - organization_name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        long_name:
+          type: string
+        organization_name:
+          type: string
+        organization_long_name:
+          type: string
+        goals:
+          type: string
+        access_url:
+          type: string
+        operator_count:
+          type: integer
+        user_count:
+          type: integer
+        operator_count_comment:
+          type: string
+        user_count_comment:
+          type: string
+        monthly_connection_count:
+          type: integer
+        monthly_connection_count_comment:
+          type: string
+        context_email:
+          type: string
+        historic:
+          type: integer
+        data_source_count:
+          type: integer
+        validation_date:
+          type: string
+        owners:
+          type: array
+          items:
+            $ref: "#/components/schemas/owner"
+
+    ApplicationWithDataSourcesGet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        long_name:
+          type: string
+        organization_name:
+          type: string
+        organization_long_name:
+          type: string
+        goals:
+          type: string
+        access_url:
+          type: string
+        operator_count:
+          type: integer
+        user_count:
+          type: integer
+        operator_count_comment:
+          type: string
+        user_count_comment:
+          type: string
+        monthly_connection_count:
+          type: integer
+        monthly_connection_count_comment:
+          type: string
+        context_email:
+          type: string
+        historic:
+          type: integer
+        data_source_count:
+          type: integer
+        validation_date:
+          type: string
+        owners:
+          type: array
+          items:
+            $ref: "#/components/schemas/owner"
+        data_sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataSource"
+
+    ApplicationCSV:
+      type: object
+      properties:
+        Nom:
+          type: string
+        Nom long:
+          type: string
+        Organisation:
+          type: string
+        Finalités:
+          type: string
+        Site:
+          type: string
+        Nb opérateurs:
+          type: integer
+        Nb utilisateurs:
+          type: integer
+        Nb connexion par mois:
+          type: integer
+        Commentaire sur le nb d'opérateurs:
+          type: string
+        Commentaire sur le nb utilisateurs:
+          type: string
+        Commentaire sur le nb connexion par mois:
+          type: string
+        Contact:
+          type: string
+        Date de validation:
+          type: string
+        Historique:
+          type: integer
+        Nombre de données:
+          type: integer
+        Administrateurs:
+          type: string
+
+    JsonResponse200:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Le message "OK"
+          example: OK
+        code:
+          type: integer
+          description: Code de succès (200)
+          example: 200
+
+    owner:
+      type: object
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        id:
+          type: integer
+        is_admin:
+          type: boolean
+        last_name:
+          type: string
+
+    DataSource:
+      type: object
+      required:
+        - name
+        - type_name
+      properties:
+        application:
+          $ref: "#/components/schemas/ApplicationGet"
+        application_long_name:
+          type: string
+        application_name:
+          type: string
+        analysis_axis_name:
+          type: array
+          items:
+            type: string
+        conservation:
+            type: string
+        database_name:
+          type: string
+        database_table_count:
+          type: integer
+        database_table_name:
+          type: string
+        description:
+          type: string
+        example:
+          type: string
+        exposition_name:
+          type: array
+          items:
+            type: string
+        families:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataSourceFamily"
+        family_name:
+          type: array
+          items:
+            type: string
+        field_count:
+          type: integer
+        fields:
+          type: string
+        id:
+          type: integer
+        is_reference:
+          type: boolean
+        monthly_volumetry:
+          type: integer
+        monthly_volumetry_comment:
+          type: string
+        name:
+          type: string
+        nb_referentiels:
+          type: integer
+        nb_reutilizations:
+          type: integer
+        open_data_name:
+          type: string
+        organization_name:
+          type: string
+        origin_application_name:
+          type: array
+          items:
+            type: string
+        origin_applications:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationGet"
+        origin_name:
+          type: string
+        referentiel_name:
+          type: array
+          items:
+            type: string
+        reutilization_name:
+          type: array
+          items:
+            type: string
+        reutilizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationGet"
+        sensibility_name:
+          type: string
+        tag_name:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+        type_name:
+          type: string
+        update_frequency:
+          type: string
+        update_frequency_name:
+          type: string
+        volumetry:
+          type: integer
+        volumetry_comment:
+          type: string
+        highlights_index:
+          type: integer
+
+    DataSourceCSV:
+      type: object
+      properties:
+        Application:
+          type: string
+        Réutilisation:
+          type: string
+        Famille:
+          type: string
+        Tag:
+          type: string
+        Type:
+          type: string
+        Exemple:
+          type: string
+        Référentiel:
+          type: array
+          items:
+            type: string
+        Sensibilité:
+          type: string
+        OpenData:
+          type: string
+        Base/index:
+          type: string
+        Table:
+          type: integer
+        Nb tables:
+          type: integer
+        Champ:
+          type: string
+        Nb champ:
+          type: integer
+        Volumétrie:
+          type: integer
+        Commentaire sur la volumétrie:
+          type: string
+        Production par mois:
+          type: integer
+        Commentaire sur la  production par mois:
+          type: string
+        Mise à jour:
+          type: string
+        Conservation:
+          type: string
+        Axes d'analyse:
+          type: string
+        Exposition:
+          type: string
+        Origine:
+          type: string
+        Application source:
+          type: string
+        Donnée référentielle:
+          type: string
+        Rang dans la liste des données mise en avant:
+          type: integer
+
+    DataSourceFamily:
+      type: object
+      properties:
+        full_path:
+          type: string
+        id:
+          type: integer
+        label:
+          type: string
+        value:
+          type: string
+
+    Tag:
+      type: object
+      properties:
+        full_path:
+          type: string
+        id:
+          type: integer
+        label:
+          type: string
+        value:
+          type: string
+
+    EnumCount:
+      type: object
+      properties:
+        application_long_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        application_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        analysis_axis_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        exposition_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        family_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        open_data_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        organization_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        origin_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        referentiel_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        sensibility_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        tag_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+        type_name:
+          $ref: "#/components/schemas/EnumAdditionnalProp"
+
+    EnumAdditionnalProp:
+      type: object
+      additionalProperties:
+        type: integer
+      example:
+        enumeration_full_path: 3
+
+    TreeElems:
+      type: array
+      items:
+        type: object
+        properties:
+          children:
+            $ref: "#/components/schemas/TreeElems"
+          full_path:
+            type: string
+          id:
+            type: integer
+          label:
+            type: string
+          value:
+            type: string
+
+    Enumeration:
+      type: object
+      properties:
+        full_path:
+          type: string
+        id:
+          type: integer
+        label:
+          type: string
+        value:
+          type: string
+
+    ApplicationTreeElems:
+      type: array
+      items:
+        type: object
+        properties:
+          children:
+            type: array
+            maxItems: 0
+            minItems: 0
+          full_path:
+            type: string
+          id:
+            type: integer
+          value:
+            type: string
+
+    Enumeration avec categorie:
+      type: array
+      items:
+        $ref: "#/components/schemas/Enumeration"
+
+    Enumeration sans categorie:
+      type: array
+      items:
+        type: object
+        properties:
+          category:
+            type: string
+            example: Famille
+          values:
+            type: array
+            items:
+              $ref: "#/components/schemas/Enumeration"
+
+    Utilisateur:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        is_admin:
+          type: boolean
+
+    Utilisateur avec applications:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        is_admin:
+          type: boolean
+        applications:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationGet"
+
+    Utilisateur CSV:
+      type: object
+      properties:
+        Prénom:
+          type: string
+        Nom de famille:
+          type: string
+        Email:
+          type: string
+        Administrateur ?:
+          type: boolean
+        Mot de passe:
+          type: string
+          description: Mot de passe haché
+
+    Wildcard:
+      type: object
+      properties:
+        namespace:
+          type: string
+        key:
+          type: string
+        value:
+          type: any
+
+    WildcardCSV:
+      type: object
+      required:
+        - Namespace
+        - Clé
+        - Contenu
+      properties:
+        Namespace:
+          type: string
+        Clé:
+          type: string
+        Contenu:
+          type: any
+        Libellé:
+          type: string

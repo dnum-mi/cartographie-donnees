@@ -1,15 +1,15 @@
 from sqlalchemy.inspection import inspect
-from sqlalchemy import select
-from sqlalchemy.orm import validates, relationship
+from sqlalchemy.orm import validates
 from sqlalchemy.ext.associationproxy import association_proxy
 from app import db
 from app.models import SearchableMixin, BaseModel, Type, Application, OpenData, Family, UpdateFrequency, Origin, Exposition, Sensibility, Tag
+from app.constants import DATASOURCE_ID_NO_COMMENT
 
 
-association_classification_table = db.Table(
-    'association_classification', db.Model.metadata,
-    db.Column('data_source_id', db.Integer, db.ForeignKey('data_source.id')),
-    db.Column('family_id', db.Integer, db.ForeignKey('family.id')),
+association_analysis_axis_table = db.Table(
+    'association_analysis_axis', db.Model.metadata,
+    db.Column('data_source_id', db.Integer, db.ForeignKey('data_source.id'), primary_key=True),
+    db.Column('family_id', db.Integer, db.ForeignKey('family.id'), primary_key=True),
     db.UniqueConstraint('data_source_id', 'family_id')
 )
 
@@ -52,26 +52,46 @@ association_tag_table = db.Table(
     db.UniqueConstraint('data_source_id', 'tag_id')
 )
 
+origin_application_table = db.Table(
+    'origin_application',
+    db.Model.metadata,
+    db.Column('data_source_id', db.Integer, db.ForeignKey(
+        'data_source.id'), primary_key=True),
+    db.Column('application_id', db.Integer, db.ForeignKey('application.id'), primary_key=True),
+    db.UniqueConstraint('data_source_id', 'application_id')
+)
+
 
 class DataSource(SearchableMixin, BaseModel):
-    __searchable__ = ['name', 'description', 'family_name', "classification_name", 'type_name', 'referentiel_name', 'sensibility_name',
-                      'open_data_name', 'exposition_name', 'origin_name', 'application_name', 'application_potential_experimentation',
-                      'organization_name', 'application_goals', 'tag_name']
+    """The model for storing the data sources in database"""
+
+    """List of the fields indexed by Elasticsearch"""
+    __search_index_fields__ = [
+        'name', 'description', 'family_name', "analysis_axis_name", 'type_name', 'referentiel_name',
+        'sensibility_name', 'open_data_name', 'exposition_name', 'origin_name', 'application_name',
+        'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
+        'tag_name'
+    ]
+
+    """List of the fields used by Elasticsearch in the text queries (inclusions and exclusions)"""
+    __text_search_fields__ = [
+        'name', 'description', 'family_name', "analysis_axis_name", 'type_name', 'application_name',
+        'application_long_name', 'organization_name', 'organization_long_name', 'application_goals',
+        'tag_name'
+    ]
+
+    """List of the fields to count the number of results on"""
+    __search_count__ = [
+        'family_name', "analysis_axis_name", 'type_name', 'referentiel_name', 'sensibility_name', 'open_data_name',
+        'exposition_name', 'origin_name', 'application_name', 'application_long_name', 'organization_name', 'tag_name'
+    ]
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, server_default="", nullable=False)
     description = db.Column(db.Text)
-    families = db.relationship("Family",
-                               secondary=association_family_table,
-                               backref="data_sources", cascade="all, delete")
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
-    ministry_interior = db.Column(db.Boolean, default=False)
-    geo_localizable = db.Column(db.Boolean, default=False)
-    transformation = db.Column(db.Boolean, default=False)
     example = db.Column(db.Text)
-    referentiel_id = db.Column(db.Integer, db.ForeignKey('family.id'))
-    referentiel = relationship(
-        "Family", foreign_keys='DataSource.referentiel_id')
+    is_reference = db.Column(db.Boolean)
     sensibility_id = db.Column(db.Integer, db.ForeignKey('sensibility.id'))
     open_data_id = db.Column(db.Integer, db.ForeignKey('open_data.id'))
     database_name = db.Column(db.String)
@@ -86,23 +106,52 @@ class DataSource(SearchableMixin, BaseModel):
     update_frequency_id = db.Column(
         db.Integer, db.ForeignKey('update_frequency.id'))
     conservation = db.Column(db.String)
-    classifications = db.relationship("Family",
-                                      secondary=association_classification_table, cascade="all, delete")
+    highlights_index = db.Column(db.Integer)
+    families = db.relationship(
+        "Family",
+        secondary=association_family_table,
+        lazy="joined",
+        backref="data_sources",
+    )
+    analysis_axis = db.relationship(
+        "Family",
+        lazy="joined",
+        secondary=association_analysis_axis_table,
+    )
     origin_id = db.Column(db.Integer, db.ForeignKey('origin.id'))
-    expositions = db.relationship("Exposition",
-                                  secondary=association_exposition_table, cascade="all, delete")
-    reutilizations = db.relationship("Application",
-                                     secondary=association_reutilization_table,
-                                     backref="data_source_reutilizations", cascade="all, delete")
-    origin_application_id = db.Column(
-        db.Integer, db.ForeignKey('application.id'))
-    tags = db.relationship("Tag",
-                           secondary=association_tag_table,
-                           backref="data_sources", cascade="all, delete")
-
-    application_id = db.Column(db.Integer, db.ForeignKey(
-        'application.id'), nullable=False)
+    expositions = db.relationship(
+        "Exposition",
+        lazy="joined",
+        secondary=association_exposition_table,
+    )
+    reutilizations = db.relationship(
+        "Application",
+        lazy="joined",
+        secondary=association_reutilization_table,
+        backref="data_source_reutilizations",
+    )
+    tags = db.relationship(
+        "Tag",
+        lazy="joined",
+        secondary=association_tag_table,
+        backref="data_sources",
+    )
+    origin_applications = db.relationship(
+        "Application",
+        lazy="joined",
+        secondary=origin_application_table,
+        backref="origin_data_sources",
+    )
+    application_id = db.Column(
+        db.Integer,
+        db.ForeignKey('application.id'),
+        nullable=False,
+    )
     owners = association_proxy('application', 'owners')
+
+    @property
+    def referentiel_name(self):
+        return self.family_name if self.is_reference else []
 
     @property
     def nb_reutilizations(self):
@@ -110,73 +159,123 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def nb_referentiels(self):
-        return len(self.classifications)
+        return len(self.referentiel_name)
+
+    @property
+    def datasource_description_level(self):
+        truthy_count = 0
+        for key in DATASOURCE_ID_NO_COMMENT:
+            if getattr(self, key) is not None and getattr(self, key) != []:
+                truthy_count += 1
+        return truthy_count/len(DATASOURCE_ID_NO_COMMENT)
+
+    def get_enumeration_single(self, enumeration_id):
+        return getattr(self, enumeration_id).full_path if getattr(self, enumeration_id) else None
+
+    def get_enumeration_multiple(self, enumeration_id):
+        return [enum.full_path for enum in getattr(self, enumeration_id)]
+
+    def set_enumeration_single(self, value, enumeration_id, enumeration_class, error_label, mandatory=False):
+        if not value:
+            if mandatory:
+                raise ValueError(f"{error_label} est un champ obligatoire.")
+            else:
+                setattr(self, enumeration_id, None)
+        else:
+            all_enum = enumeration_class.query.all()
+            matches = [enum for enum in all_enum if enum.full_path == value]
+            if len(matches) == 0:
+                raise ValueError(f"{error_label} '{value}' n'existe pas.")
+            setattr(self, enumeration_id, matches[0])
+
+    def set_enumeration_multiple(self, value, enumeration_id, enumeration_class, error_label, mandatory=False):
+        if not value:
+            if mandatory:
+                raise ValueError(f"{error_label} est un champ obligatoire.")
+            else:
+                setattr(self, enumeration_id, [])
+        else:
+            new_values = []
+            all_enum = enumeration_class.query.all()
+            for full_path in value.split(","):
+                matches = [enum for enum in all_enum if enum.full_path == full_path]
+                if len(matches) == 0:
+                    raise ValueError(f"{error_label} '{full_path}' n'existe pas.")
+                new_values.append(matches[0])
+            setattr(self, enumeration_id, new_values)
 
     @property
     def type_name(self):
-        return self.type.value if self.type else None
+        return self.get_enumeration_single('type')
 
     @type_name.setter
     def type_name(self, type_name):
-        if not type_name:
-            raise ValueError("Le type est un champ obligatoire.")
-        new_type = Type.query.filter_by(value=type_name).first()
-        if not new_type:
-            raise ValueError("Le type '{}' n'existe pas.".format(type_name))
-        self.type_id = new_type.id
+        self.set_enumeration_single(type_name, 'type', Type, 'Le type', mandatory=True)
 
     @property
     def family_name(self):
-        return [family.value for family in self.families] if self.families else []
+        return self.get_enumeration_multiple('families')
 
     @family_name.setter
     def family_name(self, family_name):
-        if not family_name:
-            raise ValueError("La famille est un champ obligatoire.")
-        new_families = []
-        for family in family_name.split(","):
-            new_family = Family.query.filter_by(value=family).first()
-            if not new_family:
-                raise ValueError(
-                    "La famille '{}' n'existe pas.".format(family))
-            new_families.append(new_family)
-        self.families = new_families
+        self.set_enumeration_multiple(family_name, 'families', Family, 'La famille', mandatory=True)
 
     @property
-    def classification_name(self):
-        return [classification.value for classification in self.classifications] if self.classifications else []
+    def analysis_axis_name(self):
+        return self.get_enumeration_multiple('analysis_axis')
 
-    @classification_name.setter
-    def classification_name(self, classification_name):
-        if classification_name:
-            new_classifications = []
-            for classification in classification_name.split(","):
-                new_classification = Family.query.filter_by(
-                    value=classification).first()
-                if not new_classification:
-                    raise ValueError(
-                        "Le réferentiel '{}' n'existe pas.".format(classification))
-                new_classifications.append(new_classification)
-            self.classifications = new_classifications
-        else:
-            self.classifications = []
+    @analysis_axis_name.setter
+    def analysis_axis_name(self, analysis_axis_name):
+        self.set_enumeration_multiple(analysis_axis_name, 'analysis_axis', Family, "L'axe d'analyse")
 
     @property
     def tag_name(self):
-        return [tag.value for tag in self.tags] if self.tags else []
+        return self.get_enumeration_multiple('tags')
 
     @tag_name.setter
     def tag_name(self, tag_name):
-        if tag_name:
-            new_tags = []
-            for tag in tag_name.split(","):
-                new_tag = Tag.query.filter_by(value=tag).first()
-                if not new_tag:
-                    raise ValueError("Le tag '{}' n'existe pas.".format(tag))
-                new_tags.append(new_tag)
-            self.tags = new_tags
-        else:
-            self.tags = []
+        self.set_enumeration_multiple(tag_name, 'tags', Tag, 'Le tag')
+
+    @property
+    def sensibility_name(self):
+        return self.get_enumeration_single('sensibility')
+
+    @sensibility_name.setter
+    def sensibility_name(self, sensibility_name):
+        self.set_enumeration_single(sensibility_name, 'sensibility', Sensibility, 'La sensibilité')
+
+    @property
+    def open_data_name(self):
+        return self.get_enumeration_single('open_data')
+
+    @open_data_name.setter
+    def open_data_name(self, open_data_name):
+        self.set_enumeration_single(open_data_name, 'open_data', OpenData, "La valeur d'Open data")
+
+    @property
+    def update_frequency_name(self):
+        return self.get_enumeration_single('update_frequency')
+
+    @update_frequency_name.setter
+    def update_frequency_name(self, update_frequency_name):
+        self.set_enumeration_single(update_frequency_name, 'update_frequency', UpdateFrequency,
+                                    'La fréquence de mise à jour')
+
+    @property
+    def exposition_name(self):
+        return self.get_enumeration_multiple('expositions')
+
+    @exposition_name.setter
+    def exposition_name(self, exposition_name):
+        self.set_enumeration_multiple(exposition_name, 'expositions', Exposition, "L'exposition")
+
+    @property
+    def origin_name(self):
+        return self.get_enumeration_single('origin')
+
+    @origin_name.setter
+    def origin_name(self, origin_name):
+        self.set_enumeration_single(origin_name, 'origin', Origin, "L'origine")
 
     @property
     def reutilization_name(self):
@@ -198,106 +297,12 @@ class DataSource(SearchableMixin, BaseModel):
             self.reutilizations = []
 
     @property
-    def referentiel_name(self):
-        return self.referentiel.value if self.referentiel else None
-
-    @referentiel_name.setter
-    def referentiel_name(self, referentiel_name):
-        if referentiel_name:
-            referentiel_id = Family.query.filter_by(
-                value=referentiel_name).first()
-            if not referentiel_id:
-                raise ValueError(
-                    "Le référentiel '{}' n'existe pas.".format(referentiel_name))
-            self.referentiel_id = referentiel_id.id
-        else:
-            self.referentiel_id = None
-
-    @property
-    def sensibility_name(self):
-        return self.sensibility.value if self.sensibility else None
-
-    @sensibility_name.setter
-    def sensibility_name(self, sensibility_name):
-        if sensibility_name:
-            sensibility_id = Sensibility.query.filter_by(
-                value=sensibility_name).first()
-            if not sensibility_id:
-                raise ValueError(
-                    "Le sensibilité '{}' n'existe pas.".format(sensibility_name))
-            self.sensibility_id = sensibility_id.id
-        else:
-            self.sensibility_id = None
-
-    @property
-    def open_data_name(self):
-        return self.open_data.value if self.open_data else None
-
-    @open_data_name.setter
-    def open_data_name(self, open_data_name):
-        if open_data_name:
-            open_data_id = OpenData.query.filter_by(
-                value=open_data_name).first()
-            if not open_data_id:
-                raise ValueError(
-                    "Le open data '{}' n'existe pas.".format(open_data_name))
-            self.open_data_id = open_data_id.id
-        else:
-            self.open_data_id = None
-
-    @property
-    def update_frequency_name(self):
-        return self.update_frequency.value if self.update_frequency else None
-
-    @update_frequency_name.setter
-    def update_frequency_name(self, update_frequency_name):
-        if update_frequency_name:
-            update_frequency_id = UpdateFrequency.query.filter_by(
-                value=update_frequency_name).first()
-            if not update_frequency_id:
-                raise ValueError(
-                    "Le fréquence de mise à jour '{}' n'existe pas.".format(update_frequency_name))
-            self.update_frequency_id = update_frequency_id.id
-        else:
-            self.update_frequency_id = None
-
-    @property
-    def exposition_name(self):
-        return [exposition.value for exposition in self.expositions] if self.expositions else []
-
-    @exposition_name.setter
-    def exposition_name(self, exposition_name):
-        if exposition_name:
-            new_expositions = []
-            for exposition in exposition_name.split(","):
-                new_exposition = Exposition.query.filter_by(
-                    value=exposition).first()
-                if not new_exposition:
-                    raise ValueError(
-                        "L'exposition '{}' n'existe pas.".format(exposition))
-                new_expositions.append(new_exposition)
-            self.expositions = new_expositions
-        else:
-            self.expositions = []
-
-    @property
-    def origin_name(self):
-        return self.origin.value if self.origin else None
-
-    @origin_name.setter
-    def origin_name(self, origin_name):
-        if origin_name:
-            origin_id = Origin.query.filter_by(value=origin_name).first()
-            if not origin_id:
-                raise ValueError(
-                    "L'origine '{}' n'existe pas.".format(origin_name))
-            self.origin_id = origin_id.id
-        else:
-            self.origin_id = None
-
-    @property
     def application_name(self):
         return self.application.name
+
+    @property
+    def application_long_name(self):
+        return self.application.long_name
 
     @application_name.setter
     def application_name(self, application_name):
@@ -312,27 +317,30 @@ class DataSource(SearchableMixin, BaseModel):
 
     @property
     def origin_application_name(self):
-        return self.origin_application.name if self.origin_application else None
+        return [origin_application.name for origin_application in self.origin_applications] if self.origin_applications else []
 
     @origin_application_name.setter
-    def origin_application_name(self, application_name):
-        if application_name:
-            application_id = Application.query.filter_by(
-                name=application_name).first()
-            if not application_id:
-                raise ValueError(
-                    "L'application '{}' n'existe pas.".format(application_name))
-            self.origin_application_id = application_id.id
+    def origin_application_name(self, origin_application_name):
+        if origin_application_name:
+            new_origin_applications = []
+            for origin_application in origin_application_name.split(","):
+                new_origin_application = Application.query.filter_by(
+                    name=origin_application).first()
+                if not new_origin_application:
+                    raise ValueError(
+                        "L'application '{}' n'existe pas.".format(origin_application))
+                new_origin_applications.append(new_origin_application)
+            self.origin_applications = new_origin_applications
         else:
-            self.origin_application_id = None
-
-    @property
-    def application_potential_experimentation(self):
-        return self.application.potential_experimentation
+            self.origin_applications = []
 
     @property
     def organization_name(self):
         return self.application.organization_name
+
+    @property
+    def organization_long_name(self):
+        return self.application.organization_long_name
 
     @property
     def application_goals(self):
@@ -358,17 +366,25 @@ class DataSource(SearchableMixin, BaseModel):
     def application_context_email(self):
         return self.application.context_email
 
-    def to_dict(self):
+    @property
+    def application_operator_count(self):
+        return self.application.operator_count
+
+    @property
+    def application_historic(self):
+        return self.application.historic
+
+    def to_dict(self, populate_statistics=False):
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'ministry_interior': self.ministry_interior,
-            'geo_localizable': self.geo_localizable,
             'application_name': self.application_name,
-            'origin_application_name': self.origin_application_name,
+            'application_long_name': self.application_long_name,
             'family_name': self.family_name,
+            'families': [family.to_dict() for family in self.families],
             'tag_name': self.tag_name,
+            'tags': [tag.to_dict() for tag in self.tags],
             'reutilization_name': self.reutilization_name,
             'type_name': self.type_name,
             'example': self.example,
@@ -384,57 +400,60 @@ class DataSource(SearchableMixin, BaseModel):
             'volumetry_comment': self.volumetry_comment,
             'monthly_volumetry': self.monthly_volumetry,
             'monthly_volumetry_comment': self.monthly_volumetry_comment,
+            'update_frequency': self.update_frequency.to_dict() if self.update_frequency else None,
             'update_frequency_name': self.update_frequency_name,
             'conservation': self.conservation,
-            'classification_name': self.classification_name,
+            'analysis_axis_name': self.analysis_axis_name,
             'nb_referentiels': self.nb_referentiels,
             'exposition_name': self.exposition_name,
             'origin_name': self.origin_name,
-            'application': self.application.to_dict(),
-            'origin_application': self.origin_application.to_dict() if self.origin_application else None,
-            'transformation': self.transformation,
+            'application': self.application.to_dict(populate_statistics=populate_statistics),
+            'organization_name': self.application.organization_name,
+            'origin_applications': [application.to_dict() for application in self.origin_applications],
+            'origin_application_name': self.origin_application_name,
             'reutilizations': [application.to_dict() for application in self.reutilizations],
-            'nb_reutilizations': self.nb_reutilizations
+            'nb_reutilizations': self.nb_reutilizations,
+            'is_reference': self.is_reference,
+            'datasource_description_level': self.datasource_description_level,
+            'highlights_index': self.highlights_index,
         }
 
     def to_export(self):
         return {
             'name': self.name,
-            'description': self.description,
-            'ministry_interior': self.ministry_interior,
-            'geo_localizable': self.geo_localizable,
             'application_name': self.application_name,
-            'reutilization_name': ",".join(self.reutilization_name),
-            'family_name': ",".join(self.family_name),
-            'tag_name': ",".join(self.tag_name),
-            'type_name': self.type_name,
+            'description': self.description,
             'example': self.example,
-            'referentiel_name': self.referentiel_name,
-            'sensibility_name': self.sensibility_name,
+            'family_name': ",".join(self.family_name),
+            'analysis_axis_name': ",".join(self.analysis_axis_name),
+            'type_name': self.type_name,
+            'is_reference': self.is_reference,
+            'origin_name': self.origin_name,
+            'origin_application_name': ",".join(self.origin_application_name),
             'open_data_name': self.open_data_name,
-            'database_name': self.database_name,
-            'database_table_name': self.database_table_name,
-            'database_table_count': self.database_table_count,
-            'fields': self.fields,
-            'field_count': self.field_count,
+            'exposition_name': ",".join(self.exposition_name),
+            'sensibility_name': self.sensibility_name,
+            'tag_name': ",".join(self.tag_name),
+
             'volumetry': self.volumetry,
             'volumetry_comment': self.volumetry_comment,
             'monthly_volumetry': self.monthly_volumetry,
             'monthly_volumetry_comment': self.monthly_volumetry_comment,
             'update_frequency_name': self.update_frequency_name,
             'conservation': self.conservation,
-            'classification_name': ",".join(self.classification_name),
-            'exposition_name': ",".join(self.exposition_name),
-            'origin_name': self.origin_name,
-            'origin_application_name': self.origin_application_name,
-            'transformation': self.transformation,
+            'database_name': self.database_name,
+            'database_table_count': self.database_table_count,
+            'database_table_name': self.database_table_name,
+            'field_count': self.field_count,
+            'fields': self.fields,
+            'highlights_index': self.highlights_index,
+
+            'reutilization_name': ",".join(self.reutilization_name),
         }
 
     def update_from_dict(self, data):
         self.name = data.get('name')
         self.description = data.get('description')
-        self.ministry_interior = data.get('ministry_interior')
-        self.geo_localizable = data.get('geo_localizable')
         self.application_id = data.get('application_id')
         self.families = data.get('families') if data.get('families') else []
         self.reutilizations = data.get(
@@ -442,7 +461,6 @@ class DataSource(SearchableMixin, BaseModel):
         self.tags = data.get('tags') if data.get('tags') else []
         self.type_id = data.get('type_id')
         self.example = data.get('example')
-        self.referentiel_id = data.get('referentiel_id')
         self.sensibility_id = data.get('sensibility_id')
         self.open_data_id = data.get('open_data_id')
         self.database_name = data.get('database_name')
@@ -456,12 +474,16 @@ class DataSource(SearchableMixin, BaseModel):
         self.monthly_volumetry_comment = data.get('monthly_volumetry_comment')
         self.update_frequency_id = data.get('update_frequency_id')
         self.conservation = data.get('conservation')
-        self.classifications = data.get(
-            'classifications') if data.get('classifications') else []
+        self.analysis_axis = data.get(
+            'analysis_axis') if data.get('analysis_axis') else []
         self.expositions = data.get('expositions')
         self.origin_id = data.get('origin_id')
-        self.origin_application_id = data.get('origin_application_id')
-        self.transformation = data.get('transformation')
+        self.origin_applications = data.get('origin_applications')
+        self.is_reference = data.get('is_reference') if data.get('is_reference') else False
+        self.highlights_index = data.get('highlights_index')
+
+    def update_from_key_value(self, key, value):
+        setattr(self, key, value)
 
     @staticmethod
     def from_dict(data):
@@ -469,13 +491,12 @@ class DataSource(SearchableMixin, BaseModel):
             id=data.get('id'),
             name=data.get('name'),
             description=data.get('description'),
-            ministry_interior=data.get('ministry_interior'),
             application_id=data.get('application_id'),
-            families=data.get('families'),
-            reutilizations=data.get('reutilizations'),
+            families=data.get('families') if data.get('families') else [],
+            reutilizations=data.get(
+                'reutilizations') if data.get('reutilizations') else [],
             type_id=data.get('type_id'),
             example=data.get('example'),
-            referentiel_id=data.get('referentiel_id'),
             sensibility_id=data.get('sensibility_id'),
             open_data_id=data.get('open_data_id'),
             database_name=data.get('database_name'),
@@ -489,16 +510,22 @@ class DataSource(SearchableMixin, BaseModel):
             monthly_volumetry_comment=data.get('monthly_volumetry_comment'),
             update_frequency_id=data.get('update_frequency_id'),
             conservation=data.get('conservation'),
-            classifications=data.get('classifications'),
+            analysis_axis=data.get(
+                'analysis_axis') if data.get('analysis_axis') else [],
             expositions=data.get('expositions'),
             origin_id=data.get('origin_id'),
-            transformation=data.get('transformation'),
-            origin_application_id=data.get('origin_application_id'),
+            origin_applications=data.get('origin_applications'),
+            is_reference=data.get('is_reference') if data.get('is_reference') else False,
+            tags=data.get('tags') if data.get('tags') else [],
+            highlights_index=data.get('highlights_index'),
         )
 
     @classmethod
     def filter_import_dict(cls, import_dict):
         new_import_dict = super().filter_import_dict(import_dict)
+        # we need to remove these keys because they do not have setters (but can still be exported)
+        if "referentiel_name" in new_import_dict:
+            del new_import_dict["referentiel_name"]
         return new_import_dict
 
     @validates('families')
@@ -515,29 +542,6 @@ class DataSource(SearchableMixin, BaseModel):
             raise AssertionError("La donnée doit contenir un type")
         else:
             return type_id
-
-    @validates('geo_localizable')
-    def validate_geo_localizable(self, key, geo_localizable):
-        if not geo_localizable:
-            return geo_localizable
-        elif isinstance(geo_localizable, bool):
-            return geo_localizable
-        else:
-            raise ValueError("Géolocalisable ? doit être un booléen")
-
-    @validates('ministry_interior')
-    def validate_ministry_interior(self, key, ministry_interior):
-        if not ministry_interior:
-            return ministry_interior
-        elif isinstance(ministry_interior, bool):
-            return ministry_interior
-
-    @validates('transformation')
-    def validate_transformation(self, key, transformation):
-        if not transformation:
-            return transformation
-        elif isinstance(transformation, bool):
-            return transformation
 
     @validates('database_table_count')
     def validate_database_table_count(self, key, database_table_count):
@@ -589,6 +593,24 @@ class DataSource(SearchableMixin, BaseModel):
             except:
                 raise ValueError("La production par mois doit être un entier")
 
+    @validates('highlights_index')
+    def validate_highlights_index(self, key, value):
+        if not value:
+            return None
+        try:
+            int_value = int(value)
+        except:
+            raise ValueError(
+                "Le nombre d'opérateurs dans la base de "
+                "données doit être un entier"
+            )
+        if not 1 <= int_value <= 10:
+            raise ValueError(
+                "Le rang dans la liste des données mises en avant"
+                " doit être compris entre 1 et 10"
+            )
+        return int_value
+
     @staticmethod
     def get_foreign_key_column(name_enum):
         for column in inspect(DataSource).c:
@@ -596,26 +618,14 @@ class DataSource(SearchableMixin, BaseModel):
                 return column
         return None
 
-    def delete(self):
-        db.session.execute(
-            "DELETE FROM association_family WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_classification WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_exposition WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_reutilization WHERE data_source_id={}".format(self.id))
-        db.session.execute(
-            "DELETE FROM association_tag WHERE data_source_id={}".format(self.id))
-        db.session.delete(self)
-
     @classmethod
     def delete_all(cls):
         db.session.execute("DELETE FROM association_family")
-        db.session.execute("DELETE FROM association_classification")
+        db.session.execute("DELETE FROM association_analysis_axis")
         db.session.execute("DELETE FROM association_reutilization")
         db.session.execute("DELETE FROM association_exposition")
         db.session.execute("DELETE FROM association_tag")
+        db.session.execute("DELETE FROM origin_application")
         super().delete_all()
 
     def __repr__(self):

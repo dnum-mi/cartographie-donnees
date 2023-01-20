@@ -1,31 +1,49 @@
 import React from 'react';
 import queryString from 'query-string'
-import { withRouter } from 'react-router-dom';
-import { Tabs, Input, Select, Tag, Pagination, Button } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
-import DataSourceResult from "./results/DataSourceResult";
-import ApplicationResult from './results/ApplicationResult';
+import {withRouter} from 'react-router-dom';
+import {Button, Col, Divider, Input, Modal, Radio, Row, Skeleton, Tag} from 'antd';
+import {ExclamationCircleOutlined, UploadOutlined} from '@ant-design/icons';
 import './SearchPage.css';
-import SearchFilter from "./SearchFilter";
+import SearchTree from "./SearchTree";
+import queryTitles from "./query_titles";
+import {parseQuery, readString, listToString} from "./QueryUtils"
+
 import {
-    searchDataSources, searchApplicationsOfDataSources, searchOrganizations, searchFamilies, searchTypes,
-    searchReferentiels, searchSensibilities, searchOpenData, searchExpositions, searchOrigins, searchClassifications,
-    searchTags, exportSearchDataSources
+    exportSearchDataSources, fetchDataSourceHighlights,
+    fetchSearchMetadata, massEditDataSource,
+    searchAnalysisAxis,
+    searchApplicationsOfDataSources,
+    searchDataSources,
+    searchExpositions,
+    searchFamilies,
+    searchOpenData,
+    searchOrganizations,
+    searchOrigins,
+    searchReferentiels,
+    searchSensibilities,
+    searchTags,
+    searchTypes,
 } from "../api";
-import Loading from "../components/Loading";
 import Error from "../components/Error";
+import filters from "../filters";
+import Results from "./Results";
 
-const { TabPane } = Tabs;
-const { Search } = Input;
-const { Option } = Select;
+import withTooltips from '../hoc/tooltips/withTooltips';
+import DataSourceHighlight from "./results/DataSourceHighlight";
+import withCurrentUser from "../hoc/user/withCurrentUser";
+import MassEdition from "./MassEdition";
+import attributes from "../data-source/attributes";
 
+const {Search} = Input;
+const {confirm} = Modal;
 
+const ANY_WORDS = "ANY_WORDS"
+const ALL_WORDS = "ALL_WORDS"
 
 class SearchPage extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.state = this.getInitState();
     }
 
@@ -44,131 +62,71 @@ class SearchPage extends React.Component {
             types: [],
             referentiels: [],
             sensibilities: [],
-            openData: [],
+            open_data: [],
             expositions: [],
             origins: [],
-            classifications: [],
+            analysis_axiss: [],
             tags: [],
+            filtersCount: null,
+            strictness: ANY_WORDS,
+            toExlude: "",
+            showEditionSection: false,
+            selectedDatasources: {},
+            resultDatasourceIds: [],
+            dataSourceHighlights: [],
+            massEditionWarning: ""
         };
-        return { ...state, ...this.parseQuery() }
+        return { ...state, ...parseQuery(this.props.location.search) }
     }
 
-    parseQuery = () => {
-        const values = queryString.parse(this.props.location.search);
-        return {
-            query: this.readString(values.q),
-            selectedOrganization: this.readString(values.organization),
-            selectedFamily: this.stringToList(values.family),
-            selectedType: this.readString(values.type),
-            selectedApplication: this.readString(values.application),
-            selectedReferentiel: this.readString(values.referentiel),
-            selectedSensibility: this.readString(values.sensibility),
-            selectedOpenData: this.readString(values.open_data),
-            selectedExposition: this.stringToList(values.exposition),
-            selectedOrigin: this.readString(values.origin),
-            selectedClassification: this.stringToList(values.classification),
-            selectedTag: this.stringToList(values.tag)
-        }
-    }
 
     isFirstTime = () => {
-        if (this.state.query || this.state.selectedOrganization || this.state.selectedFamily.length !== 0 ||
-            this.state.selectedType || this.state.selectedApplication || this.state.selectedReferentiel ||
-            this.state.selectedSensibility || this.state.selectedOpenData || this.state.selectedExposition.length !== 0 ||
-            this.state.selectedOrigin || this.state.selectedClassification.length !== 0 || this.state.selectedTag.length !== 0) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return !(this.state.query
+            || this.state.selectedOrganization.length !== 0
+            || this.state.selectedFamily.length !== 0
+            || this.state.selectedType.length !== 0
+            || this.state.selectedApplication.length !== 0
+            || this.state.selectedReferentiel.length !== 0
+            || this.state.selectedSensibility.length !== 0
+            || this.state.selectedOpenData.length !== 0
+            || this.state.selectedExposition.length !== 0
+            || this.state.selectedOrigin.length !== 0
+            || this.state.selectedAnalysisAxis.length !== 0
+            || this.state.selectedTag.length !== 0);
     }
 
-    readString(value) {
-        if (value) {
-            return value;
-        }
-        else {
-            return '';
-        }
-    }
-
-    stringToList(value) {
-        if (value) {
-            return value.split(";");
-        }
-        else {
-            return [];
-        }
-    }
-
-    listToString(value) {
-        return value.join(";");
-    }
 
     getQuery(query) {
-        return "?q=" + this.readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
-            + "&family=" + this.listToString(this.state.selectedFamily)
-            + "&type=" + this.readString(this.state.selectedType) + "&organization=" + this.readString(this.state.selectedOrganization)
-            + "&application=" + this.readString(this.state.selectedApplication) + "&referentiel=" + this.readString(this.state.selectedReferentiel)
-            + "&sensibility=" + this.readString(this.state.selectedSensibility) + "&open_data=" + this.readString(this.state.selectedOpenData)
-            + "&exposition=" + this.listToString(this.state.selectedExposition) + "&origin=" + this.readString(this.state.selectedOrigin)
-            + "&classification=" + this.listToString(this.state.selectedClassification) + "&tag=" + this.listToString(this.state.selectedTag);
+        return "?q=" + readString(query) + "&page=" + this.state.page_data_source + "&count=" + this.state.count_data_source
+            + "&family=" + listToString(this.state.selectedFamily)
+            + "&type=" + listToString(this.state.selectedType) + "&organization=" + listToString(this.state.selectedOrganization)
+            + "&application=" + listToString(this.state.selectedApplication) + "&referentiel=" + listToString(this.state.selectedReferentiel)
+            + "&sensibility=" + listToString(this.state.selectedSensibility) + "&open_data=" + listToString(this.state.selectedOpenData)
+            + "&exposition=" + listToString(this.state.selectedExposition) + "&origin=" + listToString(this.state.selectedOrigin)
+            + "&analysis_axis=" + listToString(this.state.selectedAnalysisAxis) + "&tag=" + listToString(this.state.selectedTag)
+            + "&strictness=" + this.state.strictness + "&toExclude=" + this.state.toExclude;
     }
 
     componentDidMount() {
-        this.setStatePromise({ homeDescription: this.isFirstTime() })
-            .then(this.onSearch);
+        this.refreshFilters()
+            .then(this.refreshHighlights)
+            .then(this.launchSearch)
     }
 
     componentDidUpdate(prevProps) {
-        setTimeout(function () { }, 1000)
         if (this.props.location.search !== prevProps.location.search) {
-            let newState = { ...{ homeDescription: this.isFirstTime() }, ...this.parseQuery() };
-            this.setStatePromise(newState).then(() => {
-                const search = this.getQuery(this.state.query);
-                this.search(search);
-            }
-            )
+            this.launchSearch()
         }
     }
 
-    setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve()));
-
-    refreshDataSources = (query) => searchDataSources(query || '')
-        .then((response) => this.setStatePromise({ dataSources: response.data.results, total_count_data_source: response.data.total_count }));
-
-    refreshFamilies = (query) => searchFamilies(query || '')
-        .then((response) => this.setStatePromise({ families: response.data }));
-
-    refreshTypes = (query) => searchTypes(query || '')
-        .then((response) => this.setStatePromise({ types: response.data }));
-
-    refreshOrganizations = (query) => searchOrganizations(query || '')
-        .then((response) => this.setStatePromise({ organizations: response.data }));
-
-    refreshApplications = (query) => searchApplicationsOfDataSources(query || '')
-        .then((response) => this.setStatePromise({ applications: response.data }));
-
-    refreshReferentiels = (query) => searchReferentiels(query || '')
-        .then((response) => this.setStatePromise({ referentiels: response.data }));
-
-    refreshSensibilities = (query) => searchSensibilities(query || '')
-        .then((response) => this.setStatePromise({ sensibilities: response.data }));
-
-    refreshOpenData = (query) => searchOpenData(query || '')
-        .then((response) => this.setStatePromise({ open_data: response.data }));
-
-    refreshExpositions = (query) => searchExpositions(query || '')
-        .then((response) => this.setStatePromise({ expositions: response.data }));
-
-    refreshOrigins = (query) => searchOrigins(query || '')
-        .then((response) => this.setStatePromise({ origins: response.data }));
-
-    refreshClassifications = (query) => searchClassifications(query || '')
-        .then((response) => this.setStatePromise({ classifications: response.data }));
-
-    refreshTags = (query) => searchTags(query || '')
-        .then((response) => this.setStatePromise({ tags: response.data }));
+    launchSearch = () => {
+        let newState = { homeDescription: this.isFirstTime(), ...parseQuery(this.props.location.search) };
+        return this.setStatePromise(newState)
+            .then(() => {
+                const search = this.getQuery(this.state.query);
+                return this.search(search);
+            })
+    }
 
     search(search) {
         this.setState({
@@ -176,134 +134,247 @@ class SearchPage extends React.Component {
             error: null,
         });
 
-        this.refreshDataSources(search)
-            .then(() => this.refreshOrganizations(search))
-            .then(() => this.refreshFamilies(search))
-            .then(() => this.refreshTypes(search))
-            .then(() => this.refreshApplications(search))
-            .then(() => this.refreshReferentiels(search))
-            .then(() => this.refreshSensibilities(search))
-            .then(() => this.refreshOpenData(search))
-            .then(() => this.refreshExpositions(search))
-            .then(() => this.refreshOrigins(search))
-            .then(() => this.refreshClassifications(search))
-            .then(() => this.refreshTags(search))
-            .then((response) => this.setStatePromise({ loading: false, error: null }))
-            .catch((error) => this.setStatePromise({ loading: false, error }));
+        return this.refreshDataSources(search)
+            .then(() => this.refreshFilterCount(search))
+            .then(() => this.setState({loading: false, error: null}))
+            .catch((error) => this.setState({loading: false, error}));
     }
 
-    onSearch = () => {
+    setStatePromise = (newState) => new Promise((resolve) => this.setState(newState, () => resolve()));
+
+    refreshHighlights = () => {
+        return this.setStatePromise({
+            loading: true,
+            error: null,
+        }).then(() => fetchDataSourceHighlights())
+            .then((res_highlights) => {
+                return this.setStatePromise({
+                    dataSourceHighlights: res_highlights.data.results,
+                    loading: false,
+                    error: null
+                })
+            })
+            .catch((error) => {
+                return this.setState({
+                    loading: false,
+                    error,
+                });
+            });
+    };
+
+    refreshDataSources = (query) => searchDataSources(query || '')
+        .then((response) => this.setStatePromise({
+            dataSources: response.data.results,
+            total_count_data_source: response.data.total_count
+        }));
+
+    refreshFilterCount = (query) => fetchSearchMetadata(query || '')
+        .then((response) => this.setStatePromise({
+            filtersCount: response.data.count_by_enum,
+            resultDatasourceIds: response.data.data_source_ids
+        }));
+
+    refreshFilters = () => Promise.all([
+        this.refreshOrganizations(),
+        this.refreshFamilies(),
+        this.refreshTypes(),
+        this.refreshApplications(),
+        this.refreshReferentiels(),
+        this.refreshSensibilities(),
+        this.refreshOpenData(),
+        this.refreshExpositions(),
+        this.refreshOrigins(),
+        this.refreshAnalysisAxis(),
+        this.refreshTags(),
+    ])
+    refreshFamilies = () => searchFamilies()
+        .then((response) => this.setStatePromise({ families: response.data }));
+
+    refreshTypes = () => searchTypes()
+        .then((response) => this.setStatePromise({ types: response.data }));
+
+    refreshOrganizations = () => searchOrganizations()
+        .then((response) => this.setStatePromise({ organizations: response.data }));
+
+    refreshApplications = () => searchApplicationsOfDataSources()
+        .then((response) => this.setStatePromise({ applications: response.data }));
+
+    refreshReferentiels = () => searchReferentiels()
+        .then((response) => this.setStatePromise({ referentiels: response.data }));
+
+    refreshSensibilities = () => searchSensibilities()
+        .then((response) => this.setStatePromise({ sensibilities: response.data }));
+
+    refreshOpenData = () => searchOpenData()
+        .then((response) => this.setStatePromise({ open_data: response.data }));
+
+    refreshExpositions = () => searchExpositions()
+        .then((response) => this.setStatePromise({ expositions: response.data }));
+
+    refreshOrigins = () => searchOrigins()
+        .then((response) => this.setStatePromise({ origins: response.data }));
+
+    refreshAnalysisAxis = () => searchAnalysisAxis()
+        .then((response) => this.setStatePromise({ analysis_axis: response.data }));
+
+    refreshTags = () => searchTags()
+        .then((response) => this.setStatePromise({ tags: response.data }));
+
+
+    //Modify url based on state, then componentDidUpdate will be called to actually do the search
+    onSearch = (keepSelectedDatasource = false) => {
         const search = this.getQuery(this.state.query);
         this.props.history.push({
             search: search
         })
 
-        this.setStatePromise({
-            homeDescription: this.isFirstTime(),
-        })
-            .then(() => this.search(search));
+        if (!keepSelectedDatasource) {
+            this.setState({selectedDatasources: {}})
+        }
     };
+
 
     onChangePageDataSource = (page, count) => {
         this.setStatePromise({
             page_data_source: page,
             count_data_source: count,
         })
-            .then(this.onSearch);
+            .then(() => this.onSearch(true));
     }
 
     getQueryResume = () => {
+        if (this.state.loading) {
+            return <></>
+        }
         const firstPage = 1 + (this.state.page_data_source - 1) * this.state.count_data_source;
         const lastPage = this.state.page_data_source * this.state.count_data_source;
         const totalElement = this.state.total_count_data_source;
-        const queryResume = 'Données ' + Math.min(firstPage, totalElement).toString() + ' à ' + Math.min(lastPage, totalElement).toString() + ' sur ' + totalElement.toString();
-        return queryResume;
+        return 'Données '
+            + Math.min(firstPage, totalElement).toString()
+            + ' à '
+            + Math.min(lastPage, totalElement).toString()
+            + ' sur '
+            + totalElement.toString();
     }
 
-
-    onFilterSelect = (key, value) => {
-        let filter;
-        if (key === "selectedClassification" || key === "selectedTag" || key === "selectedFamily" || key === "selectedExposition") {
-            filter = this.state[key];
-            if (filter.includes(value)) {
-                filter = filter.filter(item => item !== value);
-            }
-            else {
-                filter.push(value);
-            }
-        }
-        else {
-            filter = this.state[key];
-            if (filter !== value) {
-                filter = value;
-            }
-            else {
-                filter = null;
-            }
+    //cliked on tag X below searchbar
+    removeFilter = (key, value) => {
+        let filter = this.state[key];
+        const valuesToUncheck = [value];
+        for (const valueToUncheck of valuesToUncheck) {
+            filter = filter.filter(item => item !== valueToUncheck);
         }
         this.setStatePromise({ [key]: filter, page_data_source: 1, })
             .then(() => this.onSearch());
-
-
     }
 
-    renderFilter = (name, list, key, color, tooltip) => {
-        return (<SearchFilter
-            filters={[{
-                category: name,
-                enumerations: list,
-            }]}
-            onFilterSelect={(value) => {
-                this.onFilterSelect(key, value);
-            }
-            }
-            currentValue={this.state[key]}
-            color={color}
-            tooltip={tooltip}
-            number_of_data_source={this.state.total_count_data_source}
-        />)
+    addFilter = (key, value) => {
+        let filter = this.state[key];
+
+        if (!filter.includes(value)) {
+            filter = [...filter, value];
+        }
+        this.setStatePromise({ [key]: filter, page_data_source: 1, })
+            .then(() => this.onSearch());
     }
+
+    onSelectedFiltersChange = (key, value) => {
+        this.setStatePromise({
+            [key]: value,
+            page_data_source: 1,
+        })
+            .then(() => this.onSearch());
+    }
+
+    enrichTreeWithNodeCount = (treeData, countObject) => {
+        const result = JSON.parse(JSON.stringify(treeData));
+        for (let node of result) {
+            const count = countObject[node.full_path] || 0;
+            node.count = count
+            if (node.children) {
+                node.children = this.enrichTreeWithNodeCount(node.children, countObject);
+            }
+        }
+        return result;
+    };
+
+    sortTree = (treeData) => {
+        const result = JSON.parse(JSON.stringify(treeData));
+        result.sort((a, b) => b.count - a.count);
+        for (let node of result) {
+            if (node.children && node.children.length) {
+                node.children = this.sortTree(node.children);
+            }
+        }
+        return result;
+    };
+
+    getFilterData = (key) => {
+        if (!this.state.filtersCount) {
+            return null;
+        }
+        const treeData = this.state[filters[key].listKey];
+        const treeDataWithCount = this.enrichTreeWithNodeCount(
+            treeData,
+            this.state.filtersCount[filters[key].attributeKey],
+        );
+        return this.sortTree(treeDataWithCount);
+    };
 
     renderDataSourcesResults = () => {
-
-
-        if (this.state.loading) {
-            return <Loading />
-        }
         if (this.state.error) {
             return <Error error={this.state.error} />
         }
-
-        const filters = [];
-        filters.push(this.renderFilter("Familles", this.state.families, "selectedFamily", "blue", "Famille fonctionnelle de la donnée"))
-        filters.push(this.renderFilter("Organisations", this.state.organizations, "selectedOrganization", "volcano", "MOA propriétaire de la donnée"))
-        filters.push(this.renderFilter("Applications", this.state.applications, "selectedApplication", "magenta", "Application hébergeant la donnée"))
-        filters.push(this.renderFilter("Types", this.state.types, "selectedType", "red", "Type de la donnée"))
-        filters.push(this.renderFilter("Référentiels", this.state.referentiels, "selectedReferentiel", "orange", "Type de référentiel s’il s’agit d’une donnée référentielle (par opposition aux données opérationnelles)"))
-        filters.push(this.renderFilter("Sensibilités", this.state.sensibilities, "selectedSensibility", "lime", "Sensibilité des données identifiantes"))
-        filters.push(this.renderFilter("Open Data", this.state.open_data, "selectedOpenData", "green", "La donnée est-elle publiable en Open Data ?"))
-        filters.push(this.renderFilter("Expositions", this.state.expositions, "selectedExposition", "gold", "Type de mises à disposition"))
-        filters.push(this.renderFilter("Origines", this.state.origins, "selectedOrigin", "geekblue", "Origine fonctionnelle de la donnée"))
-        filters.push(this.renderFilter("Axes d'analyse", this.state.classifications, "selectedClassification", "purple", "Types de référentiels utilisés pour classifier la donnée"))
-        filters.push(this.renderFilter("Tags", this.state.tags, "selectedTag", undefined, "Tags de la donnée"))
         return (<>
             {this.renderSearchPageHeader()}
             <div className="content">
-                {this.renderLeftCol()}
+                <div className="left-col">
+                    {this.renderLeftCol()}
+                </div>
                 <div className="right-col">
-                    <div className="filters">
-                        {filters}
-                    </div>
+                    {this.renderRightCol()}
                 </div>
             </div>
         </>);
     };
 
+    renderLoading = () => {
+        return (
+            <div style={{ marginRight: "10px" }}>
+                <Skeleton loading={true} active />
+                <Skeleton loading={true} active />
+                <Skeleton loading={true} active />
+            </div>
+        )
+    }
+
+    renderRightCol = () => {
+        return (
+            <div className="filters">
+                {Object.keys(filters).map((key) => (
+                    <SearchTree
+                        key={key}
+                        loading={this.state.loading}
+                        filterCategoryName={filters[key].categoryName}
+                        treeData={this.getFilterData(key)}
+                        tooltip={this.props.tooltips.get(filters[key].tooltipKey || filters[key].attributeKey)}
+                        color={filters[key].color}
+                        multiple={filters[key].multiple}
+                        expandedKeys={filters[key].expandedKeys}
+                        focus={filters[key].focus}
+                        onSelectedFiltersChange={(value) => this.onSelectedFiltersChange(filters[key].selectedKey, value)}
+                        checkedKeys={this.state[filters[key].selectedKey]}
+                        resultsCount={this.state.total_count_data_source}
+                    />
+                ))}
+            </div>
+        )
+    }
+
     renderSearchPageHeader = () => {
         if (this.state.homeDescription) {
-            return;
-        }
-        else {
+            return null;
+        } else {
             return (
                 <div>
                     <div className='search-header'>
@@ -311,7 +382,14 @@ class SearchPage extends React.Component {
                             {this.getQueryResume()}
                         </span>
                         <div className="download-search">
-                            <Button onClick={this.export} type="secondary" icon={<DownloadOutlined />} disabled={!this.state.dataSources.length}>Télécharger les résultats</Button>
+                            <Button
+                                onClick={this.export}
+                                type="secondary"
+                                icon={<UploadOutlined />}
+                                disabled={!this.state.dataSources.length}
+                            >
+                                Télécharger les résultats
+                            </Button>
                         </div>
                     </div>
                     <div>
@@ -323,107 +401,117 @@ class SearchPage extends React.Component {
     }
 
     renderLeftCol = () => {
-        if (this.state.homeDescription) {
-            return (<div className="left-col">
-                <div className="home-description">
-                    <h3>
-                        Bienvenue dans l’outil de cartographie des données du ministère de l’intérieur !
-                    </h3>
-                    <p>
-                        Cet outil permet d’explorer les caractéristiques des données actuellement recensées au
-                        sein du ministère de l’intérieur afin de faciliter leur réutilisation au sein des différents
-                        services. Comme pour un moteur de recherche classique, il est possible de combiner une recherche
-                        textuelle (barre supérieure) à des filtres (présents à la droite de votre écran) pour identifier
-                        les données potentiellement pertinentes à votre cas d’usage.
-
-                    </p>
-                    <p>
-                        Chaque donnée possède une fiche présentant ses caractéristiques ainsi qu’un ensemble d’indicateurs
-                        chiffrés visant à établir sa fiabilité et sa réutilisabilité. Outre le résultat de la recherche,
-                        il est possible de naviguer d’une donnée à l’autre par le biais des applications. En effet, chaque
-                        donnée est hébergée par une application existante au sein du ministère qui détaille la liste des
-                        données qui lui sont associées.
-
-                    </p>
-                    <p>
-                        Cherchant constamment à améliorer notre exhaustivité, n’hésitez pas à nous contacter (<i>dnum-cartographie-data@interieur.gouv.fr</i>) si vous avez
-                        la moindre suggestion ou donnée qui ne serait pas encore recensée.
-                    </p>
-                </div>
-            </div>);
-        }
-        else if (!this.state.dataSources.length) {
+        if (this.state.loading) {
+            return this.renderLoading();
+        } else if (this.state.homeDescription) {
             return (
-                <p className="left-col">
-                    Aucun résultat trouvé, essayez d'être moins spécifique.
-                </p>
+                <>
+                    <div className="home-description">
+                        <h3>
+                            {this.props.homepageContent["welcome_title"]}
+                        </h3>
+                        <div>
+                            {this.props.homepageContent["welcome_text"]}
+                        </div>
+                        <br />
+                        <a href={"mailto:"+this.props.homepageContent["welcome_email"]}>
+                            {this.props.homepageContent["welcome_email"]}
+                        </a>
+                    </div>
+                    <div className="home-highlights">
+                        <h3>
+                            Données mises en avant
+                        </h3>
+                        <div>
+                            {this.state.dataSourceHighlights.map((dataSource) => (
+                                <DataSourceHighlight
+                                  key={dataSource.id}
+                                  dataSource={dataSource}
+                                  onFilterSelect={(key, value) => this.addFilter(key, value)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </>
             );
-        }
-        else {
-            return (<div className="left-col">
-                <div className="results">
-                    {this.state.dataSources.map((dataSource) => (
-                        <DataSourceResult key={dataSource.id} dataSource={dataSource}
-                            onFilterSelect={(key, value) => this.onFilterSelect(key, value)}
-                        />
-                    ))}
-                </div>
-                <Pagination
-                    showSizeChanger
-                    current={this.state.page_data_source}
-                    pageSize={this.state.count_data_source}
-                    total={this.state.total_count_data_source}
-                    onChange={this.onChangePageDataSource}
-                />
-            </div>)
-        }
-    }
-
-    renderTag = (key, color) => {
-        if (this.state[key]) {
-            return (<Tag color={color} closable onClose={
-                (e) => {
-                    this.onFilterSelect(key, this.state[key])
-                }
-            }
-                key={this.state[key]}
-            >
-                {this.state[key]}
-            </Tag>)
+        } else {
+            return <Results dataSources={this.state.dataSources}
+                            page_data_source={this.state.page_data_source}
+                            count_data_source={this.state.count_data_source}
+                            total_count_data_source={this.state.total_count_data_source}
+                            onChangePageDataSource={this.onChangePageDataSource}
+                            addFilter={this.addFilter}
+                            showEditionSection={this.state.showEditionSection}
+                            onCheckDatasource={this.onCheckDatasource}
+                            selectedDatasources={this.state.selectedDatasources}
+            />;
         }
     }
 
     renderTagList = (key, color) => {
-        if (this.state[key]) {
-            return this.state[key].map((value) =>
-                <Tag color={color} closable onClose={(e) => {
-                    this.onFilterSelect(key, value)
-                }
-                }
-                    key={value}
-                >
-                    {value}
-                </Tag>
-            );
+        if (this.state[key] && this.state[key].length > 0) {
+            return this.state[key].map((value) => {
+                return value ? (
+                    <Tag
+                        color={color}
+                        closable
+                        onClose={(e) => this.removeFilter(key, value)}
+                        key={value}
+                        title={this.getTitleFromValue(key, value)}
+                    >
+                        {value}
+                    </Tag>
+                ) : null;
+            });
         }
     }
 
+    getTitleFromValue(key, value) {
+        if (key === "selectedApplication"){
+            return this.findApplication(this.state.applications, value)
+        }
+        if (key === "selectedOrganization") {
+            return this.findOrganization(this.state.organizations, value)
+        }
+        return null
+    }
+
+    findOrganization(organizations, fullPath) {
+        let label = null;
+        for (let organization of organizations) {
+            if (organization.full_path === fullPath) {
+                label = organization.label
+            } else if (organization.children && organization.children.length > 0) {
+                label = this.findOrganization(organization.children, fullPath)
+            }
+            if (label != null) {
+                return label
+            }
+        }
+        return label
+    }
+
+
+    findApplication(applications, fullPath) {
+        for (let application of applications) {
+            if (application.full_path === fullPath) {
+                return application.label
+            }
+        }
+        return null
+    }
+
     renderDataSourceSelectedTags = () => {
-        const tags = [];
-        tags.push(this.renderTagList("selectedFamily", "blue"))
-        tags.push(this.renderTag("selectedOrganization", "volcano"))
-        tags.push(this.renderTag("selectedApplication", "magenta"))
-        tags.push(this.renderTag("selectedType", "red"))
-        tags.push(this.renderTag("selectedReferentiel", "orange"))
-        tags.push(this.renderTag("selectedSensibility", "lime"))
-        tags.push(this.renderTag("selectedOpenData", "green"))
-        tags.push(this.renderTagList("selectedExposition", "gold"))
-        tags.push(this.renderTag("selectedOrigin", "geekblue"))
-        tags.push(this.renderTagList("selectedClassification", "purple"))
-        tags.push(this.renderTagList("selectedTag"))
         return (
             <div className="Tags">
-                {tags}
+                {
+                    Object.keys(filters)
+                        .map((key) => this.renderTagList(
+                            filters[key].selectedKey,
+                            filters[key].color
+                        ))
+                        .filter((tagList) => tagList !== null)
+                }
             </div>
         );
     }
@@ -435,32 +523,158 @@ class SearchPage extends React.Component {
         }
     }
 
+    onRuleChange = (e) => {
+        this.setStatePromise({ strictness: e.target.value, page_data_source: 1, }).then(() => this.onSearch());
+    }
+
+    onExcludeChange = (e) => {
+        this.setStatePromise({ toExclude: e.target.value, page_data_source: 1, }).then(() => this.onSearch());
+    }
+
     export = () => {
         const search = this.getQuery(this.state.query);
         exportSearchDataSources("Recherche_donnees.csv", search);
     }
 
+    onCheckDatasource = (datasourceId, check) => {
+        const temp_selectedDatasources = {...this.state.selectedDatasources}
+        if (!!check) {
+            temp_selectedDatasources[datasourceId] = true
+            this.setState({selectedDatasources: temp_selectedDatasources})
+        } else {
+            delete temp_selectedDatasources[datasourceId]
+            this.setState({selectedDatasources: temp_selectedDatasources})
+        }
+    }
+
+    onCheckUncheckAll = (checkAll = true) => {
+        const temp_datasourceIds = {}
+        if (!!checkAll) {
+            for (const datasourceId of this.state.resultDatasourceIds) {
+                temp_datasourceIds[datasourceId] = true
+            }
+        }
+        this.setState({selectedDatasources: temp_datasourceIds})
+    }
+
+    onSubmitMassEdition = (form_values) => {
+        confirm({
+            title: 'Modification de plusieurs données',
+            icon: <ExclamationCircleOutlined/>,
+            content: <div>
+                Vous êtes sur le point de
+                modifier <strong>{Object.keys(this.state.selectedDatasources).length} données</strong>.
+                Les valeurs actuelles du champ seront effacées et remplacées. Cette action est irréversible!
+            </div>,
+            onOk: () => {
+                this.setState({loading: true})
+                const key = form_values["massEditionField"]
+                const value = form_values["massEditionValues"]
+                let type = ""
+                if (Object.keys(form_values).includes("massEditionAddOrRemove")){
+                    form_values["massEditionAddOrRemove"]
+                        ? type = "add"
+                        : type = "remove"
+                }
+                let required = false
+                if (!!attributes[key]){
+                    required = !!attributes[key].required
+                } else if (!!attributes["application"][key]){
+                    required = !!attributes["application"][key].required
+                }
+
+                massEditDataSource(
+                    Object.keys(this.state.selectedDatasources).map(Number),
+                    key === "organization_name"
+                        ? "application"
+                        : "datasource",
+                    key,
+                    value,
+                    type,
+                    required
+                ).then((res) => {
+                    this.setState({massEditionWarning: res.data.warning})
+                    return this.launchSearch()
+                }).then(() => {
+                    this.setState({selectedDatasources: {}})
+                }).catch((error) => this.setState({loading: false, error}));
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    }
+
+
+    getDefaultActiveKey = () => {
+        if (this.state.strictness === ANY_WORDS) {
+            return []
+        } else {
+            return ["1"]
+        }
+    }
+
     render() {
         return (
-            <div className="SearchPage">
+            <div className="SearchPage container">
                 <div className="search-input">
                     <Search
                         placeholder="Recherche"
                         size="large"
                         value={this.state.query}
-                        defaultValue={this.props.match.params.q}
+                        defaultValue={this.props.match.params[queryTitles.query]}
                         onSearch={
                             (e) => {
-                                this.setStatePromise({ page_data_source: 1, })
+                                this.setStatePromise({page_data_source: 1,})
                                     .then(() => this.onSearch());
                             }}
                         onChange={this.onChange}
                     />
+                    <Row className="search-advanced-input">
+                        <Col span={12}>
+                            <label htmlFor="search-type">
+                                Règle sur la recherche :
+                            </label>
+                            <Radio.Group
+                                id="search-type"
+                                onChange={this.onRuleChange}
+                                value={this.state.strictness}
+                                defaultValue={ANY_WORDS}
+                            >
+                                <Radio value={ANY_WORDS}>N'importe quel mot</Radio>
+                                <Radio value={ALL_WORDS}>Tous les mots</Radio>
+                            </Radio.Group>
+                        </Col>
+                        <Col span={12}>
+                            <label htmlFor="search-exclusion">
+                                Mots à exclure :
+                            </label>
+                            <Input
+                                id="search-exclusion"
+                                placeholder="Mots à exclure de la recherche"
+                                defaultValue={this.state.toExclude}
+                                onBlur={this.onExcludeChange}
+                                onPressEnter={this.onExcludeChange}
+                            />
+                        </Col>
+                    </Row>
                 </div>
+                {this.props.currentUser.userIsAdmin() && !this.state.homeDescription &&
+                    <MassEdition onShowModificationSection={(checked) => this.setState({showEditionSection: checked})}
+                                 showEditionSection={this.state.showEditionSection}
+                                 selectedDatasources={this.state.selectedDatasources}
+                                 onCheckUncheckAll={this.onCheckUncheckAll}
+                                 onSubmitMassEdition={this.onSubmitMassEdition}
+                                 loading={this.state.loading}
+                                 totalCount={this.state.total_count_data_source}
+                                 massEditionWarning={this.state.massEditionWarning}
+                    />
+                }
+                <Divider style={{marginTop: 0}}/>
                 {this.renderDataSourcesResults()}
             </div>
         );
     }
 }
 
-export default withRouter(SearchPage);
+export default withRouter(withCurrentUser(withTooltips(SearchPage)));

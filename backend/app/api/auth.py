@@ -1,15 +1,16 @@
-from flask import abort, request, current_app, render_template
-from flask_login import logout_user, login_user, login_required, current_user
+from flask import abort, request, current_app, render_template, jsonify
+from flask_login import logout_user, login_user
 import jwt
 from datetime import datetime, timedelta
-from app import app, login, db
+from app import login, db
 from app.models import User
+from . import api
 from ..emails import send_email
 
 
 @login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @login.request_loader
@@ -29,14 +30,49 @@ def load_user_from_request(request):
     return None
 
 
-@app.route('/api/login', methods=['POST'])
+@api.route('/api/login', methods=['POST'])
 def login():
+    """Se connecter
+    ---
+    post:
+        summary: Se connecter
+        tags:
+          - Authentification
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    email:
+                        type: string
+                    password:
+                        type: string
+
+
+        responses:
+            200:
+              content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                token:
+                                    type: string
+            401:
+                description: L'utilisateur n'existe pas ou mot de passe est incorrect
+
+    """
     req = request.get_json(force=True)
     email = req.get('email', None)
     password = req.get('password', None)
     user = User.query.filter_by(email=email).first()
     if not user or not user.check_password(password):
-        abort(401)
+        return jsonify({
+            'code': 401,
+            'description': "Votre adresse email ou votre mot de passe sont incorrects.",
+        }), 401
     login_user(user)
     token = jwt.encode({
         'sub': user.email,
@@ -47,14 +83,56 @@ def login():
     return ret, 200
 
 
-@app.route('/api/logout', methods=['POST'])
+@api.route('/api/logout', methods=['POST'])
 def logout():
+    """Se déconnecter
+    ---
+    post:
+        summary: Se déconnecter
+        tags:
+          - Authentification
+        responses:
+            200:
+              content:
+                    text/plain:
+                        schema:
+                            type: string
+                            example: ok
+                            description: "ok"
+    """
     logout_user()
     return 'ok'
 
 
-@app.route('/api/auth/forgot-password', methods=['POST'])
+@api.route('/api/auth/forgot-password', methods=['POST'])
 def forgot_password():
+    """Mot de passe oublié
+    ---
+    post:
+        tags:
+          - Authentification
+        summary: Mot de passe oublié
+        description: Envoi un email à l'adresse courriel avec un lien de réinitialisation de mot de passe.
+
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    email:
+                        type: string
+
+        responses:
+            200:
+              content:
+                    text/plain:
+                        schema:
+                            type: string
+                            example: ok
+                            description: "ok"
+    """
     host = current_app.config['FRONTEND_HOST'] or request.host_url
     url = host + 'reset-password/'
     body = request.get_json()
@@ -74,8 +152,40 @@ def forgot_password():
     return 'ok'
 
 
-@app.route('/api/auth/reset-password', methods=['POST'])
+@api.route('/api/auth/reset-password', methods=['POST'])
 def reset_password():
+    """Réinitialisation du mot de passe
+    ---
+    post:
+        tags:
+          - Authentification
+        summary: Réinitialisation du mot de passe
+        description: Lien obtenu par courriel pour réinitialiser son mot de passe.
+
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    password:
+                        type: string
+                        description: Doit avoir au moins 8 charactères.
+                    token:
+                        type: string
+
+        responses:
+            200:
+              content:
+                    text/plain:
+                        schema:
+                            type: string
+                            example: ok
+                            description: "ok"
+            400:
+                description: Le token est invalide
+    """
     body = request.get_json()
     password = body.get('password')
     token = body.get('token')

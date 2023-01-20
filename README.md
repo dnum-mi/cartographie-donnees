@@ -1,4 +1,4 @@
-# DNUM - Cartographie des données
+# Cartographie des données MI
 
 ## Bienvenue dans l'outil de cartographie des données du ministère de l'intérieur
 
@@ -39,16 +39,30 @@ Après quelques dizaines de secondes, le projet sera accessible via l'adresse IP
 
 #### Backend
 
-Créez et activez un environnement virtuel. Puis, dans le dossier "backend", installez les dépendances :
+Dans le dossier "backend":
+
+- Installer pipenv :
 
 ```
-pip install -r requirements.txt
+pip install pipenv
 ```
 
-Créez la base SQLite de développement avec la commande :
+- Créer le venv / installer les dépendances :
+
+```
+pipenv install
+```
+
+- Créez la base SQLite de développement avec la commande :
 
 ```
 flask db upgrade
+```
+
+- Activer le pipenv :
+
+```
+pipenv shell
 ```
 
 Lancez une instance ElasticSearch et un serveur SMTP en vous aidant du docker-compose.yml à la racine du projet
@@ -57,6 +71,8 @@ puis lancez le backend avec :
 ```
 flask run
 ```
+
+*Note : Si vous utilisez pycharm/IDEA vous pouvez simplement modifier votre interpreteur python à l'environement pipenv via l'option [add python environment > venv > existing venv - puis pointer vers le dossier pipenv généré]*
 
 Pour générer une migration, utilisez
 
@@ -95,3 +111,5 @@ Cette commande créera un dossier ``build`` au sein du frontend.
 Vous pouvez tester ce frontend compilé en créant un lien symbolique entre ce build frontend et le chemin ``backend/build``.
 
 Le backend servira le frontend minifié à l'adresse ``http://localhost:5000``.
+
+v1.1

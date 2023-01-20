@@ -12,7 +12,7 @@ export default class EmailField extends React.Component {
                 rules={[
                     {
                         required: this.props.required,
-                        message: 'Merci de renseigner l\'email de l\'utilisateur',
+                        message: 'Merci de renseigner l\'email de l\'administrateur',
                         validateTrigger: 'onBlur',
                     },
                     {
@@ -22,7 +22,7 @@ export default class EmailField extends React.Component {
                     },
                 ]}
             >
-                <Input type="email" aria-describedby="emailHelp"/>
+                <Input type="email" aria-describedby="emailHelp" data-test="email" />
             </Form.Item>
         )
     }
